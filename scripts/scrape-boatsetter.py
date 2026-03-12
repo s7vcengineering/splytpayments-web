@@ -1089,6 +1089,7 @@ def main():
             unchanged=tracker.listings_unchanged,
         )
         _print_final_summary(tracker)
+        notify_slack(tracker, dry_run=True)
         return
 
     log.info("")
@@ -1119,6 +1120,81 @@ def main():
         **{k: v for k, v in tracker.summary_dict().items() if k not in ("changes", "errors")}
     )
     _print_final_summary(tracker)
+    notify_slack(tracker)
+
+
+# ---------------------------------------------------------------------------
+# Slack notification
+# ---------------------------------------------------------------------------
+
+SLACK_CHANNEL_SCRAPER = "C0ALPT3E8QZ"  # #splyt-scraper-logs
+
+
+def notify_slack(tracker, dry_run=False):
+    """Post a scrape run summary to the #splyt-scraper-logs Slack channel."""
+    slack_token = os.environ.get("SLACK_BOT_TOKEN", "")
+    if not slack_token:
+        log.warning("SLACK     No SLACK_BOT_TOKEN set - skipping Slack notification")
+        return
+
+    s = tracker.summary_dict()
+    status = "DRY RUN" if dry_run else ("ERRORS" if s["total_errors"] > 0 else "OK")
+    emoji_map = {"DRY RUN": ":test_tube:", "ERRORS": ":rotating_light:", "OK": ":white_check_mark:"}
+    emoji = emoji_map.get(status, ":boat:")
+
+    change_lines = ""
+    if tracker.changes:
+        change_counts = {}
+        for c in tracker.changes:
+            label = c["field"]
+            change_counts[label] = change_counts.get(label, 0) + 1
+        parts = []
+        for label, count in sorted(change_counts.items(), key=lambda x: -x[1]):
+            parts.append(f"  \u2022 {label}: {count} listing(s)")
+        change_lines = "\n" + "*Field Changes (" + str(s["total_changes"]) + "):*\n" + "\n".join(parts)
+
+    error_lines = ""
+    if tracker.errors:
+        parts = []
+        for e in tracker.errors[:5]:
+            parts.append(f"  \u2022 " + "" + ": " + e["error"])
+        error_lines = "\n" + "*Errors (" + str(s["total_errors"]) + "):*\n" + "\n".join(parts)
+
+    text = (
+        emoji + " *Boatsetter Scrape \u2014 " + status + "*\n"
+        + "*City:* " + str(s["city"]) + "  |  *Mode:* " + str(s["mode"]) + "\n"
+        + "*Run ID:* `" + s["run_id"][:8] + "`\n\n"
+        + "*Results:*\n"
+        + "  \u2022 Discovered: " + str(s["listings_discovered"]) + "\n"
+        + "  \u2022 Scraped: " + str(s["listings_scraped"]) + "\n"
+        + "  \u2022 New: " + str(s["listings_new"]) + "\n"
+        + "  \u2022 Updated: " + str(s["listings_updated"]) + "\n"
+        + "  \u2022 Unchanged: " + str(s["listings_unchanged"]) + "\n"
+        + "  \u2022 Errors: " + str(s["listings_errored"])
+        + change_lines
+        + error_lines + "\n\n"
+        + "_Started " + s["started_at"][:19] + "Z \u2014 Finished " + s["finished_at"][:19] + "Z_"
+    )
+
+    payload = json.dumps({"channel": SLACK_CHANNEL_SCRAPER, "text": text}).encode("utf-8")
+    req = urllib.request.Request(
+        "https://slack.com/api/chat.postMessage",
+        data=payload,
+        headers={
+            "Authorization": "Bearer " + slack_token,
+            "Content-Type": "application/json; charset=utf-8",
+        },
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            result = json.loads(resp.read().decode())
+            if result.get("ok"):
+                log.info("SLACK     Summary posted to #splyt-scraper-logs")
+            else:
+                log.warning("SLACK     Post failed: %s", result.get("error", "unknown"))
+    except Exception as e:
+        log.warning("SLACK     Could not post to Slack: %s", e)
 
 
 def _print_final_summary(tracker):
