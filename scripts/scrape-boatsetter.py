@@ -108,7 +108,7 @@ class JSONLogHandler(logging.Handler):
 
     def emit(self, record):
         entry = {
-            "ts": datetime.datetime.utcnow().isoformat() + "Z",
+            "ts": datetime.datetime.now(datetime.UTC).isoformat() + "Z",
             "level": record.levelname,
             "msg": record.getMessage(),
         }
@@ -142,7 +142,7 @@ class RunTracker:
         self.run_id = run_id
         self.city = city
         self.mode = mode
-        self.started_at = datetime.datetime.utcnow().isoformat() + "Z"
+        self.started_at = datetime.datetime.now(datetime.UTC).isoformat() + "Z"
         self.listings_discovered = 0
         self.listings_scraped = 0
         self.listings_skipped = 0
@@ -173,7 +173,7 @@ class RunTracker:
             "city": self.city,
             "mode": self.mode,
             "started_at": self.started_at,
-            "finished_at": datetime.datetime.utcnow().isoformat() + "Z",
+            "finished_at": datetime.datetime.now(datetime.UTC).isoformat() + "Z",
             "listings_discovered": self.listings_discovered,
             "listings_scraped": self.listings_scraped,
             "listings_skipped": self.listings_skipped,
@@ -911,7 +911,7 @@ def main():
         sys.exit(1)
 
     # --- Run ID & tracker ---
-    run_id = datetime.datetime.utcnow().strftime("%Y%m%d-%H%M%S") + "-" + uuid.uuid4().hex[:6]
+    run_id = datetime.datetime.now(datetime.UTC).strftime("%Y%m%d-%H%M%S") + "-" + uuid.uuid4().hex[:6]
     mode = "ids" if args.ids else ("browse" if args.browse else ("all-cities" if args.all_cities else "search"))
     city_label = "all" if args.all_cities else args.city
     tracker = RunTracker(run_id, city_label, mode)
