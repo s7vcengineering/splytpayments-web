@@ -21,8 +21,17 @@ How it works:
   2. Extracts full data from __NEXT_DATA__ script tag:
        props.pageProps.dehydratedState.queries[0].state.data
      (React Query / TanStack Query hydration format)
-  3. Maps fields to the Supabase `boats` table schema
-  4. Upserts using boatsetter_listing_id as conflict key (idempotent)
+  3. Fetches the existing record from Supabase (if any) and diffs fields
+  4. Logs every change: pricing, capacity, availability, ratings, etc.
+  5. Upserts using boatsetter_listing_id as conflict key (idempotent)
+  6. Writes a scrape_logs entry for the run with full audit trail
+
+Logging:
+  - Structured logs to stderr (human-readable) and optionally to a JSON
+    log file (--log-file) for ingestion by monitoring tools.
+  - Every field change is logged individually so you know exactly what
+    changed and when.
+  - Run summary logged to Supabase scrape_logs table (unless --dry-run).
 
 Usage:
   # Set environment variables
@@ -32,8 +41,8 @@ Usage:
   # Search for Miami boats $900+ (uses search API)
   python3 scripts/scrape-boatsetter.py --price-min 900
 
-  # Search with custom bounds and date
-  python3 scripts/scrape-boatsetter.py --price-min 900 --trip-date 2026-03-14
+  # With JSON log file output
+  python3 scripts/scrape-boatsetter.py --price-min 900 --log-file scrape.log
 
   # Browse mode (no price filter, uses HTML pages)
   python3 scripts/scrape-boatsetter.py --browse
@@ -52,7 +61,9 @@ Requirements:
 """
 
 import argparse
+import datetime
 import json
+import logging
 import os
 import re
 import sys
@@ -60,6 +71,122 @@ import time
 import urllib.parse
 import urllib.request
 import urllib.error
+import uuid
+
+# ---------------------------------------------------------------------------
+# Logging setup
+# ---------------------------------------------------------------------------
+
+LOG_FORMAT = "%(asctime)s [%(levelname)s] %(message)s"
+LOG_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
+
+log = logging.getLogger("scraper")
+log.setLevel(logging.DEBUG)
+
+# Console handler (human-readable)
+_console = logging.StreamHandler(sys.stderr)
+_console.setLevel(logging.INFO)
+_console.setFormatter(logging.Formatter(LOG_FORMAT, datefmt=LOG_DATE_FORMAT))
+log.addHandler(_console)
+
+# Optional JSON file handler (added in main() if --log-file is set)
+_json_handler = None
+
+
+class JSONLogHandler(logging.Handler):
+    """Writes one JSON object per line for structured log ingestion."""
+
+    def __init__(self, filepath):
+        super().__init__()
+        self._file = open(filepath, "a")
+
+    def emit(self, record):
+        entry = {
+            "ts": datetime.datetime.utcnow().isoformat() + "Z",
+            "level": record.levelname,
+            "msg": record.getMessage(),
+        }
+        if hasattr(record, "data"):
+            entry["data"] = record.data
+        self._file.write(json.dumps(entry) + "\n")
+        self._file.flush()
+
+    def close(self):
+        self._file.close()
+        super().close()
+
+
+def log_with_data(level, msg, **data):
+    """Log a message with structured data attached."""
+    record = log.makeRecord(
+        log.name, level, "(scraper)", 0, msg, (), None
+    )
+    record.data = data
+    log.handle(record)
+
+
+# ---------------------------------------------------------------------------
+# Run tracking
+# ---------------------------------------------------------------------------
+
+class RunTracker:
+    """Tracks stats and changes across a scrape run for the audit log."""
+
+    def __init__(self, run_id, city, mode):
+        self.run_id = run_id
+        self.city = city
+        self.mode = mode
+        self.started_at = datetime.datetime.utcnow().isoformat() + "Z"
+        self.listings_discovered = 0
+        self.listings_scraped = 0
+        self.listings_skipped = 0
+        self.listings_errored = 0
+        self.listings_new = 0
+        self.listings_updated = 0
+        self.listings_unchanged = 0
+        self.upserts_ok = 0
+        self.upserts_failed = 0
+        self.changes = []  # list of {listing_id, field, old, new}
+        self.errors = []   # list of {listing_id, error}
+
+    def record_change(self, listing_id, name, field, old_val, new_val):
+        self.changes.append({
+            "listing_id": listing_id,
+            "name": name,
+            "field": field,
+            "old": old_val,
+            "new": new_val,
+        })
+
+    def record_error(self, listing_id, error):
+        self.errors.append({"listing_id": listing_id, "error": str(error)})
+
+    def summary_dict(self):
+        return {
+            "run_id": self.run_id,
+            "city": self.city,
+            "mode": self.mode,
+            "started_at": self.started_at,
+            "finished_at": datetime.datetime.utcnow().isoformat() + "Z",
+            "listings_discovered": self.listings_discovered,
+            "listings_scraped": self.listings_scraped,
+            "listings_skipped": self.listings_skipped,
+            "listings_errored": self.listings_errored,
+            "listings_new": self.listings_new,
+            "listings_updated": self.listings_updated,
+            "listings_unchanged": self.listings_unchanged,
+            "upserts_ok": self.upserts_ok,
+            "upserts_failed": self.upserts_failed,
+            "total_changes": len(self.changes),
+            "total_errors": len(self.errors),
+            "changes": self.changes[:200],  # cap for DB storage
+            "errors": self.errors[:50],
+        }
+
+
+# ---------------------------------------------------------------------------
+# HTTP
+# ---------------------------------------------------------------------------
 
 BOATSETTER_BASE = "https://www.boatsetter.com"
 
@@ -72,39 +199,43 @@ HEADERS = {
 }
 
 
-def fetch(url):
+def http_fetch(url, accept=None, timeout=20):
     """Fetch a URL and return the response body as a string."""
-    req = urllib.request.Request(url, headers=HEADERS)
-    with urllib.request.urlopen(req, timeout=20) as resp:
+    headers = {**HEADERS}
+    if accept:
+        headers["Accept"] = accept
+    req = urllib.request.Request(url, headers=headers)
+    with urllib.request.urlopen(req, timeout=timeout) as resp:
         return resp.read().decode("utf-8")
 
 
-def discover_listing_ids(city="miami", state="fl"):
-    """Fetch browse pages for a city and extract all unique boat listing IDs.
+# ---------------------------------------------------------------------------
+# Discovery
+# ---------------------------------------------------------------------------
 
-    Checks both /boat-rentals/ and /yacht-rentals/ pages since they surface
-    different listings. The city slug format is: {city}--{state}--united-states
-    """
+def discover_listing_ids(city="miami", state="fl"):
+    """Fetch browse pages for a city and extract all unique boat listing IDs."""
     slug = f"{city}--{state}--united-states"
     all_ids = set()
 
     for page_type in ("boat-rentals", "yacht-rentals"):
         url = f"{BOATSETTER_BASE}/{page_type}/{slug}"
-        print(f"  Fetching {page_type} page: {url}")
+        log.info("DISCOVER  Fetching %s page: %s", page_type, url)
         try:
-            html = fetch(url)
+            html = http_fetch(url)
             ids = set(re.findall(r'/boats/([a-z0-9]{3,10})', html, re.IGNORECASE))
-            print(f"    Found {len(ids)} listing IDs")
+            log.info("DISCOVER  Found %d listing IDs from %s", len(ids), page_type)
             all_ids.update(ids)
         except urllib.error.HTTPError as e:
-            print(f"    HTTP {e.code} — skipping")
+            log.warning("DISCOVER  HTTP %d from %s — skipping", e.code, page_type)
         except Exception as e:
-            print(f"    Error: {e}")
+            log.error("DISCOVER  Error fetching %s: %s", page_type, e)
 
+    log.info("DISCOVER  Total unique IDs: %d", len(all_ids))
     return sorted(all_ids)
 
 
-# Miami bounding box defaults (covers Miami Beach, Downtown, Coconut Grove, etc.)
+# Miami bounding box defaults
 MIAMI_BOUNDS = {
     "ne_lat": "25.89203760360262",
     "ne_lng": "-80.06922397685548",
@@ -115,12 +246,7 @@ MIAMI_BOUNDS = {
 
 def search_listing_ids(city="Miami, FL, USA", price_min=None, price_max=None,
                        trip_date=None, per_page=100, bounds=None):
-    """Use the /domestic/v2/search API to find boat listing IDs.
-
-    This is the same API the Boatsetter search page calls client-side.
-    It works without authentication and returns up to 100 results per page.
-    Supports geographic bounds, price filters, and date filters.
-    """
+    """Use the /domestic/v2/search API to find boat listing IDs."""
     params = {
         "near": city,
         "zoom_level": "12",
@@ -149,14 +275,13 @@ def search_listing_ids(city="Miami, FL, USA", price_min=None, price_max=None,
         params["page"] = str(page)
         qs = urllib.parse.urlencode(params)
         url = f"{BOATSETTER_BASE}/domestic/v2/search?{qs}"
-        print(f"  Search API page {page}: {url[:100]}...")
+        log.info("SEARCH    Page %d: %s...", page, url[:120])
 
         try:
-            req = urllib.request.Request(url, headers={**HEADERS, "Accept": "application/json"})
-            with urllib.request.urlopen(req, timeout=20) as resp:
-                data = json.loads(resp.read().decode("utf-8"))
+            body = http_fetch(url, accept="application/json")
+            data = json.loads(body)
         except Exception as e:
-            print(f"    Error: {e}")
+            log.error("SEARCH    Error on page %d: %s", page, e)
             break
 
         boats = data.get("data", [])
@@ -166,34 +291,26 @@ def search_listing_ids(city="Miami, FL, USA", price_min=None, price_max=None,
 
         total = meta.get("total_count", len(ids))
         total_pages = meta.get("total_pages", 1)
-        print(f"    Got {len(ids)} boats (page {page}/{total_pages}, total: {total})")
+        log.info("SEARCH    Got %d boats (page %d/%d, total: %d)", len(ids), page, total_pages, total)
 
         if page >= total_pages:
             break
         page += 1
         time.sleep(0.5)
 
-    return list(dict.fromkeys(all_ids))  # dedupe preserving order
+    deduped = list(dict.fromkeys(all_ids))
+    log.info("SEARCH    Total unique IDs: %d", len(deduped))
+    return deduped
 
+
+# ---------------------------------------------------------------------------
+# Extraction
+# ---------------------------------------------------------------------------
 
 def extract_listing(listing_id):
-    """Fetch a listing page and extract data from __NEXT_DATA__.
-
-    The data is in a React Query dehydrated state format:
-      __NEXT_DATA__.props.pageProps.dehydratedState.queries[0].state.data
-
-    Key field mappings from Boatsetter -> our schema:
-      listing_tagline -> name
-      packages[0].half_day_cents / all_day_cents -> pricing_tiers, hourly_rate
-      capacity -> capacity
-      photos[].large.url -> photo_urls
-      location.{lat,lng,city,state} -> lat, lng, city, region
-      primary_manager -> captain_name, captain_avatar_url, captain_rating
-      boat_category -> type
-      features[].name -> amenities
-    """
+    """Fetch a listing page and extract data from __NEXT_DATA__."""
     url = f"{BOATSETTER_BASE}/boats/{listing_id}"
-    html = fetch(url)
+    html = http_fetch(url)
 
     script_match = re.search(
         r'<script id="__NEXT_DATA__" type="application/json">(.*?)</script>',
@@ -364,6 +481,169 @@ def extract_listing(listing_id):
     }
 
 
+# ---------------------------------------------------------------------------
+# Database: fetch existing record for diff
+# ---------------------------------------------------------------------------
+
+def fetch_existing_boat(listing_id, supabase_url, supabase_key):
+    """Fetch the current record from Supabase for change detection."""
+    encoded_id = urllib.parse.quote(listing_id)
+    url = (
+        f"{supabase_url}/rest/v1/boats"
+        f"?boatsetter_listing_id=eq.{encoded_id}"
+        f"&select=*"
+    )
+    req = urllib.request.Request(url, headers={
+        "apikey": supabase_key,
+        "Authorization": f"Bearer {supabase_key}",
+        "Accept": "application/json",
+    })
+    try:
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            rows = json.loads(resp.read().decode("utf-8"))
+            return rows[0] if rows else None
+    except Exception as e:
+        log.debug("FETCH     Could not fetch existing record for %s: %s", listing_id, e)
+        return None
+
+
+# ---------------------------------------------------------------------------
+# Change detection
+# ---------------------------------------------------------------------------
+
+# Fields we care about tracking changes for, grouped by importance
+TRACKED_FIELDS = {
+    # Critical — pricing & availability
+    "hourly_rate":           "Hourly rate",
+    "pricing_tiers":         "Pricing tiers",
+    "available_start_times": "Available start times",
+    "min_duration_hours":    "Min duration",
+    "max_duration_hours":    "Max duration",
+    "is_active":             "Active status",
+    # Important — capacity & service
+    "capacity":              "Guest capacity",
+    "captain_included":      "Captain included",
+    "captain_optional":      "Captain optional",
+    "fuel_included":         "Fuel included",
+    "service_type":          "Service type",
+    # Informational
+    "rating":                "Rating",
+    "review_count":          "Review count",
+    "captain_name":          "Captain name",
+    "captain_rating":        "Captain rating",
+    "amenities":             "Amenities",
+    "name":                  "Listing name",
+    "type":                  "Boat type",
+    "photo_urls":            "Photos",
+    "location":              "Location",
+    "city":                  "City",
+}
+
+
+def normalize_for_compare(val):
+    """Normalize a value for comparison (handle JSON types from Supabase)."""
+    if val is None:
+        return None
+    if isinstance(val, float):
+        return round(val, 2)
+    if isinstance(val, list):
+        # Sort lists of dicts by converting to sorted JSON
+        try:
+            return json.dumps(sorted(val, key=lambda x: json.dumps(x, sort_keys=True) if isinstance(x, dict) else str(x)), sort_keys=True)
+        except (TypeError, ValueError):
+            return json.dumps(val, sort_keys=True)
+    return val
+
+
+def format_change_value(val):
+    """Format a value for human-readable change log output."""
+    if val is None:
+        return "null"
+    if isinstance(val, bool):
+        return str(val).lower()
+    if isinstance(val, list):
+        if len(val) == 0:
+            return "[]"
+        if len(val) > 3:
+            return f"[{len(val)} items]"
+        if all(isinstance(v, dict) for v in val):
+            # Pricing tiers
+            parts = []
+            for v in val:
+                if "hours" in v and "price" in v:
+                    parts.append(f"{v['hours']}h=${v['price']}")
+                else:
+                    parts.append(str(v))
+            return ", ".join(parts)
+        return ", ".join(str(v) for v in val)
+    if isinstance(val, float):
+        return f"${val:.2f}" if val > 1 else f"{val}"
+    return str(val)
+
+
+def diff_listing(new_data, existing_data, tracker):
+    """Compare scraped data against existing DB record and log changes.
+
+    Returns: 'new', 'updated', or 'unchanged'
+    """
+    listing_id = new_data["boatsetter_listing_id"]
+    name = new_data.get("name", listing_id)
+
+    if existing_data is None:
+        log.info(
+            "NEW       %s — %s ($%.2f/hr, %d pax, %s)",
+            listing_id, name, new_data.get("hourly_rate", 0),
+            new_data.get("capacity", 0), new_data.get("city", "?")
+        )
+        log_with_data(
+            logging.INFO, f"New listing discovered: {name}",
+            event="listing_new", listing_id=listing_id, name=name,
+            hourly_rate=new_data.get("hourly_rate"),
+            capacity=new_data.get("capacity"),
+            city=new_data.get("city"),
+        )
+        tracker.listings_new += 1
+        return "new"
+
+    changes_found = []
+
+    for field, label in TRACKED_FIELDS.items():
+        old_val = existing_data.get(field)
+        new_val = new_data.get(field)
+
+        old_norm = normalize_for_compare(old_val)
+        new_norm = normalize_for_compare(new_val)
+
+        if old_norm != new_norm:
+            old_display = format_change_value(old_val)
+            new_display = format_change_value(new_val)
+            changes_found.append((field, label, old_display, new_display))
+            tracker.record_change(listing_id, name, field, old_display, new_display)
+
+    if not changes_found:
+        log.debug("UNCHANGED %s — %s", listing_id, name)
+        tracker.listings_unchanged += 1
+        return "unchanged"
+
+    # Log each change
+    tracker.listings_updated += 1
+    log.info("CHANGED   %s — %s (%d field(s) changed):", listing_id, name, len(changes_found))
+    for field, label, old_display, new_display in changes_found:
+        level = logging.WARNING if field in ("hourly_rate", "pricing_tiers", "is_active", "capacity", "available_start_times") else logging.INFO
+        log.log(level, "  %-22s %s → %s", label + ":", old_display, new_display)
+        log_with_data(
+            level, f"{label} changed for {name}",
+            event="field_changed", listing_id=listing_id, name=name,
+            field=field, old=old_display, new=new_display,
+        )
+
+    return "updated"
+
+
+# ---------------------------------------------------------------------------
+# Database: upsert
+# ---------------------------------------------------------------------------
+
 def upsert_boat(boat_data, supabase_url, supabase_key):
     """Upsert a boat into Supabase using boatsetter_listing_id as conflict key."""
     clean = {k: v for k, v in boat_data.items() if v is not None}
@@ -389,9 +669,68 @@ def upsert_boat(boat_data, supabase_url, supabase_key):
             return True
     except urllib.error.HTTPError as e:
         body = e.read().decode()
-        print(f"  DB ERROR {e.code}: {body[:300]}")
+        log.error("DB ERROR  HTTP %d upserting %s: %s", e.code, boat_data.get("boatsetter_listing_id"), body[:300])
         return False
 
+
+def write_scrape_log(tracker, supabase_url, supabase_key):
+    """Write the run summary to the scrape_logs table in Supabase."""
+    summary = tracker.summary_dict()
+    data = json.dumps(summary).encode("utf-8")
+    req = urllib.request.Request(
+        f"{supabase_url}/rest/v1/scrape_logs",
+        data=data,
+        headers={
+            "apikey": supabase_key,
+            "Authorization": f"Bearer {supabase_key}",
+            "Content-Type": "application/json",
+            "Prefer": "return=minimal",
+        },
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            log.info("AUDIT     Scrape log written to scrape_logs table (run_id: %s)", tracker.run_id)
+            return True
+    except urllib.error.HTTPError as e:
+        body = e.read().decode()
+        if "42P01" in body or "relation" in body.lower():
+            log.warning(
+                "AUDIT     scrape_logs table does not exist yet — run this SQL to create it:\n"
+                "          CREATE TABLE scrape_logs (\n"
+                "            id uuid DEFAULT gen_random_uuid() PRIMARY KEY,\n"
+                "            run_id text NOT NULL,\n"
+                "            city text,\n"
+                "            mode text,\n"
+                "            started_at timestamptz,\n"
+                "            finished_at timestamptz,\n"
+                "            listings_discovered int DEFAULT 0,\n"
+                "            listings_scraped int DEFAULT 0,\n"
+                "            listings_skipped int DEFAULT 0,\n"
+                "            listings_errored int DEFAULT 0,\n"
+                "            listings_new int DEFAULT 0,\n"
+                "            listings_updated int DEFAULT 0,\n"
+                "            listings_unchanged int DEFAULT 0,\n"
+                "            upserts_ok int DEFAULT 0,\n"
+                "            upserts_failed int DEFAULT 0,\n"
+                "            total_changes int DEFAULT 0,\n"
+                "            total_errors int DEFAULT 0,\n"
+                "            changes jsonb DEFAULT '[]',\n"
+                "            errors jsonb DEFAULT '[]',\n"
+                "            created_at timestamptz DEFAULT now()\n"
+                "          );"
+            )
+        else:
+            log.error("AUDIT     Failed to write scrape log: HTTP %d: %s", e.code, body[:300])
+        return False
+    except Exception as e:
+        log.error("AUDIT     Failed to write scrape log: %s", e)
+        return False
+
+
+# ---------------------------------------------------------------------------
+# Main
+# ---------------------------------------------------------------------------
 
 def main():
     parser = argparse.ArgumentParser(description="Scrape Boatsetter listings into Supabase")
@@ -404,26 +743,60 @@ def main():
     parser.add_argument("--trip-date", help="Trip date YYYY-MM-DD (for search API)")
     parser.add_argument("--dry-run", action="store_true", help="Scrape but don't write to database")
     parser.add_argument("--delay", type=float, default=1.0, help="Delay between requests in seconds")
+    parser.add_argument("--log-file", help="Path to JSON log file for structured log output")
+    parser.add_argument("--verbose", "-v", action="store_true", help="Enable debug-level logging")
     args = parser.parse_args()
+
+    if args.verbose:
+        _console.setLevel(logging.DEBUG)
+
+    # JSON log file
+    if args.log_file:
+        global _json_handler
+        _json_handler = JSONLogHandler(args.log_file)
+        _json_handler.setLevel(logging.DEBUG)
+        log.addHandler(_json_handler)
+        log.info("LOG       Writing structured logs to %s", args.log_file)
 
     supabase_url = os.environ.get("SUPABASE_URL", "")
     supabase_key = os.environ.get("SUPABASE_SERVICE_KEY", "")
 
     if not args.dry_run and (not supabase_url or not supabase_key):
-        print("Error: Set SUPABASE_URL and SUPABASE_SERVICE_KEY environment variables")
-        print("  Or use --dry-run to scrape without writing to database")
+        log.error("Set SUPABASE_URL and SUPABASE_SERVICE_KEY environment variables (or use --dry-run)")
         sys.exit(1)
 
-    # Discover or use provided IDs
+    # --- Run ID & tracker ---
+    run_id = datetime.datetime.utcnow().strftime("%Y%m%d-%H%M%S") + "-" + uuid.uuid4().hex[:6]
+    mode = "ids" if args.ids else ("browse" if args.browse else "search")
+    tracker = RunTracker(run_id, args.city, mode)
+
+    log.info("=" * 70)
+    log.info("RUN START run_id=%s  city=%s  mode=%s", run_id, args.city, mode)
+    log.info("=" * 70)
+    log_with_data(
+        logging.INFO, "Scrape run started",
+        event="run_start", run_id=run_id, city=args.city, mode=mode,
+        dry_run=args.dry_run,
+    )
+
+    # --- Discovery ---
     if args.ids:
         listing_ids = args.ids
-        print(f"Using {len(listing_ids)} provided listing IDs")
+        log.info("DISCOVER  Using %d provided listing IDs: %s", len(listing_ids), ", ".join(listing_ids))
     elif args.browse:
-        print(f"Browsing listings for {args.city}, {args.state.upper()}...")
+        log.info("DISCOVER  Browsing listings for %s, %s...", args.city, args.state.upper())
         listing_ids = discover_listing_ids(args.city, args.state)
     else:
         city_name = f"{args.city.replace('-', ' ').title()}, {args.state.upper()}, USA"
-        print(f"Searching for listings in {city_name}...")
+        filters = []
+        if args.price_min:
+            filters.append(f"price_min=${args.price_min}")
+        if args.price_max:
+            filters.append(f"price_max=${args.price_max}")
+        if args.trip_date:
+            filters.append(f"date={args.trip_date}")
+        filter_str = f" ({', '.join(filters)})" if filters else ""
+        log.info("DISCOVER  Searching for listings in %s%s...", city_name, filter_str)
         listing_ids = search_listing_ids(
             city=city_name,
             price_min=args.price_min,
@@ -431,47 +804,154 @@ def main():
             trip_date=args.trip_date,
         )
 
+    tracker.listings_discovered = len(listing_ids)
+
     if not listing_ids:
-        print("No listings found!")
+        log.warning("DISCOVER  No listings found — exiting")
+        log_with_data(logging.WARNING, "No listings found", event="no_listings")
         sys.exit(1)
 
-    print(f"\nScraping {len(listing_ids)} listings...")
+    log.info("")
+    log.info("SCRAPE    Starting extraction of %d listings...", len(listing_ids))
+    log.info("")
+
+    # --- Scrape & diff ---
     boats = []
     for i, lid in enumerate(listing_ids):
-        print(f"[{i+1}/{len(listing_ids)}] /boats/{lid}...", end=" ")
+        progress = f"[{i+1}/{len(listing_ids)}]"
+        log.info("SCRAPE    %s Fetching /boats/%s...", progress, lid)
+
         try:
             boat = extract_listing(lid)
             if boat:
+                tracker.listings_scraped += 1
                 boats.append(boat)
-                print(f"${boat['hourly_rate']}/hr | {boat['capacity']} pax | {boat['name'][:50]}")
+                log.info(
+                    "SCRAPE    %s Extracted: $%.2f/hr | %d pax | %s | %s",
+                    progress, boat["hourly_rate"], boat["capacity"],
+                    boat["type"], boat["name"][:50]
+                )
+
+                # Change detection (skip in dry-run without DB access)
+                if supabase_url and supabase_key:
+                    existing = fetch_existing_boat(lid, supabase_url, supabase_key)
+                    diff_listing(boat, existing, tracker)
+                elif args.dry_run:
+                    log.debug("DIFF      Skipping diff (dry-run, no DB credentials)")
             else:
-                print("SKIP (no data)")
+                tracker.listings_skipped += 1
+                log.warning("SCRAPE    %s No data extracted for %s — skipping", progress, lid)
+        except urllib.error.HTTPError as e:
+            tracker.listings_errored += 1
+            tracker.record_error(lid, f"HTTP {e.code}")
+            log.error("SCRAPE    %s HTTP %d fetching %s", progress, e.code, lid)
         except Exception as e:
-            print(f"ERROR: {e}")
+            tracker.listings_errored += 1
+            tracker.record_error(lid, str(e))
+            log.error("SCRAPE    %s Error extracting %s: %s", progress, lid, e)
+
         if i < len(listing_ids) - 1:
             time.sleep(args.delay)
 
-    print(f"\n{'='*60}")
-    print(f"Extracted {len(boats)} boats")
+    # --- Summary ---
+    log.info("")
+    log.info("=" * 70)
+    log.info("SUMMARY   Extraction complete")
+    log.info("=" * 70)
+    log.info("  Discovered:  %d listings", tracker.listings_discovered)
+    log.info("  Scraped:     %d", tracker.listings_scraped)
+    log.info("  Skipped:     %d (no data)", tracker.listings_skipped)
+    log.info("  Errors:      %d", tracker.listings_errored)
+    log.info("  ---")
+    log.info("  New:         %d", tracker.listings_new)
+    log.info("  Updated:     %d (%d field changes)", tracker.listings_updated, len(tracker.changes))
+    log.info("  Unchanged:   %d", tracker.listings_unchanged)
 
+    if tracker.changes:
+        log.info("")
+        log.info("CHANGES   %d field(s) changed across %d listing(s):", len(tracker.changes), tracker.listings_updated)
+
+        # Group changes by type for summary
+        change_counts = {}
+        for c in tracker.changes:
+            label = TRACKED_FIELDS.get(c["field"], c["field"])
+            change_counts[label] = change_counts.get(label, 0) + 1
+
+        for label, count in sorted(change_counts.items(), key=lambda x: -x[1]):
+            log.info("  %-22s %d listing(s)", label + ":", count)
+
+    if tracker.errors:
+        log.info("")
+        log.warning("ERRORS    %d listing(s) had errors:", len(tracker.errors))
+        for err in tracker.errors[:10]:
+            log.warning("  %s: %s", err["listing_id"], err["error"])
+
+    # --- Rate listing by hourly rate ---
     boats.sort(key=lambda b: b.get("hourly_rate") or 0, reverse=True)
-    print("\nBy hourly rate:")
+    log.info("")
+    log.info("INVENTORY By hourly rate:")
     for b in boats:
-        print(f"  ${b['hourly_rate']:>8}/hr | {b['capacity']:>3} pax | {b['type']:<10} | {b['name'][:45]}")
+        log.info("  $%8.2f/hr | %3d pax | %-10s | %s", b["hourly_rate"], b["capacity"], b["type"], b["name"][:45])
 
+    # --- Upsert ---
     if args.dry_run:
-        print("\n[DRY RUN] Skipping database upsert")
+        log.info("")
+        log.info("[DRY RUN] Skipping database upsert and scrape log")
+        log_with_data(
+            logging.INFO, "Dry run complete",
+            event="run_end_dry", run_id=run_id,
+            scraped=tracker.listings_scraped,
+            new=tracker.listings_new,
+            updated=tracker.listings_updated,
+            unchanged=tracker.listings_unchanged,
+        )
+        _print_final_summary(tracker)
         return
 
-    print(f"\nUpserting {len(boats)} boats to Supabase...")
-    ok = 0
-    for boat in boats:
-        if upsert_boat(boat, supabase_url, supabase_key):
-            ok += 1
-        else:
-            print(f"  FAILED: {boat['name'][:50]}")
+    log.info("")
+    log.info("UPSERT    Writing %d boats to Supabase...", len(boats))
 
-    print(f"\nDone! {ok}/{len(boats)} upserted successfully.")
+    for boat in boats:
+        lid = boat["boatsetter_listing_id"]
+        if upsert_boat(boat, supabase_url, supabase_key):
+            tracker.upserts_ok += 1
+            log.debug("UPSERT    OK %s", lid)
+        else:
+            tracker.upserts_failed += 1
+            log.error("UPSERT    FAILED %s — %s", lid, boat["name"][:50])
+            tracker.record_error(lid, "upsert_failed")
+
+    log.info("UPSERT    Done: %d/%d succeeded", tracker.upserts_ok, len(boats))
+
+    if tracker.upserts_failed > 0:
+        log.warning("UPSERT    %d upserts FAILED — check errors above", tracker.upserts_failed)
+
+    # --- Write audit log ---
+    write_scrape_log(tracker, supabase_url, supabase_key)
+
+    # --- Final summary ---
+    log_with_data(
+        logging.INFO, "Scrape run complete",
+        event="run_end", run_id=run_id,
+        **{k: v for k, v in tracker.summary_dict().items() if k not in ("changes", "errors")}
+    )
+    _print_final_summary(tracker)
+
+
+def _print_final_summary(tracker):
+    """Print the final run summary banner."""
+    log.info("")
+    log.info("=" * 70)
+    log.info("RUN COMPLETE  run_id=%s", tracker.run_id)
+    log.info("  %d scraped | %d new | %d updated | %d unchanged | %d errors",
+             tracker.listings_scraped, tracker.listings_new,
+             tracker.listings_updated, tracker.listings_unchanged,
+             tracker.listings_errored)
+    if tracker.changes:
+        log.info("  %d total field changes detected", len(tracker.changes))
+    if not tracker.changes and tracker.listings_scraped > 0 and tracker.listings_unchanged > 0:
+        log.info("  Database is current — no changes detected")
+    log.info("=" * 70)
 
 
 if __name__ == "__main__":

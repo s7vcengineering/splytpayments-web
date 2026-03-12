@@ -1,6 +1,66 @@
 [
   {
     "log_id": "LOG-001",
+    "timestamp": "2026-03-12T06:00:14Z",
+    "agent_name": "BoatsetterScraper",
+    "action": "Scrape run started — search mode",
+    "city": "Miami",
+    "status": "success",
+    "details": "run_id=20260312-060014-a3f2c1 | Searching Miami, FL, USA (price_min=$900) | Discovered 47 listings",
+    "duration_ms": 3420
+  },
+  {
+    "log_id": "LOG-002",
+    "timestamp": "2026-03-12T06:04:38Z",
+    "agent_name": "BoatsetterScraper",
+    "action": "Pricing changed on 3 listings",
+    "city": "Miami",
+    "status": "warning",
+    "details": "Hourly rate changed: 'Luxury 60ft Sunseeker' $187.50→$195.00/hr | 'Sea Ray Sundancer 42' $118.75→$125.00/hr | 'Prestige 520 Flybridge' $212.50→$200.00/hr. Updating database.",
+    "duration_ms": 890
+  },
+  {
+    "log_id": "LOG-003",
+    "timestamp": "2026-03-12T06:04:39Z",
+    "agent_name": "BoatsetterScraper",
+    "action": "Availability changed on 5 listings",
+    "city": "Miami",
+    "status": "warning",
+    "details": "Start times updated for 5 boats. 'Azimut 55' lost 8:00 AM slot (was 6 slots, now 5). 'Bertram 61' gained 2 new evening slots. 3 others had minor time shifts.",
+    "duration_ms": 450
+  },
+  {
+    "log_id": "LOG-004",
+    "timestamp": "2026-03-12T06:04:40Z",
+    "agent_name": "BoatsetterScraper",
+    "action": "2 new listings discovered",
+    "city": "Miami",
+    "status": "success",
+    "details": "New: 'Ocean Alexander 70' ($250.00/hr, 12 pax, yacht) at Miami Beach Marina | 'Catalina 42 Sailboat' ($87.50/hr, 8 pax, sailboat) at Coconut Grove. Added to database.",
+    "duration_ms": 2100
+  },
+  {
+    "log_id": "LOG-005",
+    "timestamp": "2026-03-12T06:05:02Z",
+    "agent_name": "BoatsetterScraper",
+    "action": "Scrape run complete",
+    "city": "Miami",
+    "status": "success",
+    "details": "run_id=20260312-060014-a3f2c1 | 47 scraped | 2 new | 6 updated | 39 unchanged | 0 errors | 11 field changes detected | Database is current.",
+    "duration_ms": 298200
+  },
+  {
+    "log_id": "LOG-006",
+    "timestamp": "2026-03-12T06:05:03Z",
+    "agent_name": "BoatsetterScraper",
+    "action": "Audit log written to scrape_logs",
+    "city": "Miami",
+    "status": "success",
+    "details": "Full change manifest with 11 field-level diffs persisted. Next scheduled run: 2026-03-12T12:00:00Z.",
+    "duration_ms": 180
+  },
+  {
+    "log_id": "LOG-007",
     "timestamp": "2026-03-11T09:14:22Z",
     "agent_name": "ExperienceMatcher",
     "action": "Match user preferences to available experiences",
@@ -10,73 +70,53 @@
     "duration_ms": 342
   },
   {
-    "log_id": "LOG-002",
-    "timestamp": "2026-03-11T09:12:05Z",
-    "agent_name": "BookingConfirmer",
-    "action": "Confirm booking and notify guests",
-    "city": "Dubai",
-    "status": "success",
-    "details": "Booking BK-2047 confirmed. 6/6 guests notified via push notification.",
-    "duration_ms": 1580
-  },
-  {
-    "log_id": "LOG-003",
+    "log_id": "LOG-008",
     "timestamp": "2026-03-11T08:58:31Z",
     "agent_name": "PriceOptimizer",
     "action": "Recalculate per-person pricing",
-    "city": "Mykonos",
+    "city": "Miami",
     "status": "success",
     "details": "Adjusted price for EXP-1192 from $280 to $245/person after 2 new pledges.",
     "duration_ms": 189
   },
   {
-    "log_id": "LOG-004",
+    "log_id": "LOG-009",
     "timestamp": "2026-03-11T08:45:10Z",
     "agent_name": "WeatherMonitor",
     "action": "Check forecast for upcoming experiences",
-    "city": "Monaco",
+    "city": "Miami",
     "status": "warning",
     "details": "Wind advisory issued for Mar 13. 2 experiences flagged for potential rescheduling.",
     "duration_ms": 2104
   },
   {
-    "log_id": "LOG-005",
-    "timestamp": "2026-03-11T08:30:44Z",
-    "agent_name": "PaymentProcessor",
-    "action": "Process pledge payment",
-    "city": "Ibiza",
-    "status": "error",
-    "details": "Payment failed for user U-7733 on BK-2051. Card declined — insufficient funds.",
-    "duration_ms": 4320
-  },
-  {
-    "log_id": "LOG-006",
-    "timestamp": "2026-03-11T08:22:18Z",
-    "agent_name": "HostVerifier",
-    "action": "Verify host credentials and vessel documentation",
+    "log_id": "LOG-010",
+    "timestamp": "2026-03-11T06:00:08Z",
+    "agent_name": "BoatsetterScraper",
+    "action": "Scrape run complete — no changes",
     "city": "Miami",
-    "status": "pending",
-    "details": "Awaiting Coast Guard certification upload for vessel 'Azure Dream' (host H-0091).",
-    "duration_ms": 510
-  },
-  {
-    "log_id": "LOG-007",
-    "timestamp": "2026-03-11T08:10:02Z",
-    "agent_name": "ExperienceMatcher",
-    "action": "Generate personalized feed",
-    "city": "Cannes",
     "status": "success",
-    "details": "Built curated feed of 12 experiences for 48 active users in the Cannes region.",
-    "duration_ms": 876
+    "details": "run_id=20260311-060008-b7e4d2 | 45 scraped | 0 new | 0 updated | 45 unchanged | 0 errors | Database is current — no changes detected.",
+    "duration_ms": 275400
   },
   {
-    "log_id": "LOG-008",
-    "timestamp": "2026-03-11T07:55:39Z",
-    "agent_name": "BookingConfirmer",
-    "action": "Send reminder notifications",
-    "city": "Dubai",
+    "log_id": "LOG-011",
+    "timestamp": "2026-03-10T18:00:12Z",
+    "agent_name": "BoatsetterScraper",
+    "action": "Scrape run complete — 1 listing deactivated",
+    "city": "Miami",
     "status": "warning",
-    "details": "Reminder sent for BK-2039 departing tomorrow. 1 of 8 guests has not confirmed attendance.",
-    "duration_ms": 1230
+    "details": "run_id=20260310-180012-c9f1a3 | 44 scraped | 0 new | 1 updated | 43 unchanged | 1 error | 'Viking 52 Sport' returned HTTP 404 — listing may have been removed from Boatsetter.",
+    "duration_ms": 268100
+  },
+  {
+    "log_id": "LOG-012",
+    "timestamp": "2026-03-10T06:00:11Z",
+    "agent_name": "BoatsetterScraper",
+    "action": "Capacity & rating changes on 2 listings",
+    "city": "Miami",
+    "status": "warning",
+    "details": "run_id=20260310-060011-d2a8b5 | 'Sea Ray Sundancer 42' capacity 10→12 guests | 'Prestige 520 Flybridge' rating 4.7→4.8 (new review). Refreshing availability data.",
+    "duration_ms": 282300
   }
 ]
