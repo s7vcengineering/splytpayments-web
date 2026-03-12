@@ -1,0 +1,1757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Captain Schedule — Mock Data — SPLYT</title>
+  <link rel="icon" type="image/png" href="/app-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --deep-ocean: #0A1628;
+      --dark-navy: #0D1F3C;
+      --midnight-blue: #102A4C;
+      --ocean-blue: #1A3A5C;
+      --sea-blue: #2196F3;
+      --light-blue: #4FC3F7;
+      --sky-blue: #81D4FA;
+      --ice-blue: #B3E5FC;
+      --text-primary: #E8F0FE;
+      --text-secondary: #8EACCD;
+      --text-muted: #5A7A9A;
+      --green: #4CAF50;
+      --green-glow: rgba(76, 175, 80, 0.15);
+      --orange: #FF9800;
+      --orange-glow: rgba(255, 152, 0, 0.15);
+      --red: #F44336;
+      --red-glow: rgba(244, 67, 54, 0.15);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--deep-ocean);
+      color: var(--text-secondary);
+      -webkit-font-smoothing: antialiased;
+    }
+    .header {
+      padding: 24px;
+      text-align: center;
+      border-bottom: 1px solid rgba(79, 195, 247, 0.08);
+    }
+    .header a {
+      color: var(--text-primary);
+      text-decoration: none;
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 24px;
+      font-weight: 700;
+    }
+    .mock-banner {
+      background: linear-gradient(90deg, rgba(255, 152, 0, 0.15), rgba(255, 152, 0, 0.08));
+      border: 1px solid rgba(255, 152, 0, 0.3);
+      color: #FFB74D;
+      text-align: center;
+      padding: 10px 16px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+    .content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 24px 80px;
+    }
+    .breadcrumb {
+      font-size: 13px;
+      margin-bottom: 24px;
+    }
+    .breadcrumb a { color: var(--text-muted); text-decoration: none; }
+    .breadcrumb a:hover { color: var(--light-blue); }
+    .breadcrumb span { color: var(--text-muted); margin: 0 8px; }
+    .breadcrumb .current { color: var(--text-secondary); }
+
+    /* Captain Profile Bar */
+    .captain-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .captain-info { display: flex; align-items: center; gap: 16px; }
+    .captain-avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--sea-blue), var(--light-blue));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--deep-ocean);
+      flex-shrink: 0;
+    }
+    .captain-name {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.1;
+    }
+    .captain-meta {
+      font-size: 13px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 2px;
+    }
+    .captain-meta .star { color: #FFD54F; }
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 16px;
+      border-radius: 24px;
+      font-size: 13px;
+      font-weight: 600;
+      background: var(--green-glow);
+      color: #81C784;
+      border: 1px solid rgba(76, 175, 80, 0.2);
+    }
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: pulse 2s ease infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    /* Stats Row */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .stat-card {
+      background: var(--dark-navy);
+      border: 1px solid rgba(79, 195, 247, 0.08);
+      border-radius: 14px;
+      padding: 20px;
+    }
+    .stat-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .stat-value {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--text-primary);
+      line-height: 1;
+    }
+    .stat-value .unit {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-left: 2px;
+    }
+    .stat-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+    .stat-value.earnings { color: var(--light-blue); }
+
+    /* Main Layout */
+    .schedule-layout {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 24px;
+      align-items: start;
+    }
+
+    /* Calendar */
+    .calendar-card {
+      background: var(--dark-navy);
+      border: 1px solid rgba(79, 195, 247, 0.08);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    .cal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 24px;
+      border-bottom: 1px solid rgba(79, 195, 247, 0.06);
+    }
+    .cal-title {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .cal-nav {
+      display: flex;
+      gap: 8px;
+    }
+    .cal-nav button {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      border: 1px solid rgba(79, 195, 247, 0.12);
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    .cal-nav button:hover {
+      background: rgba(79, 195, 247, 0.08);
+      border-color: rgba(79, 195, 247, 0.25);
+      color: var(--light-blue);
+    }
+    .cal-legend {
+      display: flex;
+      gap: 16px;
+      padding: 12px 24px;
+      border-bottom: 1px solid rgba(79, 195, 247, 0.06);
+      flex-wrap: wrap;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 3px;
+    }
+    .legend-dot.available { background: rgba(76, 175, 80, 0.5); border: 1px solid rgba(76, 175, 80, 0.4); }
+    .legend-dot.booked { background: rgba(33, 150, 243, 0.5); border: 1px solid rgba(33, 150, 243, 0.4); }
+    .legend-dot.pending { background: rgba(255, 152, 0, 0.5); border: 1px solid rgba(255, 152, 0, 0.4); }
+    .legend-dot.blocked { background: rgba(244, 67, 54, 0.25); border: 1px solid rgba(244, 67, 54, 0.3); }
+    .legend-dot.off { background: rgba(90, 122, 154, 0.2); border: 1px solid rgba(90, 122, 154, 0.15); }
+
+    .cal-grid {
+      padding: 16px 24px 20px;
+    }
+    .cal-weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+      margin-bottom: 8px;
+    }
+    .cal-weekday {
+      text-align: center;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      padding: 8px 0;
+    }
+    .cal-days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+    }
+    .cal-day {
+      aspect-ratio: 1;
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+      border: 2px solid transparent;
+      min-height: 52px;
+    }
+    .cal-day:hover:not(.empty):not(.past) {
+      transform: scale(1.08);
+      z-index: 2;
+    }
+    .cal-day .day-num {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+      line-height: 1;
+    }
+    .cal-day .day-dots {
+      display: flex;
+      gap: 3px;
+      margin-top: 4px;
+    }
+    .cal-day .day-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+    }
+    .cal-day.empty { cursor: default; }
+    .cal-day.past {
+      opacity: 0.35;
+      cursor: default;
+    }
+    .cal-day.past .day-num { color: var(--text-muted); }
+    .cal-day.today {
+      border-color: var(--light-blue);
+      box-shadow: 0 0 16px rgba(79, 195, 247, 0.15);
+    }
+    .cal-day.selected {
+      border-color: var(--light-blue);
+      box-shadow: 0 0 16px rgba(79, 195, 247, 0.15);
+    }
+    .cal-day.available {
+      background: rgba(76, 175, 80, 0.08);
+    }
+    .cal-day.available:hover {
+      background: rgba(76, 175, 80, 0.18);
+      border-color: rgba(76, 175, 80, 0.3);
+    }
+    .cal-day.booked {
+      background: rgba(33, 150, 243, 0.12);
+    }
+    .cal-day.booked:hover {
+      background: rgba(33, 150, 243, 0.22);
+      border-color: rgba(33, 150, 243, 0.3);
+    }
+    .cal-day.has-pending {
+      background: rgba(255, 152, 0, 0.1);
+    }
+    .cal-day.has-pending:hover {
+      background: rgba(255, 152, 0, 0.2);
+      border-color: rgba(255, 152, 0, 0.3);
+    }
+    .cal-day.blocked {
+      background: rgba(244, 67, 54, 0.06);
+      background-image: repeating-linear-gradient(
+        135deg,
+        transparent,
+        transparent 4px,
+        rgba(244, 67, 54, 0.06) 4px,
+        rgba(244, 67, 54, 0.06) 8px
+      );
+    }
+    .cal-day.blocked .day-num { color: var(--text-muted); }
+    .cal-day.blocked:hover {
+      border-color: rgba(244, 67, 54, 0.3);
+    }
+    .cal-day.day-off {
+      background: rgba(90, 122, 154, 0.05);
+    }
+    .cal-day.day-off .day-num { color: var(--text-muted); }
+    .cal-day.day-off:hover {
+      background: rgba(90, 122, 154, 0.1);
+      border-color: rgba(90, 122, 154, 0.2);
+    }
+
+    /* Day Detail Panel */
+    .day-detail {
+      display: none;
+      background: var(--midnight-blue);
+      border: 1px solid rgba(79, 195, 247, 0.12);
+      border-radius: 14px;
+      margin: 16px 24px 20px;
+      padding: 20px;
+      animation: slideDown 0.2s ease;
+    }
+    .day-detail.active { display: block; }
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .detail-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .detail-date {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .detail-actions {
+      display: flex;
+      gap: 8px;
+    }
+    .detail-btn {
+      padding: 6px 14px;
+      border-radius: 8px;
+      border: 1px solid rgba(79, 195, 247, 0.15);
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .detail-btn:hover {
+      background: rgba(79, 195, 247, 0.08);
+      border-color: rgba(79, 195, 247, 0.3);
+      color: var(--light-blue);
+    }
+    .detail-btn.danger:hover {
+      background: var(--red-glow);
+      border-color: rgba(244, 67, 54, 0.3);
+      color: #E57373;
+    }
+    .detail-btn.active-block {
+      background: var(--red-glow);
+      border-color: rgba(244, 67, 54, 0.3);
+      color: #E57373;
+    }
+    .detail-booking {
+      background: rgba(10, 22, 40, 0.5);
+      border: 1px solid rgba(79, 195, 247, 0.08);
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 8px;
+    }
+    .detail-booking:last-child { margin-bottom: 0; }
+    .detail-booking-time {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--light-blue);
+      margin-bottom: 4px;
+    }
+    .detail-booking-info {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+    .detail-booking-info strong { color: var(--text-primary); font-weight: 600; }
+    .detail-booking .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+    .badge-confirmed { background: rgba(76, 175, 80, 0.15); color: #81C784; }
+    .badge-pending { background: rgba(255, 152, 0, 0.15); color: #FFB74D; }
+    .detail-empty {
+      color: var(--text-muted);
+      font-size: 13px;
+      font-style: italic;
+    }
+    .detail-block-reason {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #E57373;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    /* Right Panel */
+    .side-panel { display: flex; flex-direction: column; gap: 20px; }
+
+    /* Weekly Template */
+    .panel-card {
+      background: var(--dark-navy);
+      border: 1px solid rgba(79, 195, 247, 0.08);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 20px;
+      border-bottom: 1px solid rgba(79, 195, 247, 0.06);
+    }
+    .panel-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .panel-subtitle {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    .panel-body { padding: 16px 20px; }
+
+    /* Day Row in Weekly Template */
+    .day-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(79, 195, 247, 0.04);
+    }
+    .day-row:last-child { border-bottom: none; }
+    .day-toggle {
+      position: relative;
+      width: 40px;
+      height: 22px;
+      flex-shrink: 0;
+    }
+    .day-toggle input { opacity: 0; width: 0; height: 0; }
+    .day-toggle .slider {
+      position: absolute;
+      inset: 0;
+      border-radius: 12px;
+      background: rgba(90, 122, 154, 0.25);
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .day-toggle .slider::after {
+      content: '';
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--text-muted);
+      top: 3px;
+      left: 3px;
+      transition: all 0.3s;
+    }
+    .day-toggle input:checked + .slider {
+      background: rgba(76, 175, 80, 0.35);
+    }
+    .day-toggle input:checked + .slider::after {
+      background: #81C784;
+      transform: translateX(18px);
+    }
+    .day-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+      width: 36px;
+      flex-shrink: 0;
+    }
+    .day-label.off { color: var(--text-muted); }
+    .day-times {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex: 1;
+      justify-content: flex-end;
+    }
+    .day-times.off { opacity: 0.3; }
+    .time-select {
+      background: rgba(10, 22, 40, 0.5);
+      border: 1px solid rgba(79, 195, 247, 0.1);
+      border-radius: 8px;
+      color: var(--text-secondary);
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 5px 8px;
+      cursor: pointer;
+      -webkit-appearance: none;
+      appearance: none;
+      width: 78px;
+      text-align: center;
+    }
+    .time-select:focus {
+      outline: none;
+      border-color: var(--light-blue);
+    }
+    .time-sep {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* Settings */
+    .setting-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(79, 195, 247, 0.04);
+    }
+    .setting-row:last-child { border-bottom: none; }
+    .setting-label {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.3;
+    }
+    .setting-desc {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .setting-control select {
+      background: rgba(10, 22, 40, 0.5);
+      border: 1px solid rgba(79, 195, 247, 0.1);
+      border-radius: 8px;
+      color: var(--light-blue);
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 7px 12px;
+      cursor: pointer;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    .setting-control select:focus {
+      outline: none;
+      border-color: var(--light-blue);
+    }
+    .toggle-setting {
+      position: relative;
+      width: 44px;
+      height: 24px;
+    }
+    .toggle-setting input { opacity: 0; width: 0; height: 0; }
+    .toggle-setting .slider {
+      position: absolute;
+      inset: 0;
+      border-radius: 12px;
+      background: rgba(90, 122, 154, 0.25);
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .toggle-setting .slider::after {
+      content: '';
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--text-muted);
+      top: 3px;
+      left: 3px;
+      transition: all 0.3s;
+    }
+    .toggle-setting input:checked + .slider {
+      background: rgba(33, 150, 243, 0.35);
+    }
+    .toggle-setting input:checked + .slider::after {
+      background: var(--light-blue);
+      transform: translateX(20px);
+    }
+
+    /* Upcoming Bookings */
+    .upcoming-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(79, 195, 247, 0.04);
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .upcoming-item:hover { opacity: 0.85; }
+    .upcoming-item:last-child { border-bottom: none; }
+    .upcoming-date-badge {
+      width: 48px;
+      flex-shrink: 0;
+      text-align: center;
+      background: rgba(33, 150, 243, 0.08);
+      border: 1px solid rgba(33, 150, 243, 0.12);
+      border-radius: 10px;
+      padding: 8px 4px;
+    }
+    .upcoming-date-badge .month {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--light-blue);
+    }
+    .upcoming-date-badge .day {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text-primary);
+      line-height: 1.1;
+    }
+    .upcoming-details { flex: 1; min-width: 0; }
+    .upcoming-guest {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+    .upcoming-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+    .upcoming-earnings {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--light-blue);
+      flex-shrink: 0;
+      align-self: center;
+    }
+
+    /* Quick Block Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 22, 40, 0.85);
+      backdrop-filter: blur(8px);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal {
+      background: var(--dark-navy);
+      border: 1px solid rgba(79, 195, 247, 0.15);
+      border-radius: 20px;
+      padding: 32px;
+      width: 90%;
+      max-width: 420px;
+      animation: modalIn 0.25s ease;
+    }
+    @keyframes modalIn {
+      from { opacity: 0; transform: scale(0.95) translateY(8px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .modal h3 {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+    .modal p {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+    .modal-field {
+      margin-bottom: 16px;
+    }
+    .modal-field label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 8px;
+    }
+    .modal-field select,
+    .modal-field input {
+      width: 100%;
+      background: rgba(10, 22, 40, 0.6);
+      border: 1px solid rgba(79, 195, 247, 0.12);
+      border-radius: 10px;
+      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      padding: 12px 16px;
+      -webkit-appearance: none;
+    }
+    .modal-field select:focus,
+    .modal-field input:focus {
+      outline: none;
+      border-color: var(--light-blue);
+    }
+    .modal-buttons {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+    .modal-btn {
+      flex: 1;
+      padding: 12px;
+      border-radius: 10px;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+    }
+    .modal-btn.cancel {
+      background: rgba(90, 122, 154, 0.15);
+      color: var(--text-secondary);
+    }
+    .modal-btn.cancel:hover { background: rgba(90, 122, 154, 0.25); }
+    .modal-btn.confirm {
+      background: linear-gradient(135deg, var(--sea-blue), var(--light-blue));
+      color: var(--deep-ocean);
+    }
+    .modal-btn.confirm:hover { box-shadow: 0 4px 20px rgba(33, 150, 243, 0.3); }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--dark-navy);
+      border: 1px solid rgba(79, 195, 247, 0.2);
+      border-radius: 12px;
+      padding: 14px 24px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-primary);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      z-index: 200;
+      opacity: 0;
+      transition: all 0.3s ease;
+      pointer-events: none;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Footer */
+    footer {
+      padding: 24px;
+      text-align: center;
+      border-top: 1px solid rgba(79, 195, 247, 0.06);
+    }
+    .footer-links {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      margin-bottom: 12px;
+    }
+    .footer-links a { color: var(--text-muted); text-decoration: none; font-size: 13px; font-weight: 500; }
+    .footer-links a:hover { color: var(--light-blue); }
+    .footer-links span { color: rgba(90,122,154,0.3); font-size: 13px; }
+    .copyright { font-size: 12px; color: rgba(90,122,154,0.5); }
+
+    /* Responsive */
+    @media (max-width: 960px) {
+      .schedule-layout {
+        grid-template-columns: 1fr;
+      }
+      .stats-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 600px) {
+      .stats-row {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+      .stat-card { padding: 14px; }
+      .stat-value { font-size: 22px; }
+      .captain-bar { flex-direction: column; align-items: flex-start; }
+      .cal-header { padding: 16px; }
+      .cal-grid { padding: 12px 12px 16px; }
+      .cal-day { min-height: 42px; border-radius: 8px; }
+      .cal-day .day-num { font-size: 13px; }
+      .cal-legend { padding: 10px 16px; gap: 10px; }
+      .day-detail { margin: 12px 12px 16px; padding: 16px; }
+      .content { padding: 20px 12px 64px; }
+    }
+
+    #loading {
+      text-align: center;
+      padding: 80px 24px;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <a href="/">SPLYT</a>
+  </div>
+  <div class="mock-banner">Mock Data — Developer Reference Only</div>
+
+  <div class="content">
+    <div class="breadcrumb">
+      <a href="/mock">Mock Data</a><span>/</span><span class="current">Captain Schedule</span>
+    </div>
+
+    <div id="loading">Loading schedule...</div>
+    <div id="app" style="display:none;">
+
+      <!-- Captain Bar -->
+      <div class="captain-bar" id="captain-bar"></div>
+
+      <!-- Stats -->
+      <div class="stats-row" id="stats-row"></div>
+
+      <!-- Main Layout -->
+      <div class="schedule-layout">
+
+        <!-- Calendar -->
+        <div class="calendar-card">
+          <div class="cal-header">
+            <div class="cal-title" id="cal-month-label"></div>
+            <div class="cal-nav">
+              <button id="prev-month" aria-label="Previous month">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+              </button>
+              <button id="next-month" aria-label="Next month">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="cal-legend">
+            <div class="legend-item"><div class="legend-dot available"></div>Available</div>
+            <div class="legend-item"><div class="legend-dot booked"></div>Booked</div>
+            <div class="legend-item"><div class="legend-dot pending"></div>Pending</div>
+            <div class="legend-item"><div class="legend-dot blocked"></div>Blocked</div>
+            <div class="legend-item"><div class="legend-dot off"></div>Day Off</div>
+          </div>
+          <div class="cal-grid">
+            <div class="cal-weekdays">
+              <div class="cal-weekday">Sun</div>
+              <div class="cal-weekday">Mon</div>
+              <div class="cal-weekday">Tue</div>
+              <div class="cal-weekday">Wed</div>
+              <div class="cal-weekday">Thu</div>
+              <div class="cal-weekday">Fri</div>
+              <div class="cal-weekday">Sat</div>
+            </div>
+            <div class="cal-days" id="cal-days"></div>
+          </div>
+          <div class="day-detail" id="day-detail"></div>
+        </div>
+
+        <!-- Side Panel -->
+        <div class="side-panel">
+
+          <!-- Weekly Availability Template -->
+          <div class="panel-card">
+            <div class="panel-header">
+              <div>
+                <div class="panel-title">Weekly Availability</div>
+                <div class="panel-subtitle">Default hours for each day</div>
+              </div>
+            </div>
+            <div class="panel-body" id="weekly-template"></div>
+          </div>
+
+          <!-- Trip Settings -->
+          <div class="panel-card">
+            <div class="panel-header">
+              <div>
+                <div class="panel-title">Trip Settings</div>
+                <div class="panel-subtitle">Control how bookings work</div>
+              </div>
+            </div>
+            <div class="panel-body" id="trip-settings"></div>
+          </div>
+
+          <!-- Upcoming Bookings -->
+          <div class="panel-card">
+            <div class="panel-header">
+              <div>
+                <div class="panel-title">Upcoming Trips</div>
+                <div class="panel-subtitle" id="trips-count"></div>
+              </div>
+            </div>
+            <div class="panel-body" id="upcoming-bookings"></div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Block Date Modal -->
+  <div class="modal-overlay" id="block-modal">
+    <div class="modal">
+      <h3 id="modal-title">Block Date</h3>
+      <p id="modal-desc">Mark this date as unavailable.</p>
+      <div class="modal-field">
+        <label>Reason</label>
+        <select id="block-reason">
+          <option value="Personal">Personal</option>
+          <option value="Boat maintenance">Boat maintenance</option>
+          <option value="Weather advisory">Weather advisory</option>
+          <option value="Holiday">Holiday</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="modal-buttons">
+        <button class="modal-btn cancel" id="modal-cancel">Cancel</button>
+        <button class="modal-btn confirm" id="modal-confirm">Block Date</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <footer>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <span>&middot;</span>
+      <a href="/mock">Mock Data</a>
+      <span>&middot;</span>
+      <a href="/privacy">Privacy Policy</a>
+      <span>&middot;</span>
+      <a href="/terms">Terms of Service</a>
+    </div>
+    <p class="copyright">&copy; 2025 SPLYT. All rights reserved.</p>
+  </footer>
+
+  <script>
+    // Captain Schedule — Mock interactive UI
+    // Data source: /mock/data/captain-schedule.json (local mock, not user input)
+
+    let DATA = null;
+    let currentYear = 2026;
+    let currentMonth = 2; // March (0-indexed)
+    let selectedDate = null;
+
+    const DAYS_KEY = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
+    const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    const TODAY = new Date(2026, 2, 12); // March 12, 2026
+
+    function pad(n) { return n < 10 ? '0' + n : '' + n; }
+    function dateStr(y, m, d) { return y + '-' + pad(m + 1) + '-' + pad(d); }
+
+    function formatTime(t) {
+      var parts = t.split(':');
+      var h = parseInt(parts[0], 10);
+      var min = parts[1];
+      var ampm = h >= 12 ? 'PM' : 'AM';
+      var hr = h === 0 ? 12 : h > 12 ? h - 12 : h;
+      return hr + ':' + min + ' ' + ampm;
+    }
+
+    function generateTimeOptions() {
+      var opts = '';
+      for (var h = 5; h <= 22; h++) {
+        for (var m = 0; m < 60; m += 30) {
+          var val = pad(h) + ':' + pad(m);
+          opts += '<option value="' + val + '">' + formatTime(val) + '</option>';
+        }
+      }
+      return opts;
+    }
+    var TIME_OPTIONS = generateTimeOptions();
+
+    function showToast(msg) {
+      var t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(function() { t.classList.remove('show'); }, 2400);
+    }
+
+    function escapeHtml(str) {
+      var div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    function getBookingsForDate(ds) {
+      return DATA.bookings.filter(function(b) { return b.date === ds; });
+    }
+
+    function isBlocked(ds) {
+      return DATA.blocked_dates.some(function(b) { return b.date === ds; });
+    }
+
+    function getBlockReason(ds) {
+      var b = DATA.blocked_dates.find(function(b) { return b.date === ds; });
+      return b ? b.reason : null;
+    }
+
+    function isDayOff(dayOfWeek) {
+      return !DATA.weekly_template[DAYS_KEY[dayOfWeek]].enabled;
+    }
+
+    function getDayStatus(y, m, d) {
+      var ds = dateStr(y, m, d);
+      var date = new Date(y, m, d);
+      var todayMidnight = new Date(TODAY.getFullYear(), TODAY.getMonth(), TODAY.getDate());
+      var isPast = date < todayMidnight;
+      var isToday = date.getTime() === todayMidnight.getTime();
+      var blocked = isBlocked(ds);
+      var dayOff = isDayOff(date.getDay());
+      var bookings = getBookingsForDate(ds);
+      var hasPending = bookings.some(function(b) { return b.status === 'pending'; });
+      var hasConfirmed = bookings.some(function(b) { return b.status === 'confirmed'; });
+      return { isPast: isPast, isToday: isToday, blocked: blocked, dayOff: dayOff, bookings: bookings, hasPending: hasPending, hasConfirmed: hasConfirmed, ds: ds };
+    }
+
+    // Render captain bar
+    function renderCaptainBar() {
+      var c = DATA.captain;
+      var initials = c.name.split(' ').map(function(n) { return n[0]; }).join('');
+      var el = document.getElementById('captain-bar');
+      el.textContent = '';
+
+      var info = document.createElement('div');
+      info.className = 'captain-info';
+
+      var avatar = document.createElement('div');
+      avatar.className = 'captain-avatar';
+      avatar.textContent = initials;
+
+      var details = document.createElement('div');
+      var name = document.createElement('div');
+      name.className = 'captain-name';
+      name.textContent = c.name;
+      var meta = document.createElement('div');
+      meta.className = 'captain-meta';
+
+      var license = document.createElement('span');
+      license.textContent = c.license;
+      var dot1 = document.createElement('span');
+      dot1.textContent = '\u00B7';
+      var star = document.createElement('span');
+      star.className = 'star';
+      star.textContent = '\u2605';
+      var rating = document.createTextNode(' ' + c.rating);
+      var dot2 = document.createElement('span');
+      dot2.textContent = '\u00B7';
+      var trips = document.createElement('span');
+      trips.textContent = c.trips_completed + ' trips';
+
+      meta.appendChild(license);
+      meta.appendChild(dot1);
+      meta.appendChild(star);
+      meta.appendChild(rating);
+      meta.appendChild(dot2);
+      meta.appendChild(trips);
+      details.appendChild(name);
+      details.appendChild(meta);
+      info.appendChild(avatar);
+      info.appendChild(details);
+
+      var pill = document.createElement('div');
+      pill.className = 'status-pill';
+      var dot = document.createElement('span');
+      dot.className = 'status-dot';
+      pill.appendChild(dot);
+      pill.appendChild(document.createTextNode(' Accepting bookings'));
+
+      el.appendChild(info);
+      el.appendChild(pill);
+    }
+
+    // Render stats
+    function renderStats() {
+      var now = TODAY;
+      var upcoming = DATA.bookings.filter(function(b) { return new Date(b.date + 'T00:00:00') >= now; });
+      var thisMonth = DATA.bookings.filter(function(b) { return b.date.startsWith('2026-03'); });
+      var earnings = thisMonth.reduce(function(sum, b) { return sum + b.earnings; }, 0);
+      var pending = upcoming.filter(function(b) { return b.status === 'pending'; }).length;
+
+      var weekStart = new Date(now);
+      weekStart.setDate(now.getDate() - now.getDay());
+      var availDays = 0;
+      for (var i = 0; i < 7; i++) {
+        var d = new Date(weekStart);
+        d.setDate(weekStart.getDate() + i);
+        var ds = dateStr(d.getFullYear(), d.getMonth(), d.getDate());
+        if (!isBlocked(ds) && !isDayOff(d.getDay()) && d >= now) availDays++;
+      }
+
+      var workdays = 7 - Object.values(DATA.weekly_template).filter(function(d) { return !d.enabled; }).length;
+
+      var container = document.getElementById('stats-row');
+      container.textContent = '';
+
+      var stats = [
+        { label: 'Upcoming Trips', value: upcoming.length, unit: '', sub: pending + ' pending approval', cls: '' },
+        { label: 'Available This Week', value: availDays, unit: 'days', sub: 'of ' + workdays + ' workdays', cls: '' },
+        { label: 'March Earnings', value: '$' + earnings.toLocaleString(), unit: '', sub: thisMonth.length + ' trips booked', cls: 'earnings' },
+        { label: 'Buffer Time', value: DATA.settings.buffer_minutes, unit: 'min', sub: 'between trips', cls: '' }
+      ];
+
+      stats.forEach(function(s) {
+        var card = document.createElement('div');
+        card.className = 'stat-card';
+
+        var label = document.createElement('div');
+        label.className = 'stat-label';
+        label.textContent = s.label;
+
+        var val = document.createElement('div');
+        val.className = 'stat-value' + (s.cls ? ' ' + s.cls : '');
+        val.textContent = s.value;
+        if (s.unit) {
+          var unit = document.createElement('span');
+          unit.className = 'unit';
+          unit.textContent = s.unit;
+          val.appendChild(unit);
+        }
+
+        var sub = document.createElement('div');
+        sub.className = 'stat-sub';
+        sub.textContent = s.sub;
+
+        card.appendChild(label);
+        card.appendChild(val);
+        card.appendChild(sub);
+        container.appendChild(card);
+      });
+    }
+
+    // Render calendar
+    function renderCalendar() {
+      document.getElementById('cal-month-label').textContent = MONTHS[currentMonth] + ' ' + currentYear;
+
+      var firstDay = new Date(currentYear, currentMonth, 1).getDay();
+      var daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+      var grid = document.getElementById('cal-days');
+      grid.textContent = '';
+
+      for (var i = 0; i < firstDay; i++) {
+        var empty = document.createElement('div');
+        empty.className = 'cal-day empty';
+        grid.appendChild(empty);
+      }
+
+      for (var d = 1; d <= daysInMonth; d++) {
+        var status = getDayStatus(currentYear, currentMonth, d);
+        var cls = 'cal-day';
+        if (status.isPast) cls += ' past';
+        if (status.isToday) cls += ' today';
+        if (selectedDate === status.ds) cls += ' selected';
+
+        if (status.blocked) cls += ' blocked';
+        else if (status.hasConfirmed && status.hasPending) cls += ' booked has-pending';
+        else if (status.hasConfirmed) cls += ' booked';
+        else if (status.hasPending) cls += ' has-pending';
+        else if (status.dayOff) cls += ' day-off';
+        else if (!status.isPast) cls += ' available';
+
+        var el = document.createElement('div');
+        el.className = cls;
+        el.setAttribute('data-date', status.ds);
+
+        var num = document.createElement('span');
+        num.className = 'day-num';
+        num.textContent = d;
+        el.appendChild(num);
+
+        if (status.bookings.length > 0) {
+          var dots = document.createElement('div');
+          dots.className = 'day-dots';
+          status.bookings.forEach(function(b) {
+            var dot = document.createElement('div');
+            dot.className = 'day-dot';
+            dot.style.background = b.status === 'confirmed' ? '#4CAF50' : '#FF9800';
+            dots.appendChild(dot);
+          });
+          el.appendChild(dots);
+        } else if (status.blocked) {
+          var dots = document.createElement('div');
+          dots.className = 'day-dots';
+          var dot = document.createElement('div');
+          dot.className = 'day-dot';
+          dot.style.background = '#E57373';
+          dots.appendChild(dot);
+          el.appendChild(dots);
+        }
+
+        if (!status.isPast) {
+          (function(ds) {
+            el.addEventListener('click', function() { selectDay(ds); });
+          })(status.ds);
+        }
+
+        grid.appendChild(el);
+      }
+
+      if (selectedDate && selectedDate.startsWith(currentYear + '-' + pad(currentMonth + 1))) {
+        showDayDetail(selectedDate);
+      } else {
+        document.getElementById('day-detail').classList.remove('active');
+      }
+    }
+
+    function selectDay(ds) {
+      if (selectedDate === ds) {
+        selectedDate = null;
+        document.getElementById('day-detail').classList.remove('active');
+      } else {
+        selectedDate = ds;
+        showDayDetail(ds);
+      }
+      renderCalendar();
+    }
+
+    function showDayDetail(ds) {
+      var panel = document.getElementById('day-detail');
+      var date = new Date(ds + 'T00:00:00');
+      var dayName = date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+      var bookings = getBookingsForDate(ds);
+      var blocked = isBlocked(ds);
+      var reason = getBlockReason(ds);
+      var dayOff = isDayOff(date.getDay());
+
+      panel.textContent = '';
+      panel.classList.add('active');
+
+      // Header
+      var header = document.createElement('div');
+      header.className = 'detail-header';
+      var dateEl = document.createElement('div');
+      dateEl.className = 'detail-date';
+      dateEl.textContent = dayName;
+      var actions = document.createElement('div');
+      actions.className = 'detail-actions';
+
+      if (blocked) {
+        var unblockBtn = document.createElement('button');
+        unblockBtn.className = 'detail-btn active-block';
+        unblockBtn.textContent = 'Unblock';
+        unblockBtn.addEventListener('click', function() { unblockDate(ds); });
+        actions.appendChild(unblockBtn);
+      } else {
+        var blockBtn = document.createElement('button');
+        blockBtn.className = 'detail-btn danger';
+        blockBtn.textContent = 'Block Date';
+        blockBtn.addEventListener('click', function() { openBlockModal(ds); });
+        actions.appendChild(blockBtn);
+      }
+
+      header.appendChild(dateEl);
+      header.appendChild(actions);
+      panel.appendChild(header);
+
+      // Content
+      if (blocked) {
+        var blockInfo = document.createElement('div');
+        blockInfo.className = 'detail-block-reason';
+        var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('width', '16');
+        svg.setAttribute('height', '16');
+        svg.setAttribute('viewBox', '0 0 24 24');
+        svg.setAttribute('fill', 'none');
+        svg.setAttribute('stroke', '#E57373');
+        svg.setAttribute('stroke-width', '2');
+        svg.setAttribute('stroke-linecap', 'round');
+        var circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', '12');
+        circle.setAttribute('cy', '12');
+        circle.setAttribute('r', '10');
+        var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', '4.93');
+        line.setAttribute('y1', '4.93');
+        line.setAttribute('x2', '19.07');
+        line.setAttribute('y2', '19.07');
+        svg.appendChild(circle);
+        svg.appendChild(line);
+        blockInfo.appendChild(svg);
+        blockInfo.appendChild(document.createTextNode(' Blocked \u2014 ' + escapeHtml(reason)));
+        panel.appendChild(blockInfo);
+      } else if (bookings.length > 0) {
+        bookings.forEach(function(b) {
+          var card = document.createElement('div');
+          card.className = 'detail-booking';
+
+          var time = document.createElement('div');
+          time.className = 'detail-booking-time';
+          time.textContent = formatTime(b.start_time) + ' \u2014 ' + formatTime(b.end_time) + ' (' + b.duration_hours + 'h)';
+
+          var info = document.createElement('div');
+          info.className = 'detail-booking-info';
+
+          var guestName = document.createElement('strong');
+          guestName.textContent = b.guest_name;
+          info.appendChild(guestName);
+
+          var badge = document.createElement('span');
+          badge.className = 'badge ' + (b.status === 'confirmed' ? 'badge-confirmed' : 'badge-pending');
+          badge.textContent = b.status;
+          info.appendChild(badge);
+
+          info.appendChild(document.createElement('br'));
+          info.appendChild(document.createTextNode(b.trip_type + ' \u00B7 ' + b.guest_count + ' guests \u00B7 ' + b.yacht));
+          info.appendChild(document.createElement('br'));
+          info.appendChild(document.createTextNode('Earnings: '));
+          var earningsEl = document.createElement('strong');
+          earningsEl.style.color = 'var(--light-blue)';
+          earningsEl.textContent = '$' + b.earnings;
+          info.appendChild(earningsEl);
+
+          card.appendChild(time);
+          card.appendChild(info);
+          panel.appendChild(card);
+        });
+      } else if (dayOff) {
+        var dayKey = DAYS_KEY[date.getDay()];
+        var emptyEl = document.createElement('div');
+        emptyEl.className = 'detail-empty';
+        emptyEl.textContent = 'Day off \u2014 ' + dayKey.charAt(0).toUpperCase() + dayKey.slice(1) + ' is not enabled in your weekly schedule.';
+        panel.appendChild(emptyEl);
+      } else {
+        var dayKey = DAYS_KEY[date.getDay()];
+        var tmpl = DATA.weekly_template[dayKey];
+        var emptyEl = document.createElement('div');
+        emptyEl.className = 'detail-empty';
+        emptyEl.textContent = 'Available ' + formatTime(tmpl.start) + ' \u2014 ' + formatTime(tmpl.end) + '. No bookings yet.';
+        panel.appendChild(emptyEl);
+      }
+    }
+
+    // Block / Unblock
+    var pendingBlockDate = null;
+
+    function openBlockModal(ds) {
+      pendingBlockDate = ds;
+      var date = new Date(ds + 'T00:00:00');
+      var dayName = date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+      document.getElementById('modal-title').textContent = 'Block Date';
+      document.getElementById('modal-desc').textContent = 'Mark ' + dayName + ' as unavailable.';
+      document.getElementById('modal-confirm').textContent = 'Block Date';
+      document.getElementById('modal-confirm').className = 'modal-btn confirm';
+      document.getElementById('block-reason').parentElement.style.display = 'block';
+      document.getElementById('block-modal').classList.add('active');
+    }
+
+    function closeBlockModal() {
+      document.getElementById('block-modal').classList.remove('active');
+      pendingBlockDate = null;
+    }
+
+    function confirmBlock() {
+      if (!pendingBlockDate) return;
+      var reason = document.getElementById('block-reason').value;
+      DATA.blocked_dates.push({ date: pendingBlockDate, reason: reason });
+      showToast('Blocked \u2014 ' + reason);
+      closeBlockModal();
+      renderCalendar();
+      renderStats();
+    }
+
+    function unblockDate(ds) {
+      DATA.blocked_dates = DATA.blocked_dates.filter(function(b) { return b.date !== ds; });
+      showToast('Date unblocked');
+      renderCalendar();
+      renderStats();
+    }
+
+    document.getElementById('modal-cancel').addEventListener('click', closeBlockModal);
+    document.getElementById('modal-confirm').addEventListener('click', confirmBlock);
+    document.getElementById('block-modal').addEventListener('click', function(e) {
+      if (e.target === e.currentTarget) closeBlockModal();
+    });
+
+    // Month nav
+    document.getElementById('prev-month').addEventListener('click', function() {
+      currentMonth--;
+      if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+      selectedDate = null;
+      renderCalendar();
+    });
+    document.getElementById('next-month').addEventListener('click', function() {
+      currentMonth++;
+      if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+      selectedDate = null;
+      renderCalendar();
+    });
+
+    // Weekly template — uses safe DOM methods
+    function renderWeeklyTemplate() {
+      var container = document.getElementById('weekly-template');
+      container.textContent = '';
+      var dayOrder = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+      var dayLabels = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+
+      dayOrder.forEach(function(key, i) {
+        var d = DATA.weekly_template[key];
+
+        var row = document.createElement('div');
+        row.className = 'day-row';
+
+        // Toggle
+        var toggleLabel = document.createElement('label');
+        toggleLabel.className = 'day-toggle';
+        var checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.checked = d.enabled;
+        checkbox.setAttribute('data-day', key);
+        var slider = document.createElement('span');
+        slider.className = 'slider';
+        toggleLabel.appendChild(checkbox);
+        toggleLabel.appendChild(slider);
+
+        // Day label
+        var label = document.createElement('span');
+        label.className = 'day-label' + (d.enabled ? '' : ' off');
+        label.textContent = dayLabels[i];
+
+        // Time selects
+        var times = document.createElement('div');
+        times.className = 'day-times' + (d.enabled ? '' : ' off');
+
+        var startSelect = document.createElement('select');
+        startSelect.className = 'time-select';
+        startSelect.setAttribute('data-day', key);
+        startSelect.setAttribute('data-bound', 'start');
+        // Time options are generated from known constants, safe to use innerHTML
+        startSelect.insertAdjacentHTML('beforeend', TIME_OPTIONS);
+        startSelect.value = d.start;
+
+        var sep = document.createElement('span');
+        sep.className = 'time-sep';
+        sep.textContent = 'to';
+
+        var endSelect = document.createElement('select');
+        endSelect.className = 'time-select';
+        endSelect.setAttribute('data-day', key);
+        endSelect.setAttribute('data-bound', 'end');
+        endSelect.insertAdjacentHTML('beforeend', TIME_OPTIONS);
+        endSelect.value = d.end;
+
+        times.appendChild(startSelect);
+        times.appendChild(sep);
+        times.appendChild(endSelect);
+
+        row.appendChild(toggleLabel);
+        row.appendChild(label);
+        row.appendChild(times);
+        container.appendChild(row);
+
+        // Toggle handler
+        checkbox.addEventListener('change', function(e) {
+          var dayKey = e.target.getAttribute('data-day');
+          DATA.weekly_template[dayKey].enabled = e.target.checked;
+          renderWeeklyTemplate();
+          renderCalendar();
+          renderStats();
+          var dayNameCap = dayKey.charAt(0).toUpperCase() + dayKey.slice(1);
+          showToast(e.target.checked ? dayNameCap + ' enabled' : dayNameCap + ' set as day off');
+        });
+
+        // Time change handlers
+        startSelect.addEventListener('change', function(e) {
+          var dayKey = e.target.getAttribute('data-day');
+          DATA.weekly_template[dayKey].start = e.target.value;
+          var dayNameCap = dayKey.charAt(0).toUpperCase() + dayKey.slice(1);
+          showToast(dayNameCap + ' start updated');
+        });
+        endSelect.addEventListener('change', function(e) {
+          var dayKey = e.target.getAttribute('data-day');
+          DATA.weekly_template[dayKey].end = e.target.value;
+          var dayNameCap = dayKey.charAt(0).toUpperCase() + dayKey.slice(1);
+          showToast(dayNameCap + ' end updated');
+        });
+      });
+    }
+
+    // Trip settings — uses safe DOM methods
+    function renderTripSettings() {
+      var s = DATA.settings;
+      var container = document.getElementById('trip-settings');
+      container.textContent = '';
+
+      function createSettingRow(labelText, descText, controlEl) {
+        var row = document.createElement('div');
+        row.className = 'setting-row';
+
+        var left = document.createElement('div');
+        var lbl = document.createElement('div');
+        lbl.className = 'setting-label';
+        lbl.textContent = labelText;
+        var desc = document.createElement('div');
+        desc.className = 'setting-desc';
+        desc.textContent = descText;
+        left.appendChild(lbl);
+        left.appendChild(desc);
+
+        var right = document.createElement('div');
+        right.className = 'setting-control';
+        right.appendChild(controlEl);
+
+        row.appendChild(left);
+        row.appendChild(right);
+        return row;
+      }
+
+      function makeSelect(options, currentVal) {
+        var sel = document.createElement('select');
+        options.forEach(function(opt) {
+          var o = document.createElement('option');
+          o.value = opt.value;
+          o.textContent = opt.label;
+          if (String(opt.value) === String(currentVal)) o.selected = true;
+          sel.appendChild(o);
+        });
+        return sel;
+      }
+
+      // Advance notice
+      var advanceSel = makeSelect([
+        {value: 1, label: '1 hour'}, {value: 3, label: '3 hours'}, {value: 6, label: '6 hours'},
+        {value: 12, label: '12 hours'}, {value: 24, label: '24 hours'}, {value: 48, label: '2 days'},
+        {value: 168, label: '7 days'}
+      ], s.advance_notice_hours);
+      advanceSel.addEventListener('change', function(e) {
+        DATA.settings.advance_notice_hours = parseInt(e.target.value, 10);
+        showToast('Advance notice updated');
+      });
+      container.appendChild(createSettingRow('Advance Notice', 'Minimum lead time for bookings', advanceSel));
+
+      // Buffer
+      var bufferSel = makeSelect([
+        {value: 30, label: '30 min'}, {value: 60, label: '1 hour'},
+        {value: 120, label: '2 hours'}, {value: 180, label: '3 hours'}
+      ], s.buffer_minutes);
+      bufferSel.addEventListener('change', function(e) {
+        DATA.settings.buffer_minutes = parseInt(e.target.value, 10);
+        renderStats();
+        showToast('Buffer time updated');
+      });
+      container.appendChild(createSettingRow('Buffer Time', 'Prep time between trips', bufferSel));
+
+      // Booking window
+      var windowSel = makeSelect([
+        {value: 1, label: '1 month'}, {value: 2, label: '2 months'}, {value: 3, label: '3 months'},
+        {value: 6, label: '6 months'}, {value: 12, label: '12 months'}
+      ], s.booking_window_months);
+      windowSel.addEventListener('change', function(e) {
+        DATA.settings.booking_window_months = parseInt(e.target.value, 10);
+        showToast('Booking window updated');
+      });
+      container.appendChild(createSettingRow('Booking Window', 'How far ahead guests can book', windowSel));
+
+      // Max trips
+      var maxSel = makeSelect([
+        {value: 1, label: '1'}, {value: 2, label: '2'}, {value: 3, label: '3'}
+      ], s.max_trips_per_day);
+      maxSel.addEventListener('change', function(e) {
+        DATA.settings.max_trips_per_day = parseInt(e.target.value, 10);
+        showToast('Max trips updated');
+      });
+      container.appendChild(createSettingRow('Max Trips / Day', 'Maximum bookings per day', maxSel));
+
+      // Instant book toggle
+      var toggleWrap = document.createElement('label');
+      toggleWrap.className = 'toggle-setting';
+      var toggleInput = document.createElement('input');
+      toggleInput.type = 'checkbox';
+      toggleInput.checked = s.instant_book;
+      var toggleSlider = document.createElement('span');
+      toggleSlider.className = 'slider';
+      toggleWrap.appendChild(toggleInput);
+      toggleWrap.appendChild(toggleSlider);
+      toggleInput.addEventListener('change', function(e) {
+        DATA.settings.instant_book = e.target.checked;
+        showToast(e.target.checked ? 'Instant Book enabled' : 'Instant Book disabled');
+      });
+      container.appendChild(createSettingRow('Instant Book', 'Auto-confirm without approval', toggleWrap));
+    }
+
+    // Upcoming bookings
+    function renderUpcomingBookings() {
+      var now = TODAY;
+      var upcoming = DATA.bookings
+        .filter(function(b) { return new Date(b.date + 'T00:00:00') >= now; })
+        .sort(function(a, b) { return a.date.localeCompare(b.date) || a.start_time.localeCompare(b.start_time); });
+
+      document.getElementById('trips-count').textContent = upcoming.length + ' upcoming';
+
+      var container = document.getElementById('upcoming-bookings');
+      container.textContent = '';
+
+      if (upcoming.length === 0) {
+        var empty = document.createElement('div');
+        empty.className = 'detail-empty';
+        empty.textContent = 'No upcoming trips.';
+        container.appendChild(empty);
+        return;
+      }
+
+      upcoming.forEach(function(b) {
+        var d = new Date(b.date + 'T00:00:00');
+        var month = d.toLocaleDateString('en-US', { month: 'short' });
+        var day = d.getDate();
+
+        var item = document.createElement('div');
+        item.className = 'upcoming-item';
+        item.addEventListener('click', function() { jumpToDate(b.date); });
+
+        // Date badge
+        var dateBadge = document.createElement('div');
+        dateBadge.className = 'upcoming-date-badge';
+        var monthEl = document.createElement('div');
+        monthEl.className = 'month';
+        monthEl.textContent = month;
+        var dayEl = document.createElement('div');
+        dayEl.className = 'day';
+        dayEl.textContent = day;
+        dateBadge.appendChild(monthEl);
+        dateBadge.appendChild(dayEl);
+
+        // Details
+        var details = document.createElement('div');
+        details.className = 'upcoming-details';
+        var guest = document.createElement('div');
+        guest.className = 'upcoming-guest';
+        guest.textContent = b.guest_name;
+        if (b.status === 'pending') {
+          var badge = document.createElement('span');
+          badge.className = 'badge badge-pending';
+          badge.style.fontSize = '9px';
+          badge.style.padding = '2px 6px';
+          badge.style.marginLeft = '6px';
+          badge.textContent = 'PENDING';
+          guest.appendChild(badge);
+        }
+        var metaEl = document.createElement('div');
+        metaEl.className = 'upcoming-meta';
+        metaEl.textContent = formatTime(b.start_time) + ' \u2014 ' + formatTime(b.end_time);
+        metaEl.appendChild(document.createElement('br'));
+        metaEl.appendChild(document.createTextNode(b.trip_type + ' \u00B7 ' + b.guest_count + ' guests'));
+        details.appendChild(guest);
+        details.appendChild(metaEl);
+
+        // Earnings
+        var earningsEl = document.createElement('div');
+        earningsEl.className = 'upcoming-earnings';
+        earningsEl.textContent = '$' + b.earnings;
+
+        item.appendChild(dateBadge);
+        item.appendChild(details);
+        item.appendChild(earningsEl);
+        container.appendChild(item);
+      });
+    }
+
+    function jumpToDate(ds) {
+      var parts = ds.split('-').map(Number);
+      currentYear = parts[0];
+      currentMonth = parts[1] - 1;
+      selectedDate = ds;
+      renderCalendar();
+      document.querySelector('.calendar-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // Init
+    fetch('/mock/data/captain-schedule.json')
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        DATA = data;
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('app').style.display = 'block';
+        renderCaptainBar();
+        renderStats();
+        renderCalendar();
+        renderWeeklyTemplate();
+        renderTripSettings();
+        renderUpcomingBookings();
+      })
+      .catch(function() {
+        document.getElementById('loading').textContent = 'Failed to load schedule data.';
+      });
+  </script>
+</body>
+</html>
