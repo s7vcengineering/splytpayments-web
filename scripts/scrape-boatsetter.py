@@ -38,17 +38,23 @@ Usage:
   export SUPABASE_URL="https://your-project.supabase.co"
   export SUPABASE_SERVICE_KEY="your-service-role-key"
 
+  # Scrape ALL configured cities (premium boats only)
+  python3 scripts/scrape-boatsetter.py --all-cities
+
+  # Scrape all cities, dry run
+  python3 scripts/scrape-boatsetter.py --all-cities --dry-run
+
   # Search for Miami boats $900+ (uses search API)
   python3 scripts/scrape-boatsetter.py --price-min 900
 
+  # Scrape a specific configured city
+  python3 scripts/scrape-boatsetter.py --city fort-lauderdale
+
   # With JSON log file output
-  python3 scripts/scrape-boatsetter.py --price-min 900 --log-file scrape.log
+  python3 scripts/scrape-boatsetter.py --all-cities --log-file scrape.log
 
   # Browse mode (no price filter, uses HTML pages)
   python3 scripts/scrape-boatsetter.py --browse
-
-  # Scrape a specific city
-  python3 scripts/scrape-boatsetter.py --city "fort-lauderdale" --state "fl"
 
   # Scrape specific listing IDs directly
   python3 scripts/scrape-boatsetter.py --ids mxnsvgd lxzgskm bgndftc
@@ -235,21 +241,108 @@ def discover_listing_ids(city="miami", state="fl"):
     return sorted(all_ids)
 
 
-# Miami bounding box defaults
-MIAMI_BOUNDS = {
-    "ne_lat": "25.89203760360262",
-    "ne_lng": "-80.06922397685548",
-    "sw_lat": "25.668211956153495",
-    "sw_lng": "-80.27933750224611",
+# ---------------------------------------------------------------------------
+# City registry — all markets we scrape from Boatsetter
+# ---------------------------------------------------------------------------
+# Each city has:
+#   search_name: what to pass to the API's "near" param
+#   bounds:      geographic bounding box (optional, improves result quality)
+#   price_min:   default minimum price filter for premium inventory
+#   browse_slug: city--state--country slug for browse mode (US only)
+#   zoom:        zoom level for search API
+
+CITIES = {
+    "miami": {
+        "search_name": "Miami, FL, USA",
+        "bounds": {
+            "ne_lat": "25.89203760360262",
+            "ne_lng": "-80.06922397685548",
+            "sw_lat": "25.668211956153495",
+            "sw_lng": "-80.27933750224611",
+        },
+        "price_min": 500,
+        "browse_slug": "miami--fl--united-states",
+        "zoom": "12",
+    },
+    "fort-lauderdale": {
+        "search_name": "Fort Lauderdale, FL, USA",
+        "bounds": {
+            "ne_lat": "26.23",
+            "ne_lng": "-80.06",
+            "sw_lat": "26.05",
+            "sw_lng": "-80.20",
+        },
+        "price_min": 500,
+        "browse_slug": "fort-lauderdale--fl--united-states",
+        "zoom": "12",
+    },
+    "key-west": {
+        "search_name": "Key West, FL, USA",
+        "bounds": {
+            "ne_lat": "24.60",
+            "ne_lng": "-81.72",
+            "sw_lat": "24.52",
+            "sw_lng": "-81.84",
+        },
+        "price_min": 300,
+        "browse_slug": "key-west--fl--united-states",
+        "zoom": "13",
+    },
+    "naples": {
+        "search_name": "Naples, FL, USA",
+        "bounds": {
+            "ne_lat": "26.35",
+            "ne_lng": "-81.72",
+            "sw_lat": "26.10",
+            "sw_lng": "-81.90",
+        },
+        "price_min": 300,
+        "browse_slug": "naples--fl--united-states",
+        "zoom": "11",
+    },
+    "los-angeles": {
+        "search_name": "Los Angeles, CA, USA",
+        "bounds": {
+            "ne_lat": "33.98",
+            "ne_lng": "-118.15",
+            "sw_lat": "33.70",
+            "sw_lng": "-118.52",
+        },
+        "price_min": 300,
+        "browse_slug": "los-angeles--ca--united-states",
+        "zoom": "11",
+    },
+    "san-diego": {
+        "search_name": "San Diego, CA, USA",
+        "bounds": {
+            "ne_lat": "32.78",
+            "ne_lng": "-117.05",
+            "sw_lat": "32.60",
+            "sw_lng": "-117.28",
+        },
+        "price_min": 300,
+        "browse_slug": "san-diego--ca--united-states",
+        "zoom": "12",
+    },
+    "ibiza": {
+        "search_name": "Ibiza, Spain",
+        "bounds": None,  # radius search
+        "price_min": 300,
+        "browse_slug": None,  # international — no browse pages
+        "zoom": "10",
+    },
 }
+
+# Backwards-compatible default
+MIAMI_BOUNDS = CITIES["miami"]["bounds"]
 
 
 def search_listing_ids(city="Miami, FL, USA", price_min=None, price_max=None,
-                       trip_date=None, per_page=100, bounds=None):
+                       trip_date=None, per_page=100, bounds=None, zoom="12"):
     """Use the /domestic/v2/search API to find boat listing IDs."""
     params = {
         "near": city,
-        "zoom_level": "12",
+        "zoom_level": zoom,
         "per_page": str(per_page),
         "page": "1",
         "sort_by": "recommended",
@@ -258,8 +351,6 @@ def search_listing_ids(city="Miami, FL, USA", price_min=None, price_max=None,
 
     if bounds:
         params.update(bounds)
-    else:
-        params.update(MIAMI_BOUNDS)
 
     if price_min:
         params["price_min"] = str(price_min)
@@ -732,13 +823,57 @@ def write_scrape_log(tracker, supabase_url, supabase_key):
 # Main
 # ---------------------------------------------------------------------------
 
+def discover_for_city(city_key, price_min_override=None, price_max=None,
+                      trip_date=None, browse=False):
+    """Discover listing IDs for a configured city.
+
+    Returns (list_of_ids, city_config).
+    """
+    config = CITIES.get(city_key)
+    if not config:
+        log.error("DISCOVER  Unknown city '%s'. Available: %s", city_key, ", ".join(CITIES.keys()))
+        return [], None
+
+    price_min = price_min_override if price_min_override is not None else config["price_min"]
+
+    if browse and config.get("browse_slug"):
+        parts = config["browse_slug"].split("--")
+        city_slug = parts[0]
+        state_slug = parts[1] if len(parts) > 1 else ""
+        log.info("DISCOVER  [%s] Browsing listings...", city_key)
+        ids = discover_listing_ids(city_slug, state_slug)
+    else:
+        filters = []
+        if price_min:
+            filters.append(f"${price_min}+")
+        if price_max:
+            filters.append(f"max ${price_max}")
+        if trip_date:
+            filters.append(f"date={trip_date}")
+        filter_str = f" ({', '.join(filters)})" if filters else ""
+        log.info("DISCOVER  [%s] Searching %s%s...", city_key, config["search_name"], filter_str)
+        ids = search_listing_ids(
+            city=config["search_name"],
+            price_min=price_min,
+            price_max=price_max,
+            trip_date=trip_date,
+            bounds=config.get("bounds"),
+            zoom=config.get("zoom", "12"),
+        )
+
+    log.info("DISCOVER  [%s] Found %d listing IDs", city_key, len(ids))
+    return ids, config
+
+
 def main():
     parser = argparse.ArgumentParser(description="Scrape Boatsetter listings into Supabase")
-    parser.add_argument("--city", default="miami", help="City slug for browse or search name (default: miami)")
-    parser.add_argument("--state", default="fl", help="State abbreviation (default: fl)")
+    parser.add_argument("--city", default="miami", help="City key (default: miami). Use --list-cities to see all.")
+    parser.add_argument("--all-cities", action="store_true", help="Scrape all configured cities")
+    parser.add_argument("--list-cities", action="store_true", help="Show configured cities and exit")
+    parser.add_argument("--state", default="fl", help="State abbreviation for custom city (default: fl)")
     parser.add_argument("--ids", nargs="+", help="Scrape specific listing IDs directly")
     parser.add_argument("--browse", action="store_true", help="Use browse pages instead of search API")
-    parser.add_argument("--price-min", type=int, help="Minimum price filter (for search API)")
+    parser.add_argument("--price-min", type=int, help="Minimum price filter (overrides city default)")
     parser.add_argument("--price-max", type=int, help="Maximum price filter (for search API)")
     parser.add_argument("--trip-date", help="Trip date YYYY-MM-DD (for search API)")
     parser.add_argument("--dry-run", action="store_true", help="Scrape but don't write to database")
@@ -746,6 +881,16 @@ def main():
     parser.add_argument("--log-file", help="Path to JSON log file for structured log output")
     parser.add_argument("--verbose", "-v", action="store_true", help="Enable debug-level logging")
     args = parser.parse_args()
+
+    # List cities mode
+    if args.list_cities:
+        print(f"\n{'City':<20} {'Search Name':<30} {'Min Price':<12} {'Browse'}")
+        print("-" * 75)
+        for key, cfg in CITIES.items():
+            browse = "yes" if cfg.get("browse_slug") else "no"
+            print(f"{key:<20} {cfg['search_name']:<30} ${cfg['price_min']:<11} {browse}")
+        print(f"\n{len(CITIES)} cities configured.\n")
+        return
 
     if args.verbose:
         _console.setLevel(logging.DEBUG)
@@ -767,26 +912,64 @@ def main():
 
     # --- Run ID & tracker ---
     run_id = datetime.datetime.utcnow().strftime("%Y%m%d-%H%M%S") + "-" + uuid.uuid4().hex[:6]
-    mode = "ids" if args.ids else ("browse" if args.browse else "search")
-    tracker = RunTracker(run_id, args.city, mode)
+    mode = "ids" if args.ids else ("browse" if args.browse else ("all-cities" if args.all_cities else "search"))
+    city_label = "all" if args.all_cities else args.city
+    tracker = RunTracker(run_id, city_label, mode)
 
     log.info("=" * 70)
-    log.info("RUN START run_id=%s  city=%s  mode=%s", run_id, args.city, mode)
+    log.info("RUN START run_id=%s  city=%s  mode=%s", run_id, city_label, mode)
     log.info("=" * 70)
     log_with_data(
         logging.INFO, "Scrape run started",
-        event="run_start", run_id=run_id, city=args.city, mode=mode,
+        event="run_start", run_id=run_id, city=city_label, mode=mode,
         dry_run=args.dry_run,
     )
 
     # --- Discovery ---
+    listing_ids = []
+
     if args.ids:
         listing_ids = args.ids
         log.info("DISCOVER  Using %d provided listing IDs: %s", len(listing_ids), ", ".join(listing_ids))
+
+    elif args.all_cities:
+        log.info("DISCOVER  Scraping all %d configured cities...", len(CITIES))
+        log.info("")
+        seen_ids = set()
+        for city_key in CITIES:
+            city_ids, _ = discover_for_city(
+                city_key,
+                price_min_override=args.price_min,
+                price_max=args.price_max,
+                trip_date=args.trip_date,
+                browse=args.browse,
+            )
+            new_ids = [lid for lid in city_ids if lid not in seen_ids]
+            dupes = len(city_ids) - len(new_ids)
+            if dupes > 0:
+                log.info("DISCOVER  [%s] %d unique, %d duplicates skipped", city_key, len(new_ids), dupes)
+            seen_ids.update(new_ids)
+            listing_ids.extend(new_ids)
+            time.sleep(0.5)  # brief pause between city searches
+        log.info("")
+        log.info("DISCOVER  Total unique listings across all cities: %d", len(listing_ids))
+
+    elif args.city in CITIES:
+        city_ids, _ = discover_for_city(
+            args.city,
+            price_min_override=args.price_min,
+            price_max=args.price_max,
+            trip_date=args.trip_date,
+            browse=args.browse,
+        )
+        listing_ids = city_ids
+
     elif args.browse:
         log.info("DISCOVER  Browsing listings for %s, %s...", args.city, args.state.upper())
         listing_ids = discover_listing_ids(args.city, args.state)
+
     else:
+        # Fallback: treat --city as a raw search name
         city_name = f"{args.city.replace('-', ' ').title()}, {args.state.upper()}, USA"
         filters = []
         if args.price_min:
