@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Experiences — Mock Data — SPLYT</title>
+  <link rel="icon" type="image/png" href="/app-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --deep-ocean: #0A1628;
+      --dark-navy: #0D1F3C;
+      --light-blue: #4FC3F7;
+      --sea-blue: #2196F3;
+      --text-primary: #E8F0FE;
+      --text-secondary: #8EACCD;
+      --text-muted: #5A7A9A;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--deep-ocean);
+      color: var(--text-secondary);
+      -webkit-font-smoothing: antialiased;
+    }
+    .header {
+      padding: 24px;
+      text-align: center;
+      border-bottom: 1px solid rgba(79, 195, 247, 0.08);
+    }
+    .header a {
+      color: var(--text-primary);
+      text-decoration: none;
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 24px;
+      font-weight: 700;
+    }
+    .mock-banner {
+      background: linear-gradient(90deg, rgba(255, 152, 0, 0.15), rgba(255, 152, 0, 0.08));
+      border: 1px solid rgba(255, 152, 0, 0.3);
+      color: #FFB74D;
+      text-align: center;
+      padding: 10px 16px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+    .content {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+    }
+    .breadcrumb {
+      font-size: 13px;
+      margin-bottom: 24px;
+    }
+    .breadcrumb a {
+      color: var(--text-muted);
+      text-decoration: none;
+    }
+    .breadcrumb a:hover { color: var(--light-blue); }
+    .breadcrumb span { color: var(--text-muted); margin: 0 8px; }
+    .breadcrumb .current { color: var(--text-secondary); }
+    h1 {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+    .subtitle {
+      font-size: 15px;
+      color: var(--text-muted);
+      margin-bottom: 32px;
+    }
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+    }
+    .exp-card {
+      background: var(--dark-navy);
+      border: 1px solid rgba(79, 195, 247, 0.1);
+      border-radius: 16px;
+      padding: 28px 24px;
+      transition: all 0.3s ease;
+    }
+    .exp-card:hover {
+      border-color: rgba(79, 195, 247, 0.25);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+    .exp-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+    .exp-title {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.2;
+    }
+    .exp-price {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--light-blue);
+      white-space: nowrap;
+      margin-left: 16px;
+    }
+    .exp-price small {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-muted);
+      display: block;
+      text-align: right;
+    }
+    .exp-meta {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      line-height: 1.6;
+    }
+    .exp-meta strong { color: var(--text-secondary); font-weight: 600; }
+    .exp-rating {
+      color: #FFC107;
+      font-weight: 600;
+      font-size: 13px;
+    }
+    .progress-wrap {
+      margin-bottom: 16px;
+    }
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+    .progress-label .pledges { color: var(--text-secondary); }
+    .progress-label .status-text { font-weight: 600; }
+    .status-open { color: #81C784; }
+    .status-full { color: var(--light-blue); }
+    .status-upcoming { color: #FFB74D; }
+    .progress-bar {
+      width: 100%;
+      height: 6px;
+      background: rgba(79, 195, 247, 0.1);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.6s ease;
+    }
+    .fill-open { background: linear-gradient(90deg, #66BB6A, #81C784); }
+    .fill-full { background: linear-gradient(90deg, var(--sea-blue), var(--light-blue)); }
+    .fill-upcoming { background: linear-gradient(90deg, #FF9800, #FFB74D); }
+    .amenities {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .amenity-tag {
+      background: rgba(79, 195, 247, 0.08);
+      border: 1px solid rgba(79, 195, 247, 0.12);
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 11px;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+    #loading {
+      text-align: center;
+      padding: 48px;
+      color: var(--text-muted);
+    }
+    footer {
+      padding: 24px;
+      text-align: center;
+      border-top: 1px solid rgba(79, 195, 247, 0.06);
+    }
+    .footer-links {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      margin-bottom: 12px;
+    }
+    .footer-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .footer-links a:hover { color: var(--light-blue); }
+    .footer-links span { color: rgba(90,122,154,0.3); font-size: 13px; }
+    .copyright { font-size: 12px; color: rgba(90,122,154,0.5); }
+    @media (max-width: 768px) {
+      .cards-grid { grid-template-columns: 1fr; }
+      h1 { font-size: 28px; }
+      .content { padding: 32px 16px 64px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <a href="/">SPLYT</a>
+  </div>
+  <div class="mock-banner">Mock Data — Developer Reference Only</div>
+
+  <div class="content">
+    <div class="breadcrumb">
+      <a href="/mock">Mock Data</a><span>/</span><span class="current">Experiences</span>
+    </div>
+    <h1>Experiences</h1>
+    <p class="subtitle">Yacht experiences with pledge progress and amenity details.</p>
+
+    <div id="loading">Loading experiences...</div>
+    <div class="cards-grid" id="cards-container" style="display:none;"></div>
+  </div>
+
+  <footer>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <span>&middot;</span>
+      <a href="/mock">Mock Data</a>
+      <span>&middot;</span>
+      <a href="/privacy">Privacy Policy</a>
+      <span>&middot;</span>
+      <a href="/terms">Terms of Service</a>
+    </div>
+    <p class="copyright">&copy; 2025 SPLYT. All rights reserved.</p>
+  </footer>
+
+  <script>
+    const fillClass = { open: 'fill-open', full: 'fill-full', upcoming: 'fill-upcoming' };
+    const statusLabel = { open: 'Open', full: 'Full', upcoming: 'Upcoming' };
+
+    fetch('/mock/data/experiences.json')
+      .then(r => r.json())
+      .then(experiences => {
+        const container = document.getElementById('cards-container');
+        experiences.forEach(exp => {
+          const pct = exp.max_guests > 0 ? Math.round((exp.current_pledges / exp.max_guests) * 100) : 0;
+          const stars = '&#9733;'.repeat(Math.floor(exp.rating)) + (exp.rating % 1 >= 0.5 ? '&#9734;' : '');
+
+          const card = document.createElement('div');
+          card.className = 'exp-card';
+          card.innerHTML = `
+            <div class="exp-header">
+              <div class="exp-title">${exp.title}</div>
+              <div class="exp-price">$${exp.price_per_person}<small>per person</small></div>
+            </div>
+            <div class="exp-meta">
+              <strong>${exp.city}</strong> &middot; ${exp.yacht} &middot; ${exp.host}<br>
+              <span class="exp-rating">${stars} ${exp.rating}</span>
+            </div>
+            <div class="progress-wrap">
+              <div class="progress-label">
+                <span class="pledges">${exp.current_pledges} / ${exp.max_guests} pledges</span>
+                <span class="status-text status-${exp.status}">${statusLabel[exp.status]}</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill ${fillClass[exp.status]}" style="width: ${pct}%"></div>
+              </div>
+            </div>
+            <div class="amenities">
+              ${exp.amenities.map(a => `<span class="amenity-tag">${a}</span>`).join('')}
+            </div>
+          `;
+          container.appendChild(card);
+        });
+        document.getElementById('loading').style.display = 'none';
+        container.style.display = 'grid';
+      })
+      .catch(() => {
+        document.getElementById('loading').textContent = 'Failed to load experiences.';
+      });
+  </script>
+</body>
+</html>

@@ -1,0 +1,82 @@
+[
+  {
+    "log_id": "LOG-001",
+    "timestamp": "2026-03-11T09:14:22Z",
+    "agent_name": "ExperienceMatcher",
+    "action": "Match user preferences to available experiences",
+    "city": "Miami",
+    "status": "success",
+    "details": "Matched 3 sunset cruises for user U-4821 based on budget ($150-300) and group size (4).",
+    "duration_ms": 342
+  },
+  {
+    "log_id": "LOG-002",
+    "timestamp": "2026-03-11T09:12:05Z",
+    "agent_name": "BookingConfirmer",
+    "action": "Confirm booking and notify guests",
+    "city": "Dubai",
+    "status": "success",
+    "details": "Booking BK-2047 confirmed. 6/6 guests notified via push notification.",
+    "duration_ms": 1580
+  },
+  {
+    "log_id": "LOG-003",
+    "timestamp": "2026-03-11T08:58:31Z",
+    "agent_name": "PriceOptimizer",
+    "action": "Recalculate per-person pricing",
+    "city": "Mykonos",
+    "status": "success",
+    "details": "Adjusted price for EXP-1192 from $280 to $245/person after 2 new pledges.",
+    "duration_ms": 189
+  },
+  {
+    "log_id": "LOG-004",
+    "timestamp": "2026-03-11T08:45:10Z",
+    "agent_name": "WeatherMonitor",
+    "action": "Check forecast for upcoming experiences",
+    "city": "Monaco",
+    "status": "warning",
+    "details": "Wind advisory issued for Mar 13. 2 experiences flagged for potential rescheduling.",
+    "duration_ms": 2104
+  },
+  {
+    "log_id": "LOG-005",
+    "timestamp": "2026-03-11T08:30:44Z",
+    "agent_name": "PaymentProcessor",
+    "action": "Process pledge payment",
+    "city": "Ibiza",
+    "status": "error",
+    "details": "Payment failed for user U-7733 on BK-2051. Card declined — insufficient funds.",
+    "duration_ms": 4320
+  },
+  {
+    "log_id": "LOG-006",
+    "timestamp": "2026-03-11T08:22:18Z",
+    "agent_name": "HostVerifier",
+    "action": "Verify host credentials and vessel documentation",
+    "city": "Miami",
+    "status": "pending",
+    "details": "Awaiting Coast Guard certification upload for vessel 'Azure Dream' (host H-0091).",
+    "duration_ms": 510
+  },
+  {
+    "log_id": "LOG-007",
+    "timestamp": "2026-03-11T08:10:02Z",
+    "agent_name": "ExperienceMatcher",
+    "action": "Generate personalized feed",
+    "city": "Cannes",
+    "status": "success",
+    "details": "Built curated feed of 12 experiences for 48 active users in the Cannes region.",
+    "duration_ms": 876
+  },
+  {
+    "log_id": "LOG-008",
+    "timestamp": "2026-03-11T07:55:39Z",
+    "agent_name": "BookingConfirmer",
+    "action": "Send reminder notifications",
+    "city": "Dubai",
+    "status": "warning",
+    "details": "Reminder sent for BK-2039 departing tomorrow. 1 of 8 guests has not confirmed attendance.",
+    "duration_ms": 1230
+  }
+]

@@ -11,6 +11,12 @@
       "headers": [
         { "key": "Content-Type", "value": "application/json" }
       ]
+    },
+    {
+      "source": "/mock/data/:file*.json",
+      "headers": [
+        { "key": "Content-Type", "value": "application/json" }
+      ]
     }
   ],
   "rewrites": [
@@ -18,6 +24,10 @@
     { "source": "/experience/:id", "destination": "/experience.html" },
     { "source": "/help", "destination": "/help.html" },
     { "source": "/privacy", "destination": "/privacy.html" },
-    { "source": "/terms", "destination": "/terms.html" }
+    { "source": "/terms", "destination": "/terms.html" },
+    { "source": "/mock", "destination": "/mock/index.html" },
+    { "source": "/mock/agent-logs", "destination": "/mock/agent-logs.html" },
+    { "source": "/mock/bookings", "destination": "/mock/bookings.html" },
+    { "source": "/mock/experiences", "destination": "/mock/experiences.html" }
   ]
 }

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bookings — Mock Data — SPLYT</title>
+  <link rel="icon" type="image/png" href="/app-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --deep-ocean: #0A1628;
+      --dark-navy: #0D1F3C;
+      --light-blue: #4FC3F7;
+      --sea-blue: #2196F3;
+      --text-primary: #E8F0FE;
+      --text-secondary: #8EACCD;
+      --text-muted: #5A7A9A;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--deep-ocean);
+      color: var(--text-secondary);
+      -webkit-font-smoothing: antialiased;
+    }
+    .header {
+      padding: 24px;
+      text-align: center;
+      border-bottom: 1px solid rgba(79, 195, 247, 0.08);
+    }
+    .header a {
+      color: var(--text-primary);
+      text-decoration: none;
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 24px;
+      font-weight: 700;
+    }
+    .mock-banner {
+      background: linear-gradient(90deg, rgba(255, 152, 0, 0.15), rgba(255, 152, 0, 0.08));
+      border: 1px solid rgba(255, 152, 0, 0.3);
+      color: #FFB74D;
+      text-align: center;
+      padding: 10px 16px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+    .content {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+    }
+    .breadcrumb {
+      font-size: 13px;
+      margin-bottom: 24px;
+    }
+    .breadcrumb a {
+      color: var(--text-muted);
+      text-decoration: none;
+    }
+    .breadcrumb a:hover { color: var(--light-blue); }
+    .breadcrumb span { color: var(--text-muted); margin: 0 8px; }
+    .breadcrumb .current { color: var(--text-secondary); }
+    h1 {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+    .subtitle {
+      font-size: 15px;
+      color: var(--text-muted);
+      margin-bottom: 32px;
+    }
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: 12px;
+      border: 1px solid rgba(79, 195, 247, 0.1);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 900px;
+    }
+    thead {
+      background: var(--dark-navy);
+    }
+    th {
+      text-align: left;
+      padding: 14px 16px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      border-bottom: 1px solid rgba(79, 195, 247, 0.1);
+    }
+    td {
+      padding: 14px 16px;
+      font-size: 13px;
+      border-bottom: 1px solid rgba(79, 195, 247, 0.05);
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover { background: rgba(79, 195, 247, 0.03); }
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .badge-confirmed { background: rgba(76, 175, 80, 0.15); color: #81C784; }
+    .badge-pending { background: rgba(255, 152, 0, 0.15); color: #FFB74D; }
+    .badge-cancelled { background: rgba(244, 67, 54, 0.15); color: #E57373; }
+    .badge-completed { background: rgba(33, 150, 243, 0.15); color: #64B5F6; }
+    .badge-paid { background: rgba(76, 175, 80, 0.15); color: #81C784; }
+    .badge-awaiting { background: rgba(255, 152, 0, 0.15); color: #FFB74D; }
+    .badge-refunded { background: rgba(156, 39, 176, 0.15); color: #CE93D8; }
+    .mono { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 12px; color: var(--text-muted); }
+    .price { color: var(--light-blue); font-weight: 600; }
+    #loading {
+      text-align: center;
+      padding: 48px;
+      color: var(--text-muted);
+    }
+    footer {
+      padding: 24px;
+      text-align: center;
+      border-top: 1px solid rgba(79, 195, 247, 0.06);
+    }
+    .footer-links {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      margin-bottom: 12px;
+    }
+    .footer-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .footer-links a:hover { color: var(--light-blue); }
+    .footer-links span { color: rgba(90,122,154,0.3); font-size: 13px; }
+    .copyright { font-size: 12px; color: rgba(90,122,154,0.5); }
+    @media (max-width: 768px) {
+      h1 { font-size: 28px; }
+      .content { padding: 32px 16px 64px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <a href="/">SPLYT</a>
+  </div>
+  <div class="mock-banner">Mock Data — Developer Reference Only</div>
+
+  <div class="content">
+    <div class="breadcrumb">
+      <a href="/mock">Mock Data</a><span>/</span><span class="current">Bookings</span>
+    </div>
+    <h1>Bookings</h1>
+    <p class="subtitle">Guest reservations and payment tracking across all cities.</p>
+
+    <div id="loading">Loading bookings...</div>
+    <div class="table-wrap" id="table-container" style="display:none;">
+      <table>
+        <thead>
+          <tr>
+            <th>Booking ID</th>
+            <th>Guest</th>
+            <th>Yacht</th>
+            <th>City</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Guests</th>
+            <th>Share</th>
+            <th>Payment</th>
+          </tr>
+        </thead>
+        <tbody id="bookings-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <span>&middot;</span>
+      <a href="/mock">Mock Data</a>
+      <span>&middot;</span>
+      <a href="/privacy">Privacy Policy</a>
+      <span>&middot;</span>
+      <a href="/terms">Terms of Service</a>
+    </div>
+    <p class="copyright">&copy; 2025 SPLYT. All rights reserved.</p>
+  </footer>
+
+  <script>
+    const statusClass = { confirmed: 'badge-confirmed', pending: 'badge-pending', cancelled: 'badge-cancelled', completed: 'badge-completed' };
+    const paymentClass = { paid: 'badge-paid', awaiting: 'badge-awaiting', refunded: 'badge-refunded' };
+
+    function formatDate(dateStr) {
+      const d = new Date(dateStr + 'T00:00:00');
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    fetch('/mock/data/bookings.json')
+      .then(r => r.json())
+      .then(bookings => {
+        const tbody = document.getElementById('bookings-body');
+        bookings.forEach(b => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td class="mono">${b.booking_id}</td>
+            <td>${b.user}</td>
+            <td>${b.yacht}</td>
+            <td>${b.city}</td>
+            <td>${formatDate(b.date)}</td>
+            <td><span class="badge ${statusClass[b.status]}">${b.status}</span></td>
+            <td>${b.guests}</td>
+            <td class="price">$${b.user_share}</td>
+            <td><span class="badge ${paymentClass[b.payment_status]}">${b.payment_status}</span></td>
+          `;
+          tbody.appendChild(tr);
+        });
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('table-container').style.display = 'block';
+      })
+      .catch(() => {
+        document.getElementById('loading').textContent = 'Failed to load bookings.';
+      });
+  </script>
+</body>
+</html>

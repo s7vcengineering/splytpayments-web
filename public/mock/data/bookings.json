@@ -1,0 +1,90 @@
+[
+  {
+    "booking_id": "BK-2047",
+    "user": "Alejandro M.",
+    "yacht": "Sea Majesty 60",
+    "city": "Miami",
+    "date": "2026-03-14",
+    "status": "confirmed",
+    "guests": 6,
+    "user_share": 275,
+    "payment_status": "paid"
+  },
+  {
+    "booking_id": "BK-2051",
+    "user": "Priya K.",
+    "yacht": "Azure Dream",
+    "city": "Dubai",
+    "date": "2026-03-16",
+    "status": "pending",
+    "guests": 8,
+    "user_share": 420,
+    "payment_status": "awaiting"
+  },
+  {
+    "booking_id": "BK-2039",
+    "user": "Nikolas T.",
+    "yacht": "Elara Voyager",
+    "city": "Mykonos",
+    "date": "2026-03-12",
+    "status": "confirmed",
+    "guests": 10,
+    "user_share": 195,
+    "payment_status": "paid"
+  },
+  {
+    "booking_id": "BK-2044",
+    "user": "Camille D.",
+    "yacht": "Le Mistral",
+    "city": "Monaco",
+    "date": "2026-03-20",
+    "status": "confirmed",
+    "guests": 4,
+    "user_share": 580,
+    "payment_status": "paid"
+  },
+  {
+    "booking_id": "BK-2053",
+    "user": "Jordan W.",
+    "yacht": "Ibiza Sol",
+    "city": "Ibiza",
+    "date": "2026-03-22",
+    "status": "pending",
+    "guests": 12,
+    "user_share": 150,
+    "payment_status": "awaiting"
+  },
+  {
+    "booking_id": "BK-2038",
+    "user": "Sofia L.",
+    "yacht": "Caribbean Queen",
+    "city": "Miami",
+    "date": "2026-03-10",
+    "status": "completed",
+    "guests": 6,
+    "user_share": 310,
+    "payment_status": "paid"
+  },
+  {
+    "booking_id": "BK-2042",
+    "user": "Marcus H.",
+    "yacht": "Neptune's Call",
+    "city": "Cannes",
+    "date": "2026-03-18",
+    "status": "cancelled",
+    "guests": 8,
+    "user_share": 360,
+    "payment_status": "refunded"
+  },
+  {
+    "booking_id": "BK-2055",
+    "user": "Lena R.",
+    "yacht": "Golden Horizon",
+    "city": "Dubai",
+    "date": "2026-03-25",
+    "status": "confirmed",
+    "guests": 6,
+    "user_share": 490,
+    "payment_status": "paid"
+  }
+]
