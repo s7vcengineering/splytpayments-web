@@ -1,0 +1,1662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Captain Dashboard — Mock Data — SPLYT</title>
+  <link rel="icon" type="image/png" href="/app-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --deep-ocean: #0A1628;
+      --dark-navy: #0D1F3C;
+      --midnight-blue: #102A4C;
+      --ocean-blue: #1A3A5C;
+      --sea-blue: #2196F3;
+      --light-blue: #4FC3F7;
+      --sky-blue: #81D4FA;
+      --ice-blue: #B3E5FC;
+      --text-primary: #E8F0FE;
+      --text-secondary: #8EACCD;
+      --text-muted: #5A7A9A;
+      --green: #4CAF50;
+      --green-glow: rgba(76, 175, 80, 0.15);
+      --orange: #FF9800;
+      --orange-glow: rgba(255, 152, 0, 0.15);
+      --red: #F44336;
+      --red-glow: rgba(244, 67, 54, 0.15);
+      --gold: #FFD54F;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--deep-ocean);
+      color: var(--text-secondary);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Header */
+    .header {
+      padding: 24px;
+      text-align: center;
+      border-bottom: 1px solid rgba(79, 195, 247, 0.08);
+    }
+    .header a {
+      color: var(--text-primary);
+      text-decoration: none;
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 24px;
+      font-weight: 700;
+    }
+    .mock-banner {
+      background: linear-gradient(90deg, rgba(255, 152, 0, 0.15), rgba(255, 152, 0, 0.08));
+      border: 1px solid rgba(255, 152, 0, 0.3);
+      color: #FFB74D;
+      text-align: center;
+      padding: 10px 16px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    .content {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 32px 24px 80px;
+    }
+    .breadcrumb {
+      font-size: 13px;
+      margin-bottom: 24px;
+    }
+    .breadcrumb a { color: var(--text-muted); text-decoration: none; }
+    .breadcrumb a:hover { color: var(--light-blue); }
+    .breadcrumb span { color: var(--text-muted); margin: 0 8px; }
+    .breadcrumb .current { color: var(--text-secondary); }
+
+    /* Greeting */
+    .greeting {
+      margin-bottom: 32px;
+    }
+    .greeting-hello {
+      font-size: 15px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+    .greeting-name {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.1;
+    }
+
+    /* Quick Stats */
+    .quick-stats {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 36px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+    .qs {
+      flex: 1;
+      min-width: 0;
+      background: var(--dark-navy);
+      border: 1px solid rgba(79, 195, 247, 0.08);
+      border-radius: 14px;
+      padding: 16px;
+      text-align: center;
+    }
+    .qs-val {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--text-primary);
+      line-height: 1;
+    }
+    .qs-val.blue { color: var(--light-blue); }
+    .qs-val .qs-unit { font-size: 13px; font-weight: 600; color: var(--text-muted); }
+    .qs-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+
+    /* Nav Tabs */
+    .nav-row {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 24px;
+      border-bottom: 1px solid rgba(79, 195, 247, 0.06);
+      overflow-x: auto;
+    }
+    .nav-tab {
+      padding: 12px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+      white-space: nowrap;
+      background: none;
+      border-top: none;
+      border-left: none;
+      border-right: none;
+      font-family: inherit;
+    }
+    .nav-tab:hover { color: var(--text-secondary); }
+    .nav-tab.active {
+      color: var(--light-blue);
+      border-bottom-color: var(--light-blue);
+    }
+    .nav-tab .tab-count {
+      display: inline-block;
+      background: rgba(79, 195, 247, 0.12);
+      color: var(--light-blue);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 1px 7px;
+      border-radius: 10px;
+      margin-left: 6px;
+    }
+    .nav-tab.active .tab-count {
+      background: rgba(79, 195, 247, 0.2);
+    }
+
+    /* Tab panels */
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* Booking Cards */
+    .booking-card {
+      background: var(--dark-navy);
+      border: 1px solid rgba(79, 195, 247, 0.08);
+      border-radius: 16px;
+      margin-bottom: 12px;
+      overflow: hidden;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+    .booking-card:hover {
+      border-color: rgba(79, 195, 247, 0.18);
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+    }
+    .booking-card.expanded {
+      border-color: rgba(79, 195, 247, 0.2);
+    }
+    .booking-summary {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 18px 20px;
+    }
+    .booking-date-col {
+      width: 52px;
+      flex-shrink: 0;
+      text-align: center;
+    }
+    .booking-date-month {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--light-blue);
+    }
+    .booking-date-day {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--text-primary);
+      line-height: 1.1;
+    }
+    .booking-date-weekday {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .booking-main { flex: 1; min-width: 0; }
+    .booking-guest {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 3px;
+    }
+    .booking-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+    .booking-right {
+      text-align: right;
+      flex-shrink: 0;
+    }
+    .booking-earnings {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--light-blue);
+    }
+    .booking-earnings.zero { color: var(--text-muted); }
+
+    /* Badges */
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .badge-confirmed { background: rgba(76, 175, 80, 0.15); color: #81C784; }
+    .badge-pending { background: rgba(255, 152, 0, 0.15); color: #FFB74D; }
+    .badge-completed { background: rgba(33, 150, 243, 0.15); color: #64B5F6; }
+    .badge-cancelled { background: rgba(244, 67, 54, 0.12); color: #E57373; }
+
+    /* Expand chevron */
+    .booking-chevron {
+      flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+      color: var(--text-muted);
+      transition: transform 0.2s;
+    }
+    .booking-card.expanded .booking-chevron {
+      transform: rotate(180deg);
+    }
+
+    /* Detail panel */
+    .booking-detail {
+      display: none;
+      padding: 0 20px 20px;
+      animation: fadeSlide 0.2s ease;
+    }
+    .booking-card.expanded .booking-detail { display: block; }
+    @keyframes fadeSlide {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .detail-divider {
+      border: none;
+      border-top: 1px solid rgba(79, 195, 247, 0.06);
+      margin-bottom: 16px;
+    }
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .detail-field {}
+    .detail-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+    .detail-value {
+      font-size: 13px;
+      color: var(--text-primary);
+      line-height: 1.4;
+    }
+    .detail-value a {
+      color: var(--light-blue);
+      text-decoration: none;
+    }
+    .detail-value a:hover { text-decoration: underline; }
+    .detail-full {
+      grid-column: 1 / -1;
+    }
+    .detail-requests {
+      background: rgba(10, 22, 40, 0.5);
+      border: 1px solid rgba(79, 195, 247, 0.06);
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      font-style: italic;
+      line-height: 1.5;
+    }
+    .detail-addons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .addon-tag {
+      background: rgba(33, 150, 243, 0.1);
+      border: 1px solid rgba(33, 150, 243, 0.15);
+      color: var(--light-blue);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 8px;
+    }
+    /* Review in past booking detail */
+    .review-card {
+      background: rgba(10, 22, 40, 0.5);
+      border: 1px solid rgba(79, 195, 247, 0.06);
+      border-radius: 10px;
+      padding: 14px;
+    }
+    .review-stars {
+      color: var(--gold);
+      font-size: 14px;
+      margin-bottom: 6px;
+      letter-spacing: 2px;
+    }
+    .review-text {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      font-style: italic;
+    }
+    .cancellation-note {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--red-glow);
+      border: 1px solid rgba(244, 67, 54, 0.15);
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 13px;
+      color: #E57373;
+    }
+
+    /* Action buttons in detail */
+    .detail-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+    }
+    .action-btn {
+      flex: 1;
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid rgba(79, 195, 247, 0.15);
+      background: transparent;
+      color: var(--text-secondary);
+      text-align: center;
+    }
+    .action-btn:hover {
+      background: rgba(79, 195, 247, 0.08);
+      border-color: rgba(79, 195, 247, 0.3);
+      color: var(--light-blue);
+    }
+    .action-btn.primary {
+      background: linear-gradient(135deg, var(--sea-blue), var(--light-blue));
+      color: var(--deep-ocean);
+      border: none;
+    }
+    .action-btn.primary:hover {
+      box-shadow: 0 4px 16px rgba(33, 150, 243, 0.3);
+    }
+    .action-btn.approve {
+      background: var(--green-glow);
+      border-color: rgba(76, 175, 80, 0.2);
+      color: #81C784;
+    }
+    .action-btn.approve:hover {
+      background: rgba(76, 175, 80, 0.25);
+    }
+    .action-btn.decline {
+      background: var(--red-glow);
+      border-color: rgba(244, 67, 54, 0.15);
+      color: #E57373;
+    }
+    .action-btn.decline:hover {
+      background: rgba(244, 67, 54, 0.2);
+    }
+
+    /* My Boats section */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .section-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .boat-card {
+      background: var(--dark-navy);
+      border: 1px solid rgba(79, 195, 247, 0.08);
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+    .boat-hero {
+      height: 160px;
+      background: linear-gradient(135deg, var(--midnight-blue), var(--ocean-blue));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .boat-hero-icon {
+      opacity: 0.2;
+    }
+    .boat-active-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: var(--green-glow);
+      border: 1px solid rgba(76, 175, 80, 0.2);
+      color: #81C784;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 4px 10px;
+      border-radius: 8px;
+    }
+    .boat-body { padding: 20px; }
+    .boat-name {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+    .boat-spec {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+    .boat-details-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .boat-detail-item {}
+    .boat-detail-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+    }
+    .boat-detail-val {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .boat-features {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .boat-feature {
+      background: rgba(33, 150, 243, 0.08);
+      border: 1px solid rgba(33, 150, 243, 0.1);
+      color: var(--text-secondary);
+      font-size: 11px;
+      font-weight: 500;
+      padding: 4px 10px;
+      border-radius: 8px;
+    }
+    .boat-actions {
+      display: flex;
+      gap: 8px;
+      padding: 0 20px 20px;
+    }
+
+    /* Add Boat Card */
+    .add-boat-card {
+      background: var(--dark-navy);
+      border: 2px dashed rgba(79, 195, 247, 0.15);
+      border-radius: 16px;
+      padding: 40px 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 12px;
+    }
+    .add-boat-card:hover {
+      border-color: rgba(79, 195, 247, 0.35);
+      background: rgba(13, 31, 60, 0.8);
+    }
+    .add-boat-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: rgba(33, 150, 243, 0.1);
+      border: 1px solid rgba(33, 150, 243, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+    }
+    .add-boat-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+    .add-boat-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    /* Add Boat Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 22, 40, 0.88);
+      backdrop-filter: blur(8px);
+      z-index: 100;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 40px 16px;
+      overflow-y: auto;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal {
+      background: var(--dark-navy);
+      border: 1px solid rgba(79, 195, 247, 0.15);
+      border-radius: 20px;
+      padding: 32px;
+      width: 100%;
+      max-width: 520px;
+      animation: modalIn 0.25s ease;
+    }
+    @keyframes modalIn {
+      from { opacity: 0; transform: scale(0.96) translateY(12px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .modal-title {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+    .modal-subtitle {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 28px;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 8px;
+    }
+    .form-input,
+    .form-select {
+      width: 100%;
+      background: rgba(10, 22, 40, 0.5);
+      border: 1px solid rgba(79, 195, 247, 0.12);
+      border-radius: 10px;
+      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      padding: 12px 16px;
+      transition: border-color 0.2s;
+      -webkit-appearance: none;
+    }
+    .form-input::placeholder { color: var(--text-muted); }
+    .form-input:focus,
+    .form-select:focus {
+      outline: none;
+      border-color: var(--light-blue);
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .form-row-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+    }
+    .form-hint {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+    .form-section-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+      margin-top: 8px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(79, 195, 247, 0.06);
+    }
+
+    /* Feature checkboxes */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .feature-check {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+    .feature-check input {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--sea-blue);
+      cursor: pointer;
+    }
+    .feature-check span {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 12px;
+      margin-top: 28px;
+    }
+    .modal-btn {
+      flex: 1;
+      padding: 14px;
+      border-radius: 12px;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      text-align: center;
+    }
+    .modal-btn.cancel {
+      background: rgba(90, 122, 154, 0.15);
+      color: var(--text-secondary);
+    }
+    .modal-btn.cancel:hover { background: rgba(90, 122, 154, 0.25); }
+    .modal-btn.submit {
+      background: linear-gradient(135deg, var(--sea-blue), var(--light-blue));
+      color: var(--deep-ocean);
+    }
+    .modal-btn.submit:hover {
+      box-shadow: 0 4px 20px rgba(33, 150, 243, 0.3);
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--dark-navy);
+      border: 1px solid rgba(79, 195, 247, 0.2);
+      border-radius: 12px;
+      padding: 14px 24px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-primary);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      z-index: 200;
+      opacity: 0;
+      transition: all 0.3s ease;
+      pointer-events: none;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Footer */
+    footer {
+      padding: 24px;
+      text-align: center;
+      border-top: 1px solid rgba(79, 195, 247, 0.06);
+    }
+    .footer-links {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      margin-bottom: 12px;
+    }
+    .footer-links a { color: var(--text-muted); text-decoration: none; font-size: 13px; font-weight: 500; }
+    .footer-links a:hover { color: var(--light-blue); }
+    .footer-links span { color: rgba(90,122,154,0.3); font-size: 13px; }
+    .copyright { font-size: 12px; color: rgba(90,122,154,0.5); }
+
+    /* Quick links row */
+    .quick-links {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 32px;
+    }
+    .quick-link {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 16px;
+      background: var(--dark-navy);
+      border: 1px solid rgba(79, 195, 247, 0.08);
+      border-radius: 12px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .quick-link:hover {
+      border-color: rgba(79, 195, 247, 0.2);
+      color: var(--light-blue);
+      background: rgba(13, 31, 60, 0.9);
+    }
+    .quick-link svg {
+      flex-shrink: 0;
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .content { padding: 20px 14px 64px; }
+      .greeting-name { font-size: 28px; }
+      .quick-stats { gap: 8px; }
+      .qs { padding: 12px 8px; }
+      .qs-val { font-size: 20px; }
+      .booking-summary { padding: 14px 16px; gap: 12px; }
+      .booking-date-col { width: 44px; }
+      .booking-date-day { font-size: 20px; }
+      .detail-grid { grid-template-columns: 1fr; }
+      .form-row, .form-row-3 { grid-template-columns: 1fr; }
+      .feature-grid { grid-template-columns: 1fr; }
+      .quick-links { flex-direction: column; }
+      .boat-details-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    #loading {
+      text-align: center;
+      padding: 80px 24px;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <a href="/">SPLYT</a>
+  </div>
+  <div class="mock-banner">Mock Data — Developer Reference Only</div>
+
+  <div class="content">
+    <div class="breadcrumb">
+      <a href="/mock">Mock Data</a><span>/</span><span class="current">Captain Dashboard</span>
+    </div>
+
+    <div id="loading">Loading dashboard...</div>
+    <div id="app" style="display:none;">
+
+      <!-- Greeting -->
+      <div class="greeting" id="greeting"></div>
+
+      <!-- Quick Stats -->
+      <div class="quick-stats" id="quick-stats"></div>
+
+      <!-- Quick Links -->
+      <div class="quick-links">
+        <a href="/mock/captain-schedule" class="quick-link">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          Schedule
+        </a>
+        <a href="#boats-section" class="quick-link" id="link-my-boats">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 20l2-2h16l2 2"/><path d="M4 18l-1-5h18l-1 5"/><path d="M12 3v5"/><path d="M8 8l4-5 4 5"/></svg>
+          My Boats
+        </a>
+        <a href="/mock/bookings" class="quick-link">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          All Data
+        </a>
+      </div>
+
+      <!-- Tabs -->
+      <div class="nav-row" id="nav-tabs"></div>
+
+      <!-- Current Bookings -->
+      <div class="tab-panel active" id="panel-current"></div>
+
+      <!-- Past Bookings -->
+      <div class="tab-panel" id="panel-past"></div>
+
+      <!-- My Boats -->
+      <div class="tab-panel" id="panel-boats"></div>
+    </div>
+  </div>
+
+  <!-- Add Boat Modal -->
+  <div class="modal-overlay" id="add-boat-modal">
+    <div class="modal">
+      <div class="modal-title">Add a Boat</div>
+      <div class="modal-subtitle">Register your vessel to start accepting bookings.</div>
+
+      <div class="form-group">
+        <label class="form-label">Boat Name</label>
+        <input class="form-input" type="text" id="boat-name" placeholder='e.g. "Blue Horizon"'>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Make</label>
+          <input class="form-input" type="text" id="boat-make" placeholder="e.g. Sea Ray">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Model</label>
+          <input class="form-input" type="text" id="boat-model" placeholder="e.g. Sundancer 420">
+        </div>
+      </div>
+
+      <div class="form-row-3">
+        <div class="form-group">
+          <label class="form-label">Year</label>
+          <input class="form-input" type="number" id="boat-year" placeholder="2024" min="1980" max="2027">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Length (ft)</label>
+          <input class="form-input" type="number" id="boat-length" placeholder="42" min="15" max="200">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Capacity</label>
+          <input class="form-input" type="number" id="boat-capacity" placeholder="12" min="1" max="100">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Type</label>
+        <select class="form-select" id="boat-type">
+          <option value="">Select type...</option>
+          <option value="Motor Yacht">Motor Yacht</option>
+          <option value="Sailboat">Sailboat</option>
+          <option value="Catamaran">Catamaran</option>
+          <option value="Center Console">Center Console</option>
+          <option value="Pontoon">Pontoon</option>
+          <option value="Fishing Boat">Fishing Boat</option>
+          <option value="Jet Ski">Jet Ski</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Home Marina / Location</label>
+        <input class="form-input" type="text" id="boat-location" placeholder="e.g. Miami Beach Marina">
+      </div>
+
+      <div class="form-section-label">Features & Amenities</div>
+      <div class="feature-grid" id="feature-grid"></div>
+
+      <div class="modal-buttons">
+        <button class="modal-btn cancel" id="modal-cancel">Cancel</button>
+        <button class="modal-btn submit" id="modal-submit">Add Boat</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <footer>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <span>&middot;</span>
+      <a href="/mock">Mock Data</a>
+      <span>&middot;</span>
+      <a href="/privacy">Privacy Policy</a>
+      <span>&middot;</span>
+      <a href="/terms">Terms of Service</a>
+    </div>
+    <p class="copyright">&copy; 2025 SPLYT. All rights reserved.</p>
+  </footer>
+
+  <script>
+    // Captain Dashboard — Mock interactive UI
+    // Data source: /mock/data/captain.json (local mock, not user input)
+
+    var DATA = null;
+    var activeTab = 'current';
+    var expandedBooking = null;
+    var TODAY = new Date(2026, 2, 12);
+
+    var FEATURES_LIST = [
+      'Air Conditioning', 'Bluetooth Sound', 'Snorkel Gear', 'Cooler & Ice',
+      'Swim Platform', 'GPS Navigation', 'WiFi', 'Fishing Gear',
+      'Grill / BBQ', 'Kayak', 'Paddleboard', 'Water Toys',
+      'Sun Shade / Bimini', 'Underwater Lights', 'Drone Photography', 'First Aid Kit'
+    ];
+
+    function pad(n) { return n < 10 ? '0' + n : '' + n; }
+
+    function formatTime(t) {
+      var parts = t.split(':');
+      var h = parseInt(parts[0], 10);
+      var min = parts[1];
+      var ampm = h >= 12 ? 'PM' : 'AM';
+      var hr = h === 0 ? 12 : h > 12 ? h - 12 : h;
+      return hr + ':' + min + ' ' + ampm;
+    }
+
+    function formatDateLong(ds) {
+      var d = new Date(ds + 'T00:00:00');
+      return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    }
+
+    function showToast(msg) {
+      var t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(function() { t.classList.remove('show'); }, 2400);
+    }
+
+    // Greeting
+    function renderGreeting() {
+      var c = DATA.captain;
+      var hour = 9; // mock morning
+      var timeOfDay = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+      var el = document.getElementById('greeting');
+      var hello = document.createElement('div');
+      hello.className = 'greeting-hello';
+      hello.textContent = timeOfDay + ', Captain';
+      var name = document.createElement('div');
+      name.className = 'greeting-name';
+      name.textContent = c.first_name;
+      el.appendChild(hello);
+      el.appendChild(name);
+    }
+
+    // Quick stats
+    function renderQuickStats() {
+      var pending = DATA.current_bookings.filter(function(b) { return b.status === 'pending'; }).length;
+      var confirmed = DATA.current_bookings.filter(function(b) { return b.status === 'confirmed'; }).length;
+      var monthEarnings = 0;
+      DATA.current_bookings.forEach(function(b) { monthEarnings += b.earnings; });
+      DATA.past_bookings.forEach(function(b) { if (b.date.startsWith('2026-03')) monthEarnings += b.earnings; });
+
+      var stats = [
+        { val: confirmed, unit: '', label: 'Confirmed', cls: '' },
+        { val: pending, unit: '', label: 'Pending', cls: '' },
+        { val: '$' + monthEarnings.toLocaleString(), unit: '', label: 'This Month', cls: 'blue' },
+        { val: DATA.captain.rating, unit: '', label: 'Rating', cls: '' }
+      ];
+
+      var container = document.getElementById('quick-stats');
+      container.textContent = '';
+      stats.forEach(function(s) {
+        var qs = document.createElement('div');
+        qs.className = 'qs';
+        var val = document.createElement('div');
+        val.className = 'qs-val' + (s.cls ? ' ' + s.cls : '');
+        val.textContent = s.val;
+        if (s.unit) {
+          var unit = document.createElement('span');
+          unit.className = 'qs-unit';
+          unit.textContent = s.unit;
+          val.appendChild(unit);
+        }
+        var label = document.createElement('div');
+        label.className = 'qs-label';
+        label.textContent = s.label;
+        qs.appendChild(val);
+        qs.appendChild(label);
+        container.appendChild(qs);
+      });
+    }
+
+    // Tabs
+    function renderTabs() {
+      var tabs = [
+        { id: 'current', label: 'Current Bookings', count: DATA.current_bookings.length },
+        { id: 'past', label: 'Past Bookings', count: DATA.past_bookings.length },
+        { id: 'boats', label: 'My Boats', count: DATA.boats.length }
+      ];
+
+      var container = document.getElementById('nav-tabs');
+      container.textContent = '';
+      tabs.forEach(function(t) {
+        var btn = document.createElement('button');
+        btn.className = 'nav-tab' + (t.id === activeTab ? ' active' : '');
+        btn.textContent = t.label;
+        var count = document.createElement('span');
+        count.className = 'tab-count';
+        count.textContent = t.count;
+        btn.appendChild(count);
+        btn.addEventListener('click', function() { switchTab(t.id); });
+        container.appendChild(btn);
+      });
+    }
+
+    function switchTab(tabId) {
+      activeTab = tabId;
+      expandedBooking = null;
+      document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+      document.getElementById('panel-' + tabId).classList.add('active');
+      renderTabs();
+    }
+
+    // Booking card builder
+    function buildBookingCard(b, isPast) {
+      var card = document.createElement('div');
+      card.className = 'booking-card';
+      card.setAttribute('data-id', b.booking_id);
+
+      var d = new Date(b.date + 'T00:00:00');
+      var month = d.toLocaleDateString('en-US', { month: 'short' });
+      var day = d.getDate();
+      var weekday = d.toLocaleDateString('en-US', { weekday: 'short' });
+
+      // Summary row
+      var summary = document.createElement('div');
+      summary.className = 'booking-summary';
+
+      // Date column
+      var dateCol = document.createElement('div');
+      dateCol.className = 'booking-date-col';
+      var mEl = document.createElement('div');
+      mEl.className = 'booking-date-month';
+      mEl.textContent = month;
+      var dEl = document.createElement('div');
+      dEl.className = 'booking-date-day';
+      dEl.textContent = day;
+      var wEl = document.createElement('div');
+      wEl.className = 'booking-date-weekday';
+      wEl.textContent = weekday;
+      dateCol.appendChild(mEl);
+      dateCol.appendChild(dEl);
+      dateCol.appendChild(wEl);
+
+      // Main info
+      var main = document.createElement('div');
+      main.className = 'booking-main';
+      var guest = document.createElement('div');
+      guest.className = 'booking-guest';
+      guest.textContent = b.guest_name;
+      var badge = document.createElement('span');
+      badge.className = 'badge badge-' + b.status;
+      badge.textContent = b.status;
+      badge.style.marginLeft = '8px';
+      badge.style.verticalAlign = 'middle';
+      guest.appendChild(badge);
+      var meta = document.createElement('div');
+      meta.className = 'booking-meta';
+      if (b.start_time) {
+        meta.textContent = formatTime(b.start_time) + ' \u2013 ' + formatTime(b.end_time) + ' \u00B7 ' + b.trip_type + ' \u00B7 ' + b.guest_count + ' guests';
+      } else {
+        meta.textContent = b.trip_type + ' \u00B7 ' + b.guest_count + ' guests';
+      }
+      main.appendChild(guest);
+      main.appendChild(meta);
+
+      // Right side
+      var right = document.createElement('div');
+      right.className = 'booking-right';
+      var earn = document.createElement('div');
+      earn.className = 'booking-earnings' + (b.earnings === 0 ? ' zero' : '');
+      earn.textContent = b.earnings === 0 ? '\u2014' : '$' + b.earnings;
+      right.appendChild(earn);
+
+      // Chevron
+      var chevSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      chevSvg.setAttribute('class', 'booking-chevron');
+      chevSvg.setAttribute('width', '20');
+      chevSvg.setAttribute('height', '20');
+      chevSvg.setAttribute('viewBox', '0 0 24 24');
+      chevSvg.setAttribute('fill', 'none');
+      chevSvg.setAttribute('stroke', 'currentColor');
+      chevSvg.setAttribute('stroke-width', '2');
+      chevSvg.setAttribute('stroke-linecap', 'round');
+      var chevLine = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+      chevLine.setAttribute('points', '6 9 12 15 18 9');
+      chevSvg.appendChild(chevLine);
+
+      summary.appendChild(dateCol);
+      summary.appendChild(main);
+      summary.appendChild(right);
+      summary.appendChild(chevSvg);
+
+      // Detail panel
+      var detail = document.createElement('div');
+      detail.className = 'booking-detail';
+
+      var hr = document.createElement('hr');
+      hr.className = 'detail-divider';
+      detail.appendChild(hr);
+
+      var grid = document.createElement('div');
+      grid.className = 'detail-grid';
+
+      function addField(label, value, full) {
+        var field = document.createElement('div');
+        field.className = 'detail-field' + (full ? ' detail-full' : '');
+        var l = document.createElement('div');
+        l.className = 'detail-label';
+        l.textContent = label;
+        field.appendChild(l);
+        if (typeof value === 'string' || typeof value === 'number') {
+          var v = document.createElement('div');
+          v.className = 'detail-value';
+          v.textContent = value;
+          field.appendChild(v);
+        } else {
+          field.appendChild(value);
+        }
+        grid.appendChild(field);
+      }
+
+      addField('Booking ID', b.booking_id);
+      addField('Yacht', b.yacht);
+      if (b.start_time) {
+        addField('Time', formatTime(b.start_time) + ' \u2013 ' + formatTime(b.end_time) + ' (' + b.duration_hours + 'h)');
+      }
+      addField('Guests', b.guest_count + ' people');
+
+      if (b.pickup_location) {
+        addField('Pickup', b.pickup_location, true);
+      }
+
+      if (b.guest_phone && !isPast) {
+        var phoneLink = document.createElement('div');
+        phoneLink.className = 'detail-value';
+        var a = document.createElement('a');
+        a.href = 'tel:' + b.guest_phone.replace(/\D/g, '');
+        a.textContent = b.guest_phone;
+        phoneLink.appendChild(a);
+        addField('Guest Phone', phoneLink);
+      }
+
+      if (!isPast) {
+        addField('Earnings', '$' + b.earnings);
+      }
+
+      // Special requests (current bookings)
+      if (b.special_requests && b.special_requests.length > 0) {
+        var reqEl = document.createElement('div');
+        reqEl.className = 'detail-requests';
+        reqEl.textContent = b.special_requests;
+        addField('Special Requests', reqEl, true);
+      }
+
+      // Addons
+      if (b.addons && b.addons.length > 0) {
+        var addonsEl = document.createElement('div');
+        addonsEl.className = 'detail-addons';
+        b.addons.forEach(function(a) {
+          var tag = document.createElement('span');
+          tag.className = 'addon-tag';
+          tag.textContent = a;
+          addonsEl.appendChild(tag);
+        });
+        addField('Add-ons', addonsEl, true);
+      }
+
+      // Guest review (past bookings)
+      if (b.guest_review) {
+        var reviewCard = document.createElement('div');
+        reviewCard.className = 'review-card';
+        var stars = document.createElement('div');
+        stars.className = 'review-stars';
+        stars.textContent = '';
+        for (var s = 0; s < 5; s++) {
+          stars.textContent += s < b.guest_rating ? '\u2605' : '\u2606';
+        }
+        var text = document.createElement('div');
+        text.className = 'review-text';
+        text.textContent = '"' + b.guest_review + '"';
+        reviewCard.appendChild(stars);
+        reviewCard.appendChild(text);
+        addField('Guest Review', reviewCard, true);
+      }
+
+      // Cancellation reason
+      if (b.cancellation_reason) {
+        var cancelEl = document.createElement('div');
+        cancelEl.className = 'cancellation-note';
+        cancelEl.textContent = b.cancellation_reason;
+        addField('Cancellation', cancelEl, true);
+      }
+
+      detail.appendChild(grid);
+
+      // Action buttons for current bookings
+      if (!isPast) {
+        var actions = document.createElement('div');
+        actions.className = 'detail-actions';
+
+        if (b.status === 'pending') {
+          var approveBtn = document.createElement('button');
+          approveBtn.className = 'action-btn approve';
+          approveBtn.textContent = 'Approve';
+          approveBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            b.status = 'confirmed';
+            expandedBooking = b.booking_id;
+            renderCurrentBookings();
+            renderTabs();
+            renderQuickStats();
+            showToast('Booking approved');
+          });
+          var declineBtn = document.createElement('button');
+          declineBtn.className = 'action-btn decline';
+          declineBtn.textContent = 'Decline';
+          declineBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            b.status = 'cancelled';
+            b.earnings = 0;
+            // Move to past
+            DATA.past_bookings.unshift({
+              booking_id: b.booking_id,
+              date: b.date,
+              start_time: b.start_time,
+              end_time: b.end_time,
+              duration_hours: b.duration_hours,
+              guest_name: b.guest_name,
+              guest_count: b.guest_count,
+              yacht: b.yacht,
+              trip_type: b.trip_type,
+              status: 'cancelled',
+              earnings: 0,
+              pickup_location: b.pickup_location,
+              cancellation_reason: 'Declined by captain'
+            });
+            DATA.current_bookings = DATA.current_bookings.filter(function(x) { return x.booking_id !== b.booking_id; });
+            expandedBooking = null;
+            renderCurrentBookings();
+            renderPastBookings();
+            renderTabs();
+            renderQuickStats();
+            showToast('Booking declined');
+          });
+          actions.appendChild(approveBtn);
+          actions.appendChild(declineBtn);
+        }
+
+        var contactBtn = document.createElement('button');
+        contactBtn.className = 'action-btn' + (b.status === 'pending' ? '' : ' primary');
+        contactBtn.textContent = 'Message Guest';
+        contactBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          showToast('Messaging coming soon');
+        });
+        actions.appendChild(contactBtn);
+
+        detail.appendChild(actions);
+      }
+
+      card.appendChild(summary);
+      card.appendChild(detail);
+
+      // Toggle expand
+      summary.addEventListener('click', function() {
+        if (expandedBooking === b.booking_id) {
+          expandedBooking = null;
+          card.classList.remove('expanded');
+        } else {
+          // Collapse previous
+          document.querySelectorAll('.booking-card.expanded').forEach(function(c) { c.classList.remove('expanded'); });
+          expandedBooking = b.booking_id;
+          card.classList.add('expanded');
+        }
+      });
+
+      if (expandedBooking === b.booking_id) {
+        card.classList.add('expanded');
+      }
+
+      return card;
+    }
+
+    // Render current bookings
+    function renderCurrentBookings() {
+      var container = document.getElementById('panel-current');
+      container.textContent = '';
+
+      if (DATA.current_bookings.length === 0) {
+        var empty = document.createElement('div');
+        empty.className = 'empty-state';
+        empty.textContent = 'No current bookings.';
+        container.appendChild(empty);
+        return;
+      }
+
+      // Sort: pending first, then by date
+      var sorted = DATA.current_bookings.slice().sort(function(a, b) {
+        if (a.status === 'pending' && b.status !== 'pending') return -1;
+        if (a.status !== 'pending' && b.status === 'pending') return 1;
+        return a.date.localeCompare(b.date) || a.start_time.localeCompare(b.start_time);
+      });
+
+      // Pending section
+      var pendingBookings = sorted.filter(function(b) { return b.status === 'pending'; });
+      var confirmedBookings = sorted.filter(function(b) { return b.status !== 'pending'; });
+
+      if (pendingBookings.length > 0) {
+        var pendingHeader = document.createElement('div');
+        pendingHeader.className = 'section-header';
+        var pendingTitle = document.createElement('div');
+        pendingTitle.className = 'section-title';
+        pendingTitle.textContent = 'Needs Your Approval';
+        pendingHeader.appendChild(pendingTitle);
+        container.appendChild(pendingHeader);
+
+        pendingBookings.forEach(function(b) {
+          container.appendChild(buildBookingCard(b, false));
+        });
+      }
+
+      if (confirmedBookings.length > 0) {
+        var confHeader = document.createElement('div');
+        confHeader.className = 'section-header';
+        confHeader.style.marginTop = pendingBookings.length > 0 ? '28px' : '0';
+        var confTitle = document.createElement('div');
+        confTitle.className = 'section-title';
+        confTitle.textContent = 'Confirmed';
+        confHeader.appendChild(confTitle);
+        container.appendChild(confHeader);
+
+        confirmedBookings.forEach(function(b) {
+          container.appendChild(buildBookingCard(b, false));
+        });
+      }
+    }
+
+    // Render past bookings
+    function renderPastBookings() {
+      var container = document.getElementById('panel-past');
+      container.textContent = '';
+
+      if (DATA.past_bookings.length === 0) {
+        var empty = document.createElement('div');
+        empty.className = 'empty-state';
+        empty.textContent = 'No past bookings yet.';
+        container.appendChild(empty);
+        return;
+      }
+
+      DATA.past_bookings.forEach(function(b) {
+        container.appendChild(buildBookingCard(b, true));
+      });
+    }
+
+    // Render boats
+    function renderBoats() {
+      var container = document.getElementById('panel-boats');
+      container.textContent = '';
+
+      DATA.boats.forEach(function(boat) {
+        var card = document.createElement('div');
+        card.className = 'boat-card';
+
+        // Hero
+        var hero = document.createElement('div');
+        hero.className = 'boat-hero';
+
+        var icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        icon.setAttribute('class', 'boat-hero-icon');
+        icon.setAttribute('width', '120');
+        icon.setAttribute('height', '80');
+        icon.setAttribute('viewBox', '0 0 120 80');
+        icon.setAttribute('fill', 'none');
+        icon.setAttribute('stroke', 'currentColor');
+        icon.setAttribute('stroke-width', '1.5');
+        var p1 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        p1.setAttribute('d', 'M10 55 L30 55 L35 40 L85 40 L90 55 L110 55');
+        p1.setAttribute('stroke', 'var(--light-blue)');
+        var p2 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        p2.setAttribute('d', 'M40 40 L40 20 L75 20 L75 40');
+        p2.setAttribute('stroke', 'var(--light-blue)');
+        var p3 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        p3.setAttribute('d', 'M5 65 Q30 58 60 65 Q90 72 115 65');
+        p3.setAttribute('stroke', 'var(--sea-blue)');
+        icon.appendChild(p1);
+        icon.appendChild(p2);
+        icon.appendChild(p3);
+        hero.appendChild(icon);
+
+        if (boat.status === 'active') {
+          var activeBadge = document.createElement('div');
+          activeBadge.className = 'boat-active-badge';
+          activeBadge.textContent = 'Active';
+          hero.appendChild(activeBadge);
+        }
+
+        // Body
+        var body = document.createElement('div');
+        body.className = 'boat-body';
+
+        var bName = document.createElement('div');
+        bName.className = 'boat-name';
+        bName.textContent = boat.name;
+
+        var bSpec = document.createElement('div');
+        bSpec.className = 'boat-spec';
+        bSpec.textContent = boat.year + ' ' + boat.make + ' ' + boat.model;
+
+        var detGrid = document.createElement('div');
+        detGrid.className = 'boat-details-grid';
+
+        function addBoatDetail(label, val) {
+          var item = document.createElement('div');
+          item.className = 'boat-detail-item';
+          var l = document.createElement('div');
+          l.className = 'boat-detail-label';
+          l.textContent = label;
+          var v = document.createElement('div');
+          v.className = 'boat-detail-val';
+          v.textContent = val;
+          item.appendChild(l);
+          item.appendChild(v);
+          detGrid.appendChild(item);
+        }
+
+        addBoatDetail('Type', boat.type);
+        addBoatDetail('Length', boat.length_ft + ' ft');
+        addBoatDetail('Capacity', boat.capacity + ' guests');
+        addBoatDetail('Location', boat.location);
+
+        var features = document.createElement('div');
+        features.className = 'boat-features';
+        features.style.marginTop = '4px';
+        boat.features.forEach(function(f) {
+          var tag = document.createElement('span');
+          tag.className = 'boat-feature';
+          tag.textContent = f;
+          features.appendChild(tag);
+        });
+
+        body.appendChild(bName);
+        body.appendChild(bSpec);
+        body.appendChild(detGrid);
+        body.appendChild(features);
+
+        // Actions
+        var actions = document.createElement('div');
+        actions.className = 'boat-actions';
+        var editBtn = document.createElement('button');
+        editBtn.className = 'action-btn';
+        editBtn.textContent = 'Edit Details';
+        editBtn.addEventListener('click', function() { showToast('Edit coming soon'); });
+        var manageBtn = document.createElement('button');
+        manageBtn.className = 'action-btn primary';
+        manageBtn.textContent = 'Manage Availability';
+        manageBtn.addEventListener('click', function() { window.location.href = '/mock/captain-schedule'; });
+        actions.appendChild(editBtn);
+        actions.appendChild(manageBtn);
+
+        card.appendChild(hero);
+        card.appendChild(body);
+        card.appendChild(actions);
+        container.appendChild(card);
+      });
+
+      // Add boat card
+      var addCard = document.createElement('div');
+      addCard.className = 'add-boat-card';
+      addCard.addEventListener('click', function() { openAddBoatModal(); });
+
+      var addIcon = document.createElement('div');
+      addIcon.className = 'add-boat-icon';
+      var plusSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      plusSvg.setAttribute('width', '28');
+      plusSvg.setAttribute('height', '28');
+      plusSvg.setAttribute('viewBox', '0 0 24 24');
+      plusSvg.setAttribute('fill', 'none');
+      plusSvg.setAttribute('stroke', 'var(--light-blue)');
+      plusSvg.setAttribute('stroke-width', '2');
+      plusSvg.setAttribute('stroke-linecap', 'round');
+      var l1 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      l1.setAttribute('x1', '12'); l1.setAttribute('y1', '5');
+      l1.setAttribute('x2', '12'); l1.setAttribute('y2', '19');
+      var l2 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      l2.setAttribute('x1', '5'); l2.setAttribute('y1', '12');
+      l2.setAttribute('x2', '19'); l2.setAttribute('y2', '12');
+      plusSvg.appendChild(l1);
+      plusSvg.appendChild(l2);
+      addIcon.appendChild(plusSvg);
+
+      var addTitle = document.createElement('div');
+      addTitle.className = 'add-boat-title';
+      addTitle.textContent = 'Add Another Boat';
+      var addDesc = document.createElement('div');
+      addDesc.className = 'add-boat-desc';
+      addDesc.textContent = 'List another vessel to expand your fleet.';
+
+      addCard.appendChild(addIcon);
+      addCard.appendChild(addTitle);
+      addCard.appendChild(addDesc);
+      container.appendChild(addCard);
+    }
+
+    // Add boat modal
+    function openAddBoatModal() {
+      // Render feature checkboxes
+      var grid = document.getElementById('feature-grid');
+      grid.textContent = '';
+      FEATURES_LIST.forEach(function(f) {
+        var label = document.createElement('label');
+        label.className = 'feature-check';
+        var cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.value = f;
+        var span = document.createElement('span');
+        span.textContent = f;
+        label.appendChild(cb);
+        label.appendChild(span);
+        grid.appendChild(label);
+      });
+
+      document.getElementById('add-boat-modal').classList.add('active');
+    }
+
+    function closeAddBoatModal() {
+      document.getElementById('add-boat-modal').classList.remove('active');
+      // Clear form
+      document.getElementById('boat-name').value = '';
+      document.getElementById('boat-make').value = '';
+      document.getElementById('boat-model').value = '';
+      document.getElementById('boat-year').value = '';
+      document.getElementById('boat-length').value = '';
+      document.getElementById('boat-capacity').value = '';
+      document.getElementById('boat-type').value = '';
+      document.getElementById('boat-location').value = '';
+    }
+
+    function submitAddBoat() {
+      var name = document.getElementById('boat-name').value.trim();
+      var make = document.getElementById('boat-make').value.trim();
+      var model = document.getElementById('boat-model').value.trim();
+      var year = parseInt(document.getElementById('boat-year').value, 10);
+      var length = parseInt(document.getElementById('boat-length').value, 10);
+      var capacity = parseInt(document.getElementById('boat-capacity').value, 10);
+      var type = document.getElementById('boat-type').value;
+      var location = document.getElementById('boat-location').value.trim();
+
+      if (!name) { showToast('Please enter a boat name'); return; }
+      if (!type) { showToast('Please select a boat type'); return; }
+
+      var features = [];
+      document.querySelectorAll('#feature-grid input:checked').forEach(function(cb) {
+        features.push(cb.value);
+      });
+
+      var newBoat = {
+        boat_id: 'BT-' + String(DATA.boats.length + 1).padStart(3, '0'),
+        name: name,
+        type: type,
+        make: make || 'Unknown',
+        model: model || '',
+        year: year || 2024,
+        length_ft: length || 30,
+        capacity: capacity || 8,
+        location: location || 'Not specified',
+        photo_placeholder: 'yacht',
+        status: 'active',
+        features: features
+      };
+
+      DATA.boats.push(newBoat);
+      closeAddBoatModal();
+      renderBoats();
+      renderTabs();
+      showToast(name + ' added to your fleet');
+    }
+
+    document.getElementById('modal-cancel').addEventListener('click', closeAddBoatModal);
+    document.getElementById('modal-submit').addEventListener('click', submitAddBoat);
+    document.getElementById('add-boat-modal').addEventListener('click', function(e) {
+      if (e.target === e.currentTarget) closeAddBoatModal();
+    });
+
+    // Scroll to boats when quick link clicked
+    document.getElementById('link-my-boats').addEventListener('click', function(e) {
+      e.preventDefault();
+      switchTab('boats');
+      document.getElementById('nav-tabs').scrollIntoView({ behavior: 'smooth' });
+    });
+
+    // Init
+    fetch('/mock/data/captain.json')
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        DATA = data;
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('app').style.display = 'block';
+        renderGreeting();
+        renderQuickStats();
+        renderTabs();
+        renderCurrentBookings();
+        renderPastBookings();
+        renderBoats();
+      })
+      .catch(function() {
+        document.getElementById('loading').textContent = 'Failed to load captain data.';
+      });
+  </script>
+</body>
+</html>
