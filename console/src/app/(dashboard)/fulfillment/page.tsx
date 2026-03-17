@@ -2,6 +2,7 @@ import { createServiceClient } from "@/lib/supabase";
 import { formatCurrency, cn } from "@/lib/utils";
 import Link from "next/link";
 import { PipelineActions } from "./pipeline-actions";
+import { AgentProfile } from "./agent-profile";
 
 export const dynamic = "force-dynamic";
 
@@ -177,6 +178,8 @@ export default async function FulfillmentPage() {
                 {pipeline[stage.key].length}
               </span>
             </div>
+
+            <AgentProfile stage={stage.key} />
 
             <div className="space-y-3">
               {pipeline[stage.key].length === 0 ? (
