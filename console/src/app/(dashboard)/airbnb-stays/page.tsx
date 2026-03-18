@@ -106,7 +106,8 @@ export default async function AirbnbStaysPage({ searchParams }: Props) {
           const badges = (stay.badges as string[]) || [];
 
           return (
-            <div
+            <Link
+              href={`/airbnb-stays/${stay.id}`}
               key={stay.id as string}
               className="bg-ocean-900 rounded-xl border border-ocean-700 overflow-hidden hover:border-ocean-500 transition-colors group"
             >
@@ -203,20 +204,13 @@ export default async function AirbnbStaysPage({ searchParams }: Props) {
                   ) : null}
                 </div>
 
-                {stay.source_url ? (
-                  <div className="mt-2 pt-2 border-t border-ocean-800 flex justify-end">
-                    <a
-                      href={stay.source_url as string}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-[10px] text-rose-400 hover:text-rose-300 transition-colors"
-                    >
-                      View on Airbnb &rarr;
-                    </a>
-                  </div>
-                ) : null}
+                <div className="mt-2 pt-2 border-t border-ocean-800 flex justify-end">
+                  <span className="text-[10px] text-rose-400 group-hover:text-rose-300 transition-colors">
+                    View details &rarr;
+                  </span>
+                </div>
               </div>
-            </div>
+            </Link>
           );
         })}
       </div>
