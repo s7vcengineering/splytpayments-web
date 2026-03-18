@@ -17,7 +17,7 @@ async function getData(params: Record<string, string | undefined>) {
   let query = supabase
     .from("airbnb_experiences")
     .select(
-      "id, title, city, price_amount, price_type, rating, review_count, category, photo_urls, source_url, duration_minutes",
+      "id, title, city, price_amount, price_type, rating, review_count, category, photo_urls, source_url, duration_minutes, host_name, description",
       { count: "exact" },
     );
 
@@ -110,7 +110,8 @@ export default async function AirbnbExperiencesPage({ searchParams }: Props) {
           const title = (exp.title as string) || "Untitled";
 
           return (
-            <div
+            <Link
+              href={`/airbnb-experiences/${exp.id}`}
               key={exp.id as string}
               className="bg-ocean-900 rounded-xl border border-ocean-700 overflow-hidden hover:border-ocean-500 transition-colors group"
             >
@@ -187,20 +188,20 @@ export default async function AirbnbExperiencesPage({ searchParams }: Props) {
                   </p>
                 ) : null}
 
-                {exp.source_url ? (
-                  <div className="mt-2 pt-2 border-t border-ocean-800 flex justify-end">
-                    <a
-                      href={exp.source_url as string}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-[10px] text-pink-400 hover:text-pink-300 transition-colors"
-                    >
-                      View on Airbnb &rarr;
-                    </a>
-                  </div>
-                ) : null}
+                <div className="mt-2 pt-2 border-t border-ocean-800 flex items-center justify-between">
+                  {exp.host_name ? (
+                    <span className="text-[10px] text-ocean-500 truncate mr-2">
+                      Hosted by {exp.host_name as string}
+                    </span>
+                  ) : (
+                    <span />
+                  )}
+                  <span className="text-[10px] text-pink-400 group-hover:text-pink-300 transition-colors shrink-0">
+                    View details &rarr;
+                  </span>
+                </div>
               </div>
-            </div>
+            </Link>
           );
         })}
       </div>

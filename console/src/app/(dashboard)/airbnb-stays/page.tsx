@@ -204,8 +204,15 @@ export default async function AirbnbStaysPage({ searchParams }: Props) {
                   ) : null}
                 </div>
 
-                <div className="mt-2 pt-2 border-t border-ocean-800 flex justify-end">
-                  <span className="text-[10px] text-rose-400 group-hover:text-rose-300 transition-colors">
+                <div className="mt-2 pt-2 border-t border-ocean-800 flex items-center justify-between">
+                  {stay.host_name ? (
+                    <span className="text-[10px] text-ocean-500 truncate mr-2">
+                      Hosted by {stay.host_name as string}
+                    </span>
+                  ) : (
+                    <span />
+                  )}
+                  <span className="text-[10px] text-rose-400 group-hover:text-rose-300 transition-colors shrink-0">
                     View details &rarr;
                   </span>
                 </div>
