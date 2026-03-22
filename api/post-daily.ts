@@ -15,23 +15,33 @@ export const config = { runtime: "edge" };
  * the `social_posts_log` table in Supabase.
  */
 
-interface BoatListing {
+interface Listing {
   id: string;
-  boatsetter_listing_id?: string;
+  source_type: "boat" | "car" | "experience" | "stay";
   name: string;
+  title?: string;
   type?: string;
   city?: string;
   hourly_rate?: number;
+  daily_rate?: number;
+  price_per_person?: number;
+  price_per_night?: number;
   capacity?: number;
+  max_guests?: number;
   rating?: number;
   length_ft?: number;
   captain_name?: string;
+  host_name?: string;
   features?: string[];
   amenities?: string[];
   make?: string;
   model?: string;
   description?: string;
   is_active?: boolean;
+  boatsetter_listing_id?: string;
+  body_style?: string;
+  category?: string;
+  photo_urls?: string[];
 }
 
 function supabaseFetch(
@@ -101,80 +111,123 @@ async function handler(req: Request): Promise<Response> {
   const baseUrl = appUrl.startsWith("http") ? appUrl : `https://${appUrl}`;
 
   try {
-    // ── 1. Get IDs of boats already posted to Instagram ──
+    // ── 1. Get IDs of listings already posted to Instagram ──
     const postedResp = await supabaseFetch(
       supabaseUrl,
       supabaseKey,
-      "social_posts_log?select=boat_id&platform=eq.instagram&status=eq.published"
+      "social_posts_log?select=boat_id,listing_type&platform=eq.instagram&status=eq.published"
     );
-    const postedRows: { boat_id: string }[] = await postedResp.json();
+    const postedRows: { boat_id: string; listing_type?: string }[] = await postedResp.json();
     const postedIds = Array.isArray(postedRows)
       ? postedRows.map((r) => r.boat_id).filter(Boolean)
       : [];
 
-    // ── 2. Find the best unposted boat listing ──
-    // Prefer active boats with: good rating, not already posted.
-    // Order by rating desc, then by most recently added/updated.
-    let boatQuery =
-      "boats?select=*&is_active=eq.true&order=rating.desc.nullslast,created_at.desc&limit=1";
+    // ── 2. Rotate through experience types ──
+    // Use day-of-year to cycle: boats, cars, experiences, stays
+    const dayOfYear = Math.floor(
+      (Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000
+    );
+    const sourceTypes = ["boat", "car", "experience", "boat"] as const;
+    const todayType = sourceTypes[dayOfYear % sourceTypes.length];
 
-    if (postedIds.length > 0) {
-      // Exclude already-posted boats
-      boatQuery += `&id=not.in.(${postedIds.join(",")})`;
+    let listing: Listing | null = null;
+
+    // Try today's type first, fall back to others if empty
+    const typesToTry = [todayType, ...sourceTypes.filter(t => t !== todayType)];
+
+    for (const tryType of typesToTry) {
+      if (listing) break;
+
+      let table: string;
+      let ratingCol = "rating";
+      if (tryType === "car") table = "exotic_cars";
+      else if (tryType === "experience") table = "airbnb_experiences";
+      else if (tryType === "stay") table = "airbnb_stays";
+      else table = "boats";
+
+      let query = `${table}?select=*&order=${ratingCol}.desc.nullslast,created_at.desc&limit=1`;
+
+      if (table === "boats") query = `${table}?select=*&is_active=eq.true&order=${ratingCol}.desc.nullslast,created_at.desc&limit=1`;
+
+      if (postedIds.length > 0) {
+        query += `&id=not.in.(${postedIds.join(",")})`;
+      }
+
+      const resp = await supabaseFetch(supabaseUrl, supabaseKey, query);
+      const rows = await resp.json();
+
+      if (Array.isArray(rows) && rows.length > 0) {
+        listing = { ...rows[0], source_type: tryType };
+      }
     }
 
-    const boatsResp = await supabaseFetch(supabaseUrl, supabaseKey, boatQuery);
-    const boats: BoatListing[] = await boatsResp.json();
-
-    if (!Array.isArray(boats) || boats.length === 0) {
+    if (!listing) {
       return Response.json(
-        { message: "No unposted boat listings available" },
+        { message: "No unposted listings available across any category" },
         { status: 200 }
       );
     }
 
-    const boat = boats[0];
+    // ── 3. Extract display values based on type ──
+    const displayTitle = listing.title || listing.name || "Premium Experience";
+    const displayCity = listing.city || "Miami";
+    const displayRating = listing.rating ? Number(listing.rating) : 0;
 
-    // ── 3. Extract display values ──
-    const displayTitle = boat.name || "Yacht Experience";
-    const displayCity = boat.city || "Miami";
-    const pricePerHour = boat.hourly_rate
-      ? Math.round(Number(boat.hourly_rate))
-      : 0;
-    const displayBoatName =
-      boat.make && boat.model
-        ? `${boat.make} ${boat.model}`
-        : boat.name || "Premium Yacht";
-    const displayCapacity = boat.capacity || 12;
-    const displayRating = boat.rating ? Number(boat.rating) : 4.9;
-    const displayBoatType = boat.type || "Yacht";
-    const displayLength = boat.length_ft || 42;
+    let priceStr = "";
+    let splitPriceStr = "";
+    let categoryLine = "";
+    let hashtags = "#SPLYT #SplitTheCost #LuxuryForLess";
+    let tagline = "Premium experiences, split your way.";
+
+    if (listing.source_type === "car") {
+      const dailyRate = listing.daily_rate ? Math.round(Number(listing.daily_rate)) : 0;
+      priceStr = dailyRate > 0 ? `From $${dailyRate}/day` : "";
+      splitPriceStr = dailyRate > 0 ? `$${Math.round(dailyRate / 4)}/person when you split with 4` : "";
+      categoryLine = `${listing.body_style || "Exotic Car"} | ${listing.city || "Miami"}`;
+      hashtags = "#SPLYT #ExoticCars #LuxuryCars #SplitTheCost #LuxuryForLess #SuperCars #CarRental";
+      tagline = "Drive what you've always wanted.";
+    } else if (listing.source_type === "experience") {
+      const ppp = listing.price_per_person ? Math.round(Number(listing.price_per_person)) : 0;
+      priceStr = ppp > 0 ? `From $${ppp}/person` : "";
+      splitPriceStr = "";
+      categoryLine = `${listing.category || "Experience"} | ${listing.city || "Miami"}`;
+      hashtags = "#SPLYT #Experiences #ThingsToDo #SplitTheCost #LuxuryForLess #LocalExperiences";
+      tagline = "Discover experiences worth sharing.";
+    } else if (listing.source_type === "stay") {
+      const ppn = listing.price_per_night ? Math.round(Number(listing.price_per_night)) : 0;
+      priceStr = ppn > 0 ? `From $${ppn}/night` : "";
+      splitPriceStr = ppn > 0 ? `$${Math.round(ppn / 8)}/person per night split 8 ways` : "";
+      categoryLine = `Luxury Stay | ${listing.city || "Miami"}`;
+      hashtags = "#SPLYT #LuxuryStays #VacationRental #SplitTheCost #LuxuryForLess #TravelDeals";
+      tagline = "Luxury stays, split your way.";
+    } else {
+      const hourlyRate = listing.hourly_rate ? Math.round(Number(listing.hourly_rate)) : 0;
+      priceStr = hourlyRate > 0 ? `From $${hourlyRate}/hr` : "";
+      splitPriceStr = hourlyRate > 0 ? `$${Math.round((hourlyRate * 4) / 8)}/person when you split with 8` : "";
+      categoryLine = `${listing.type || "Yacht"} | ${listing.length_ft || 42}ft | ${displayCity}`;
+      hashtags = "#SPLYT #YachtLife #BoatRental #YachtCharter #SplitTheCost #LuxuryForLess #BoatDay";
+      tagline = "Life's too short to yacht alone.";
+    }
+
     // ── 4. Build the card image URL ──
-    const cardUrl = `${baseUrl}/api/card/experience?id=${boat.id}&format=feed`;
+    const cardUrl = `${baseUrl}/api/card/experience?id=${listing.id}&type=${listing.source_type}&format=feed`;
 
     // ── 5. Build the Instagram caption ──
-    const splitPrice =
-      pricePerHour > 0
-        ? `$${Math.round((pricePerHour * 4) / 8)}/person when you split with 8`
-        : "";
-    const priceStr = pricePerHour > 0 ? `From $${pricePerHour}/hr` : "";
-
     const captionParts = [
       displayTitle,
       "",
-      `${displayBoatType} | ${displayLength}ft | ${displayCity}`,
-      `${displayBoatName} | Up to ${displayCapacity} guests`,
+      categoryLine,
       displayRating ? `Rating: ${"*".repeat(Math.floor(displayRating))} ${displayRating}` : "",
       "",
       priceStr,
-      splitPrice ? `${splitPrice}` : "",
+      splitPriceStr,
       "",
-      "Life's too short to yacht alone.",
+      tagline,
       "Split the cost with your crew on SPLYT.",
       "",
       "Download SPLYT - link in bio",
       "",
-      "#SPLYT #YachtLife #BoatRental #YachtCharter #SplitTheCost #LuxuryForLess #MiamiYachts #BoatDay #WaterExperience #YachtParty",
+      hashtags,
     ];
 
     const caption = captionParts.filter((line) => line !== undefined).join("\n");
@@ -194,11 +247,10 @@ async function handler(req: Request): Promise<Response> {
         caption,
         post_type: "image",
         metadata: {
-          boat_id: boat.id,
-          boatsetter_listing_id: boat.boatsetter_listing_id || null,
-          boat_name: boat.name,
+          boat_id: listing.id,
+          listing_type: listing.source_type,
+          listing_name: displayTitle,
           city: displayCity,
-          hourly_rate: pricePerHour,
           source: "post-daily-cron",
         },
       }),
@@ -207,11 +259,11 @@ async function handler(req: Request): Promise<Response> {
     const publishData = await publishRes.json().catch(() => null);
 
     if (!publishRes.ok) {
-      // Log the failed attempt
       await supabaseFetch(supabaseUrl, supabaseKey, "social_posts_log", {
         method: "POST",
         body: JSON.stringify({
-          boat_id: boat.id,
+          boat_id: listing.id,
+          listing_type: listing.source_type,
           platform: "instagram",
           status: "failed",
           error_message:
@@ -226,7 +278,8 @@ async function handler(req: Request): Promise<Response> {
         {
           error: "Failed to publish to Instagram",
           details: publishData?.error || publishRes.statusText,
-          boat_id: boat.id,
+          listing_id: listing.id,
+          listing_type: listing.source_type,
         },
         { status: 502 }
       );
@@ -236,7 +289,8 @@ async function handler(req: Request): Promise<Response> {
     await supabaseFetch(supabaseUrl, supabaseKey, "social_posts_log", {
       method: "POST",
       body: JSON.stringify({
-        boat_id: boat.id,
+        boat_id: listing.id,
+        listing_type: listing.source_type,
         platform: "instagram",
         status: "published",
         external_post_id: publishData?.post_id || publishData?.id || null,
@@ -249,8 +303,9 @@ async function handler(req: Request): Promise<Response> {
 
     return Response.json({
       success: true,
-      boat_id: boat.id,
-      boat_name: boat.name,
+      listing_id: listing.id,
+      listing_type: listing.source_type,
+      listing_name: displayTitle,
       city: displayCity,
       card_url: cardUrl,
       publish_response: publishData,

@@ -13,29 +13,35 @@ const FORMATS: Record<Format, { width: number; height: number }> = {
 /**
  * GET /api/card/experience
  *
- * Generates an Instagram-ready card image for a SPLYT yacht experience.
+ * Generates an Instagram-ready card image for a SPLYT experience.
+ * Supports multiple experience types: boats, exotic_cars, airbnb_experiences, airbnb_stays.
  *
  * Query params:
- *   - id:     Supabase boat listing ID (fetches from `boats` table)
+ *   - id:     Supabase listing ID
+ *   - type:   "boat" (default), "car", "experience", "stay"
  *   - format: "feed" (1080x1350), "story" (1080x1920), "square" (1080x1080)
  */
 export default async function handler(req: Request) {
   const url = new URL(req.url);
   const id = url.searchParams.get("id");
+  const experienceType = url.searchParams.get("type") || "boat";
   const format = (url.searchParams.get("format") || "feed") as Format;
   const dims = FORMATS[format] || FORMATS.feed;
 
-  let title = "Sunset Cruise & Champagne";
+  let title = "Premium Experience";
   let city = "Miami";
   let pricePerHour = 245;
-  let boatName = "Sea Majesty 60";
+  let subtitle = "";
   let capacity = 12;
   let rating = 4.9;
-  let boatType = "Motor Yacht";
-  let features: string[] = ["Champagne", "DJ", "Swimming"];
-  let hostName = "Captain Rivera";
-  let lengthFt = 60;
+  let categoryLabel = "Experience";
+  let detailLabel = "";
+  let features: string[] = [];
+  let hostName = "Your Host";
   let photoUrl = "";
+  let totalPrice = 0;
+  let splitGuests = 8;
+  let priceLabel = "/person";
 
   // If an ID is provided, fetch the real listing from Supabase
   if (id) {
@@ -43,49 +49,111 @@ export default async function handler(req: Request) {
     const supabaseKey = process.env.SUPABASE_SERVICE_KEY;
 
     if (supabaseUrl && supabaseKey) {
+      const headers = {
+        apikey: supabaseKey,
+        Authorization: `Bearer ${supabaseKey}`,
+      };
+
       try {
-        const resp = await fetch(
-          `${supabaseUrl}/rest/v1/boats?select=*&id=eq.${id}&limit=1`,
-          {
-            headers: {
-              apikey: supabaseKey,
-              Authorization: `Bearer ${supabaseKey}`,
-            },
+        if (experienceType === "car") {
+          const resp = await fetch(
+            `${supabaseUrl}/rest/v1/exotic_cars?select=*&id=eq.${id}&limit=1`,
+            { headers }
+          );
+          const cars = await resp.json();
+          if (Array.isArray(cars) && cars.length > 0) {
+            const car = cars[0];
+            title = car.title || `${car.make} ${car.model}` || title;
+            city = car.city || city;
+            if (car.daily_rate) pricePerHour = Math.round(Number(car.daily_rate));
+            categoryLabel = car.body_style || "Exotic Car";
+            detailLabel = car.year ? `${car.year}` : "";
+            capacity = 4;
+            splitGuests = 4;
+            rating = car.rating ? Number(car.rating) : 0;
+            hostName = car.host_name || "MVP Miami";
+            if (Array.isArray(car.photo_urls) && car.photo_urls.length > 0)
+              photoUrl = car.photo_urls[0];
+            if (car.horsepower) features.push(`${car.horsepower} HP`);
+            if (car.zero_to_sixty) features.push(`0-60: ${car.zero_to_sixty}s`);
+            if (car.top_speed) features.push(`${car.top_speed} MPH`);
+            if (car.transmission) features.push(car.transmission);
           }
-        );
-        const boats = await resp.json();
-        if (Array.isArray(boats) && boats.length > 0) {
-          const boat = boats[0];
-          title = boat.name || title;
-          city = boat.city || city;
-          if (boat.hourly_rate) {
-            pricePerHour = Math.round(Number(boat.hourly_rate));
+        } else if (experienceType === "experience") {
+          const resp = await fetch(
+            `${supabaseUrl}/rest/v1/airbnb_experiences?select=*&id=eq.${id}&limit=1`,
+            { headers }
+          );
+          const exps = await resp.json();
+          if (Array.isArray(exps) && exps.length > 0) {
+            const exp = exps[0];
+            title = exp.title || title;
+            city = exp.city || city;
+            if (exp.price_per_person) {
+              pricePerHour = Math.round(Number(exp.price_per_person));
+              priceLabel = "/person";
+            }
+            categoryLabel = exp.category || "Experience";
+            capacity = exp.max_guests || 10;
+            splitGuests = Math.min(capacity, 8);
+            rating = exp.rating ? Number(exp.rating) : 0;
+            hostName = exp.host_name || "Local Host";
+            if (Array.isArray(exp.photo_urls) && exp.photo_urls.length > 0)
+              photoUrl = exp.photo_urls[0];
+            if (exp.duration) features.push(exp.duration);
+            if (exp.category) features.push(exp.category);
           }
-          boatName = boat.name || boatName;
-          if (boat.make && boat.model) {
-            boatName = `${boat.make} ${boat.model}`;
+        } else if (experienceType === "stay") {
+          const resp = await fetch(
+            `${supabaseUrl}/rest/v1/airbnb_stays?select=*&id=eq.${id}&limit=1`,
+            { headers }
+          );
+          const stays = await resp.json();
+          if (Array.isArray(stays) && stays.length > 0) {
+            const stay = stays[0];
+            title = stay.title || title;
+            city = stay.city || city;
+            if (stay.price_per_night) pricePerHour = Math.round(Number(stay.price_per_night));
+            categoryLabel = stay.property_type || "Luxury Stay";
+            detailLabel = stay.bedrooms ? `${stay.bedrooms} bed` : "";
+            capacity = stay.max_guests || 8;
+            splitGuests = Math.min(capacity, 8);
+            rating = stay.rating ? Number(stay.rating) : 0;
+            hostName = stay.host_name || "Superhost";
+            priceLabel = "/night split";
+            if (Array.isArray(stay.photo_urls) && stay.photo_urls.length > 0)
+              photoUrl = stay.photo_urls[0];
+            if (Array.isArray(stay.amenities) && stay.amenities.length > 0)
+              features = stay.amenities.slice(0, 4);
           }
-          capacity = boat.capacity || capacity;
-          rating = boat.rating ? Number(boat.rating) : rating;
-          boatType = boat.type || boatType;
-          lengthFt = boat.length_ft || lengthFt;
-          hostName = boat.captain_name || hostName;
-          if (
-            Array.isArray(boat.photo_urls) &&
-            boat.photo_urls.length > 0
-          ) {
-            photoUrl = boat.photo_urls[0];
-          }
-          if (
-            Array.isArray(boat.features) &&
-            boat.features.length > 0
-          ) {
-            features = boat.features.slice(0, 4);
-          } else if (
-            Array.isArray(boat.amenities) &&
-            boat.amenities.length > 0
-          ) {
-            features = boat.amenities.slice(0, 4);
+        } else {
+          // Default: boat
+          const resp = await fetch(
+            `${supabaseUrl}/rest/v1/boats?select=*&id=eq.${id}&limit=1`,
+            { headers }
+          );
+          const boats = await resp.json();
+          if (Array.isArray(boats) && boats.length > 0) {
+            const boat = boats[0];
+            title = boat.name || title;
+            city = boat.city || city;
+            if (boat.hourly_rate)
+              pricePerHour = Math.round(Number(boat.hourly_rate));
+            subtitle = boat.name || "";
+            if (boat.make && boat.model)
+              subtitle = `${boat.make} ${boat.model}`;
+            capacity = boat.capacity || capacity;
+            rating = boat.rating ? Number(boat.rating) : rating;
+            categoryLabel = boat.type || "Motor Yacht";
+            detailLabel = boat.length_ft ? `${boat.length_ft}FT` : "";
+            hostName = boat.captain_name || "Captain";
+            if (Array.isArray(boat.photo_urls) && boat.photo_urls.length > 0)
+              photoUrl = boat.photo_urls[0];
+            if (Array.isArray(boat.features) && boat.features.length > 0) {
+              features = boat.features.slice(0, 4);
+            } else if (Array.isArray(boat.amenities) && boat.amenities.length > 0) {
+              features = boat.amenities.slice(0, 4);
+            }
           }
         }
       } catch {
@@ -107,8 +175,21 @@ export default async function handler(req: Request) {
   const isStory = format === "story";
   const isSquare = format === "square";
 
-  const splitGuests = 8;
-  const splitPrice = Math.round((pricePerHour * 4) / splitGuests);
+  // Calculate split price based on type
+  let splitPrice: number;
+  if (experienceType === "car") {
+    // Cars: daily rate split among group
+    splitPrice = Math.round(pricePerHour / splitGuests);
+  } else if (experienceType === "stay") {
+    // Stays: nightly rate split among group
+    splitPrice = Math.round(pricePerHour / splitGuests);
+  } else if (experienceType === "experience") {
+    // Airbnb experiences: already per-person
+    splitPrice = pricePerHour;
+  } else {
+    // Boats: hourly rate * 4 hours, split
+    splitPrice = Math.round((pricePerHour * 4) / splitGuests);
+  }
   const appIconUrl = "https://splytpayments.com/app-icon.png";
 
   return new ImageResponse(
@@ -278,22 +359,26 @@ export default async function handler(req: Request) {
                 textTransform: "uppercase",
               }}
             >
-              {boatType}
+              {categoryLabel}
             </span>
-            <span style={{ fontSize: 14, color: "rgba(255,255,255,0.3)" }}>
-              {"\u00B7"}
-            </span>
-            <span
-              style={{
-                fontSize: 14,
-                fontWeight: 600,
-                color: "rgba(255,255,255,0.6)",
-                letterSpacing: "0.08em",
-                textTransform: "uppercase",
-              }}
-            >
-              {lengthFt}FT
-            </span>
+            {detailLabel && (
+              <>
+                <span style={{ fontSize: 14, color: "rgba(255,255,255,0.3)" }}>
+                  {"\u00B7"}
+                </span>
+                <span
+                  style={{
+                    fontSize: 14,
+                    fontWeight: 600,
+                    color: "rgba(255,255,255,0.6)",
+                    letterSpacing: "0.08em",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  {detailLabel}
+                </span>
+              </>
+            )}
             <span style={{ fontSize: 14, color: "rgba(255,255,255,0.3)" }}>
               {"\u00B7"}
             </span>
@@ -445,7 +530,7 @@ export default async function handler(req: Request) {
                   marginBottom: 6,
                 }}
               >
-                /person
+                {priceLabel}
               </span>
             </div>
           </div>
@@ -459,6 +544,7 @@ export default async function handler(req: Request) {
               marginTop: -8,
             }}
           >
+            {experienceType !== "experience" && (
             <span
               style={{
                 fontSize: 16,
@@ -468,8 +554,9 @@ export default async function handler(req: Request) {
                 textDecorationColor: "rgba(255,255,255,0.3)",
               }}
             >
-              ${(pricePerHour * 4).toLocaleString()} total charter
+              ${(experienceType === "boat" ? pricePerHour * 4 : pricePerHour).toLocaleString()} {experienceType === "stay" ? "per night" : experienceType === "car" ? "rental" : "total"}
             </span>
+            )}
             <div
               style={{
                 display: "flex",
@@ -571,7 +658,7 @@ export default async function handler(req: Request) {
                 letterSpacing: "0.02em",
               }}
             >
-              Split the cost. Share the experience.
+              Discover. Split. Experience.
             </span>
           </div>
         </div>
