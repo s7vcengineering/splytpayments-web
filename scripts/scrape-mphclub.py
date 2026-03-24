@@ -339,10 +339,9 @@ def parse_car_listing(url, html_content):
             data["transmission"] = trans_m.group(1).strip()
             continue
 
-        # Seating: "2 seater" or "5 seater"
+        # Seating: skip (column not in schema)
         seat_m = re.match(r'^(\d+)\s*seater$', val, re.IGNORECASE)
         if seat_m:
-            data["seating_capacity"] = int(seat_m.group(1))
             continue
 
     # Fallback: search the full page text for specs if headings didn't yield them

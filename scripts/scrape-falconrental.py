@@ -431,11 +431,6 @@ def parse_vehicle_detail(url, html_content):
     if engine_str:
         data["engine"] = engine_str
 
-    # Seats
-    seats = vehicle.get("seats")
-    if seats:
-        data["seats"] = str(seats)
-
     return data
 
 
