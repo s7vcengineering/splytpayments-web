@@ -1,0 +1,52 @@
+name: Scrape mph club Listings
+
+on:
+  schedule:
+    # Daily at 5:30 AM UTC (1:30 AM EST)
+    - cron: "30 5 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run (no database writes)"
+        required: false
+        type: boolean
+        default: false
+      limit:
+        description: "Max listings to scrape (0=all)"
+        required: false
+        type: number
+        default: 0
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run scraper
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          INPUT_DRY_RUN: ${{ inputs.dry_run }}
+          INPUT_LIMIT: ${{ inputs.limit || '0' }}
+        run: |
+          ARGS=""
+
+          if [ "$INPUT_DRY_RUN" = "true" ]; then
+            ARGS="$ARGS --dry-run"
+          fi
+
+          if [ "$INPUT_LIMIT" != "0" ] && [ -n "$INPUT_LIMIT" ]; then
+            ARGS="$ARGS --limit $INPUT_LIMIT"
+          fi
+
+          python3 scripts/scrape-mphclub.py $ARGS
