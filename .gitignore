@@ -4,3 +4,4 @@ node_modules/
 .vercel
 dist/
 firebase-debug.log
+.env*.local

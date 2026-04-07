@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SPLYT — Discover, Split & Experience Together</title>
-  <meta name="description" content="Discover yachts, exotic cars, luxury stays, and curated experiences — then split the cost with your crew. Meet people who live the same way you do.">
+  <meta name="description" content="Browse yachts, exotic cars, luxury stays, and curated experiences — then split the cost with your crew. Premium experiences, split your way.">
   <meta property="og:title" content="SPLYT — Discover, Split & Experience Together">
   <meta property="og:description" content="Premium experiences, split your way. Yachts, exotic cars, luxury stays, and networking events.">
   <meta property="og:type" content="website">
@@ -20,889 +20,858 @@
   <link rel="apple-touch-icon" href="app-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
+    /* ── Design Tokens ── */
     :root {
-      --deep-ocean: #0A1628;
-      --dark-navy: #0D1F3C;
-      --midnight-blue: #102A4C;
-      --ocean-blue: #1A3A5C;
-      --sea-blue: #2196F3;
-      --light-blue: #4FC3F7;
-      --sky-blue: #81D4FA;
-      --ice-blue: #B3E5FC;
-      --surface: #0F1923;
-      --card-bg: #152A3E;
-      --text-primary: #E8F0FE;
-      --text-secondary: #8EACCD;
-      --text-muted: #5A7A9A;
+      --bg: #ffffff;
+      --bg-secondary: #f7f7f7;
+      --text: #222222;
+      --text-secondary: #717171;
+      --text-muted: #b0b0b0;
+      --accent: #2196F3;
+      --accent-dark: #1976D2;
+      --accent-light: #E3F2FD;
+      --border: #dddddd;
+      --border-light: #ebebeb;
+      --card-shadow: 0 1px 2px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05);
+      --card-shadow-hover: 0 2px 4px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.12);
+      --header-height: 80px;
+      --pills-height: 56px;
+      --max-width: 1760px;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
-
     html { scroll-behavior: smooth; }
 
     body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: var(--deep-ocean);
-      color: var(--text-primary);
-      overflow-x: hidden;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
       -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
 
-    .display-font {
-      font-family: 'Cormorant Garamond', Georgia, serif;
+    /* ── Header ── */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border-light);
+      transition: box-shadow 0.2s;
+    }
+    .header.scrolled {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    }
+    .header-inner {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 0 24px;
+      height: var(--header-height);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+    .logo img {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+    }
+    .logo-text {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--accent);
+      letter-spacing: -0.03em;
     }
 
-    /* ── Reveal animations ── */
-    .reveal {
-      opacity: 0;
-      transform: translateY(32px);
-      transition: opacity 0.7s cubic-bezier(0.23, 1, 0.32, 1), transform 0.7s cubic-bezier(0.23, 1, 0.32, 1);
+    /* Search Bar — Airbnb-style prominent pill */
+    .search-bar {
+      flex: 1;
+      max-width: 560px;
+      position: relative;
     }
-    .reveal.visible {
-      opacity: 1;
-      transform: translateY(0);
+    .search-input-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 40px;
+      padding: 8px 8px 8px 20px;
+      cursor: pointer;
+      transition: box-shadow 0.2s, border-color 0.2s;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05);
     }
-    .reveal.delay-1 { transition-delay: 0.1s; }
-    .reveal.delay-2 { transition-delay: 0.2s; }
-    .reveal.delay-3 { transition-delay: 0.3s; }
-    .reveal.delay-4 { transition-delay: 0.4s; }
+    .search-input-wrap:hover {
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1), 0 8px 24px rgba(0,0,0,0.1);
+    }
+    .search-input-wrap:focus-within {
+      border-color: var(--text);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1), 0 8px 24px rgba(0,0,0,0.1);
+    }
+    .search-input {
+      flex: 1;
+      border: none;
+      outline: none;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+      background: transparent;
+      font-family: inherit;
+      min-width: 0;
+    }
+    .search-input::placeholder { color: var(--text-secondary); }
+    .search-clear {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      font-size: 12px;
+      color: var(--text-secondary);
+      flex-shrink: 0;
+      transition: background 0.15s;
+    }
+    .search-clear:hover { background: var(--border); }
+    .search-clear.visible { display: flex; }
+    .search-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: none;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .search-btn:hover { background: var(--accent-dark); transform: scale(1.04); }
+    .search-btn svg { width: 16px; height: 16px; color: #fff; }
+    .search-dropdown {
+      display: none;
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      right: 0;
+      background: var(--bg);
+      border: 1px solid var(--border-light);
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+      padding: 8px 0;
+      max-height: 360px;
+      overflow-y: auto;
+      z-index: 10;
+    }
+    .search-dropdown.open { display: block; }
+    .search-option {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 16px;
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--text);
+      transition: background 0.15s;
+    }
+    .search-option:hover { background: var(--bg-secondary); }
+    .search-option.active { font-weight: 600; color: var(--accent); }
+    .search-option-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: var(--bg-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
 
-    /* ── Container ── */
-    .container {
+    /* Header Actions */
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-shrink: 0;
+    }
+    .header-link {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      text-decoration: none;
+      white-space: nowrap;
+      transition: color 0.15s;
+    }
+    .header-link:hover { color: var(--accent); }
+    .header-divider {
+      width: 1px;
+      height: 20px;
+      background: var(--border);
+    }
+    .btn-download {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--text);
+      color: #fff;
+      border: none;
+      border-radius: 24px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .btn-download:hover { background: #000; transform: translateY(-1px); }
+    .btn-download svg { width: 16px; height: 16px; }
+
+    /* ── Category Pills ── */
+    .categories {
+      position: sticky;
+      top: var(--header-height);
+      z-index: 90;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border-light);
+    }
+    .categories-inner {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      align-items: stretch;
+      gap: 32px;
+      height: var(--pills-height);
+      overflow-x: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .categories-inner::-webkit-scrollbar { display: none; }
+    .category-pill {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 0 4px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      border-bottom: 2px solid transparent;
+      transition: color 0.2s, border-color 0.2s;
+      flex-shrink: 0;
+    }
+    .category-pill:hover { color: var(--text); border-bottom-color: var(--border); }
+    .category-pill.active { color: var(--text); border-bottom-color: var(--text); }
+    .category-pill svg { width: 24px; height: 24px; stroke-width: 1.5; }
+
+    /* ── Main Content ── */
+    .main {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 24px 24px 0;
+    }
+
+    /* Results info */
+    .results-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .results-count {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .sort-select {
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 8px 16px;
+      background: var(--bg);
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23222' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 32px;
+    }
+
+    /* ── Listing Grid ── */
+    .listing-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+      margin-bottom: 48px;
+    }
+
+    /* Listing Card */
+    .listing-card {
+      display: block;
+      text-decoration: none;
+      color: inherit;
+      border-radius: 12px;
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .listing-card:hover { transform: translateY(-2px); box-shadow: var(--card-shadow-hover); }
+    .card-image {
+      position: relative;
+      aspect-ratio: 4/3;
+      overflow: hidden;
+      border-radius: 12px;
+      background: var(--bg-secondary);
+    }
+    .card-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s;
+    }
+    .listing-card:hover .card-image img { transform: scale(1.03); }
+    .card-badge {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .card-image-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    }
+    .card-image-placeholder svg { width: 48px; height: 48px; color: var(--accent); opacity: 0.5; }
+
+    .card-info { padding: 10px 2px; }
+    .card-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .card-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.3;
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .card-rating {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+      flex-shrink: 0;
+    }
+    .card-rating svg { width: 13px; height: 13px; }
+    .card-location {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+    .card-features {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .card-price {
+      margin-top: 6px;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+    .card-price strong { font-weight: 700; color: var(--text); }
+    .card-split { color: var(--text-secondary); font-weight: 400; }
+    .card-total { color: var(--text-muted); font-size: 13px; text-decoration: line-through; margin-left: 4px; }
+    .card-contact { color: var(--text-secondary); font-weight: 500; }
+
+    /* Show More */
+    .show-more-wrap {
+      text-align: center;
+      padding: 16px 0 48px;
+    }
+    .btn-show-more {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg);
+      border: 1px solid var(--text);
+      border-radius: 8px;
+      padding: 12px 32px;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-show-more:hover { background: var(--bg-secondary); }
+    .btn-show-more:disabled { opacity: 0.4; cursor: default; }
+
+    /* ── Skeleton Loading ── */
+    @keyframes shimmer {
+      0% { background-position: -400px 0; }
+      100% { background-position: 400px 0; }
+    }
+    .skeleton .card-image {
+      background: linear-gradient(90deg, #f0f0f0 25%, #e4e4e4 50%, #f0f0f0 75%);
+      background-size: 800px 100%;
+      animation: shimmer 1.5s infinite;
+    }
+    .skeleton .card-info { padding-top: 12px; }
+    .skeleton-line {
+      height: 14px;
+      border-radius: 4px;
+      background: linear-gradient(90deg, #f0f0f0 25%, #e4e4e4 50%, #f0f0f0 75%);
+      background-size: 800px 100%;
+      animation: shimmer 1.5s infinite;
+      margin-bottom: 8px;
+    }
+
+    /* ── Empty State ── */
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 80px 24px;
+    }
+    .empty-state svg { width: 64px; height: 64px; color: var(--text-muted); margin-bottom: 16px; }
+    .empty-state h3 { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
+    .empty-state p { font-size: 15px; color: var(--text-secondary); }
+
+    /* ── Marketing Sections ── */
+    .section-divider {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      border: none;
+      border-top: 1px solid var(--border-light);
+    }
+    .marketing {
       max-width: 1100px;
       margin: 0 auto;
       padding: 0 24px;
     }
 
-    /* ══════════════════════════════════════
-       HERO
-    ══════════════════════════════════════ */
-    .hero {
-      min-height: 100vh;
-      min-height: 100dvh;
+    /* How it Works */
+    .how-section {
+      padding: 80px 0;
+    }
+    .how-label {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent);
+      text-align: center;
+      margin-bottom: 12px;
+    }
+    .how-title {
+      font-size: 32px;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 56px;
+      letter-spacing: -0.02em;
+    }
+    .how-steps {
       display: flex;
-      flex-direction: column;
+      gap: 40px;
+    }
+    .how-step {
+      flex: 1;
+      text-align: center;
+    }
+    .step-num {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      display: flex;
       align-items: center;
       justify-content: center;
-      text-align: center;
-      padding: 80px 24px 48px;
-      position: relative;
-      background: linear-gradient(180deg, #0A1628 0%, #0D2847 60%, #102A4C 100%);
-      overflow: hidden;
-    }
-
-    /* Ambient light blobs */
-    .hero::before,
-    .hero::after {
-      content: '';
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(100px);
-      pointer-events: none;
-    }
-    .hero::before {
-      width: 500px;
-      height: 500px;
-      background: rgba(33, 150, 243, 0.07);
-      top: 5%;
-      left: 15%;
-      animation: drift1 18s ease-in-out infinite alternate;
-    }
-    .hero::after {
-      width: 400px;
-      height: 400px;
-      background: rgba(79, 195, 247, 0.05);
-      bottom: 10%;
-      right: 10%;
-      animation: drift2 22s ease-in-out infinite alternate;
-    }
-
-    @keyframes drift1 {
-      0% { transform: translate(0, 0); }
-      100% { transform: translate(40px, 30px); }
-    }
-    @keyframes drift2 {
-      0% { transform: translate(0, 0); }
-      100% { transform: translate(-30px, -40px); }
-    }
-
-    .hero-content {
-      position: relative;
-      z-index: 2;
-      max-width: 700px;
-    }
-
-    .app-icon {
-      width: 88px;
-      height: 88px;
-      border-radius: 22px;
-      box-shadow: 0 8px 40px rgba(33, 150, 243, 0.2), 0 0 0 1px rgba(79, 195, 247, 0.15);
-      margin-bottom: 32px;
-    }
-
-    .hero h1 {
-      font-family: 'Cormorant Garamond', Georgia, serif;
-      font-size: clamp(40px, 7vw, 72px);
+      margin: 0 auto 16px;
+      font-size: 20px;
       font-weight: 700;
-      line-height: 1.05;
-      margin-bottom: 24px;
-      letter-spacing: -0.02em;
-      color: var(--text-primary);
     }
-
-    .hero h1 em {
-      font-style: italic;
-      color: var(--light-blue);
+    .how-step h3 {
+      font-size: 17px;
+      font-weight: 700;
+      margin-bottom: 6px;
     }
-
-    .hero-subtitle {
-      font-size: clamp(16px, 2.5vw, 20px);
+    .how-step p {
+      font-size: 14px;
       color: var(--text-secondary);
       line-height: 1.6;
-      max-width: 520px;
-      margin: 0 auto 40px;
-      font-weight: 400;
+      max-width: 280px;
+      margin: 0 auto;
     }
 
-    /* App Store Badge */
+    /* Testimonials */
+    .testimonials-section { padding: 80px 0; }
+    .testimonials-title {
+      font-size: 32px;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 48px;
+      letter-spacing: -0.02em;
+    }
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    .testimonial-card {
+      background: var(--bg);
+      border: 1px solid var(--border-light);
+      border-radius: 16px;
+      padding: 28px 24px;
+    }
+    .testimonial-stars { color: var(--accent); font-size: 14px; letter-spacing: 2px; margin-bottom: 12px; }
+    .testimonial-card blockquote {
+      font-size: 15px;
+      color: var(--text-secondary);
+      line-height: 1.65;
+      margin-bottom: 16px;
+      font-style: italic;
+    }
+    .testimonial-author { font-size: 14px; font-weight: 600; color: var(--text); }
+    .testimonial-location { font-size: 13px; color: var(--text-muted); }
+
+    /* CTA */
+    .cta-section {
+      padding: 80px 0;
+      text-align: center;
+    }
+    .cta-section h2 {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      letter-spacing: -0.02em;
+    }
+    .cta-section p {
+      font-size: 16px;
+      color: var(--text-secondary);
+      margin-bottom: 32px;
+    }
     .app-store-badge {
       display: inline-flex;
       align-items: center;
       gap: 10px;
       background: #000;
-      border: 1px solid rgba(255,255,255,0.2);
       border-radius: 12px;
       padding: 10px 24px 10px 18px;
       text-decoration: none;
       color: #fff;
-      transition: all 0.3s ease;
+      transition: all 0.2s;
     }
-    .app-store-badge:hover {
-      border-color: rgba(255,255,255,0.4);
-      box-shadow: 0 4px 24px rgba(33, 150, 243, 0.2);
-      transform: translateY(-2px);
-    }
-    .app-store-badge svg {
-      flex-shrink: 0;
-    }
-    .badge-text {
-      display: flex;
-      flex-direction: column;
-      text-align: left;
-    }
-    .badge-small {
-      font-size: 10px;
-      font-weight: 400;
-      letter-spacing: 0.02em;
-      line-height: 1;
-      opacity: 0.9;
-    }
-    .badge-large {
-      font-size: 20px;
-      font-weight: 600;
-      line-height: 1.2;
-      letter-spacing: -0.01em;
-    }
+    .app-store-badge:hover { background: #222; transform: translateY(-1px); }
+    .badge-text { display: flex; flex-direction: column; text-align: left; }
+    .badge-small { font-size: 10px; font-weight: 400; opacity: 0.9; line-height: 1; }
+    .badge-large { font-size: 20px; font-weight: 600; line-height: 1.2; }
 
-    /* Scroll hint */
-    .scroll-hint {
-      position: absolute;
-      bottom: 32px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 2;
-      animation: bounce 2.5s ease-in-out infinite;
+    /* ── Footer ── */
+    .footer {
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border-light);
+      padding: 48px 24px 24px;
     }
-    .scroll-hint svg {
-      opacity: 0.4;
-    }
-
-    @keyframes bounce {
-      0%, 100% { transform: translateX(-50%) translateY(0); }
-      50% { transform: translateX(-50%) translateY(10px); }
-    }
-
-    /* ══════════════════════════════════════
-       FEATURES
-    ══════════════════════════════════════ */
-    .features {
-      padding: 120px 0;
-      background: linear-gradient(180deg, #102A4C 0%, var(--dark-navy) 100%);
-    }
-
-    .section-label {
-      font-family: 'Inter', sans-serif;
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--light-blue);
-      text-align: center;
-      margin-bottom: 16px;
-    }
-
-    .section-title {
-      font-family: 'Cormorant Garamond', Georgia, serif;
-      font-size: clamp(32px, 5vw, 48px);
-      font-weight: 700;
-      text-align: center;
-      margin-bottom: 64px;
-      color: var(--text-primary);
-      line-height: 1.15;
-    }
-
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 24px;
-    }
-
-    .feature-card {
-      background: rgba(21, 42, 62, 0.5);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(79, 195, 247, 0.08);
-      border-radius: 20px;
-      padding: 36px 28px;
-      transition: all 0.35s ease;
-    }
-    .feature-card:hover {
-      border-color: rgba(79, 195, 247, 0.2);
-      background: rgba(21, 42, 62, 0.7);
-      transform: translateY(-4px);
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
-    }
-
-    .feature-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 14px;
-      background: linear-gradient(135deg, rgba(33, 150, 243, 0.15), rgba(79, 195, 247, 0.08));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 20px;
-    }
-    .feature-icon svg {
-      width: 24px;
-      height: 24px;
-    }
-
-    .feature-card h3 {
-      font-family: 'Inter', sans-serif;
-      font-size: 18px;
-      font-weight: 700;
-      margin-bottom: 10px;
-      color: var(--text-primary);
-    }
-    .feature-card p {
-      font-size: 14px;
-      color: var(--text-secondary);
-      line-height: 1.6;
-    }
-
-    /* ══════════════════════════════════════
-       HOW IT WORKS
-    ══════════════════════════════════════ */
-    .how-it-works {
-      padding: 120px 0;
-      background: var(--dark-navy);
-    }
-
-    .steps {
-      display: flex;
-      gap: 32px;
-      align-items: flex-start;
-      position: relative;
-    }
-
-    .steps::before {
-      content: '';
-      position: absolute;
-      top: 28px;
-      left: calc(16.66% + 28px);
-      right: calc(16.66% + 28px);
-      height: 2px;
-      background: linear-gradient(90deg, var(--sea-blue), var(--light-blue), var(--sea-blue));
-      opacity: 0.3;
-    }
-
-    .step {
-      flex: 1;
-      text-align: center;
-      position: relative;
-      z-index: 1;
-    }
-
-    .step-number {
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--sea-blue), var(--light-blue));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 20px;
-      font-family: 'Cormorant Garamond', Georgia, serif;
-      font-size: 24px;
-      font-weight: 700;
-      color: #fff;
-      box-shadow: 0 4px 20px rgba(33, 150, 243, 0.3);
-    }
-
-    .step h3 {
-      font-family: 'Inter', sans-serif;
-      font-size: 18px;
-      font-weight: 700;
-      margin-bottom: 8px;
-      color: var(--text-primary);
-    }
-    .step p {
-      font-size: 14px;
-      color: var(--text-secondary);
-      line-height: 1.6;
-      max-width: 260px;
+    .footer-inner {
+      max-width: 1100px;
       margin: 0 auto;
     }
-
-    /* ══════════════════════════════════════
-       COMMUNITY
-    ══════════════════════════════════════ */
-    .community {
-      padding: 120px 0;
-      background: linear-gradient(180deg, var(--dark-navy) 0%, var(--deep-ocean) 100%);
-      text-align: center;
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 32px;
+      margin-bottom: 32px;
     }
-
-    .community-quote {
-      font-family: 'Cormorant Garamond', Georgia, serif;
-      font-size: clamp(28px, 5vw, 52px);
-      font-weight: 600;
-      font-style: italic;
-      color: var(--text-primary);
-      line-height: 1.2;
-      max-width: 700px;
-      margin: 0 auto 32px;
-    }
-
-    .community-body {
-      font-size: clamp(15px, 2vw, 18px);
-      color: var(--text-secondary);
-      line-height: 1.7;
-      max-width: 560px;
-      margin: 0 auto 16px;
-    }
-
-    .community-accent {
-      font-family: 'Cormorant Garamond', Georgia, serif;
-      font-size: clamp(18px, 2.5vw, 24px);
-      font-weight: 600;
-      font-style: italic;
-      color: var(--light-blue);
-      margin-top: 24px;
-    }
-
-    /* ══════════════════════════════════════
-       CTA + BOAT ANIMATION
-    ══════════════════════════════════════ */
-    .final-cta {
-      padding: 100px 0 0;
-      text-align: center;
-      background: var(--deep-ocean);
-      position: relative;
-    }
-
-    .cta-title {
-      font-family: 'Cormorant Garamond', Georgia, serif;
-      font-size: clamp(32px, 5vw, 52px);
+    .footer-col h4 {
+      font-size: 13px;
       font-weight: 700;
-      margin-bottom: 16px;
-      color: var(--text-primary);
-    }
-
-    .cta-sub {
-      font-size: clamp(15px, 2vw, 18px);
-      color: var(--text-secondary);
-      margin-bottom: 36px;
-      line-height: 1.6;
-    }
-
-    .cta-badge-wrap {
-      position: relative;
-      z-index: 3;
-      margin-bottom: 48px;
-    }
-
-    #waveCanvas {
-      display: block;
-      width: 100%;
-      height: 280px;
-      position: relative;
-      z-index: 1;
-    }
-
-    /* ══════════════════════════════════════
-       FOOTER
-    ══════════════════════════════════════ */
-    footer {
-      background: rgba(10, 22, 40, 0.95);
-      padding: 24px;
-      text-align: center;
-      position: relative;
-      z-index: 2;
-      border-top: 1px solid rgba(79, 195, 247, 0.06);
-    }
-
-    .footer-links {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 24px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text);
       margin-bottom: 12px;
     }
-
-    .footer-links a {
-      color: var(--text-muted);
-      text-decoration: none;
-      font-size: 13px;
-      font-weight: 500;
-      transition: color 0.2s;
-    }
-    .footer-links a:hover {
-      color: var(--light-blue);
-    }
-
-    .footer-links span {
-      color: rgba(90, 122, 154, 0.3);
-      font-size: 13px;
-    }
-
-    .copyright {
-      font-size: 12px;
-      color: rgba(90, 122, 154, 0.5);
-    }
-
-    /* ══════════════════════════════════════
-       RESPONSIVE
-    ══════════════════════════════════════ */
-    @media (max-width: 768px) {
-      .features-grid {
-        grid-template-columns: 1fr;
-        gap: 16px;
-      }
-
-      .steps {
-        flex-direction: column;
-        gap: 40px;
-        align-items: center;
-      }
-
-      .steps::before {
-        top: 28px;
-        bottom: 28px;
-        left: 50%;
-        right: auto;
-        width: 2px;
-        height: calc(100% - 56px);
-        transform: translateX(-50%);
-        background: linear-gradient(180deg, var(--sea-blue), var(--light-blue), var(--sea-blue));
-      }
-
-      .step {
-        max-width: 320px;
-      }
-
-      .feature-card {
-        padding: 28px 24px;
-      }
-
-      .features, .how-it-works, .community {
-        padding: 80px 0;
-      }
-
-      .final-cta {
-        padding: 80px 0 0;
-      }
-
-      #waveCanvas {
-        height: 220px;
-      }
-    }
-
-    /* ══════════════════════════════════════
-       TESTIMONIALS
-    ══════════════════════════════════════ */
-    .testimonials {
-      padding: 120px 0;
-      background: linear-gradient(180deg, var(--deep-ocean) 0%, var(--dark-navy) 100%);
-    }
-
-    .testimonials-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 24px;
-      margin-top: 64px;
-    }
-
-    .testimonial-card {
-      background: rgba(21, 42, 62, 0.5);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(79, 195, 247, 0.08);
-      border-radius: 20px;
-      padding: 32px 24px;
-    }
-
-    .testimonial-stars {
-      color: #FFB400;
+    .footer-col a {
+      display: block;
       font-size: 14px;
-      letter-spacing: 2px;
-      margin-bottom: 16px;
-    }
-
-    .testimonial-card blockquote {
-      font-size: 15px;
-      color: var(--text-secondary);
-      line-height: 1.7;
-      margin-bottom: 20px;
-      font-style: italic;
-    }
-
-    .testimonial-author {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--text-primary);
-    }
-
-    .testimonial-location {
-      font-size: 13px;
-      color: var(--text-muted);
-    }
-
-    /* ══════════════════════════════════════
-       TRUST SIGNALS
-    ══════════════════════════════════════ */
-    .trust {
-      padding: 80px 0;
-      background: var(--dark-navy);
-    }
-
-    .trust-grid {
-      display: flex;
-      justify-content: center;
-      gap: 48px;
-      flex-wrap: wrap;
-    }
-
-    .trust-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 12px;
-      text-align: center;
-      max-width: 180px;
-    }
-
-    .trust-icon {
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, rgba(33, 150, 243, 0.15), rgba(79, 195, 247, 0.08));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .trust-icon svg {
-      width: 28px;
-      height: 28px;
-    }
-
-    .trust-item h4 {
-      font-family: 'Inter', sans-serif;
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--text-primary);
-    }
-
-    .trust-item p {
-      font-size: 13px;
-      color: var(--text-muted);
-      line-height: 1.5;
-    }
-
-    /* ══════════════════════════════════════
-       HERO SECONDARY CTA
-    ══════════════════════════════════════ */
-    .hero-ctas {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .cta-learn-more {
       color: var(--text-secondary);
       text-decoration: none;
-      font-size: 14px;
-      font-weight: 500;
-      transition: color 0.2s;
+      padding: 4px 0;
+      transition: color 0.15s;
     }
-    .cta-learn-more:hover {
-      color: var(--light-blue);
+    .footer-col a:hover { color: var(--text); text-decoration: underline; }
+    .footer-bottom {
+      border-top: 1px solid var(--border-light);
+      padding-top: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
+    .footer-copyright { font-size: 13px; color: var(--text-muted); }
 
+    /* ── Responsive ── */
+    @media (max-width: 1440px) {
+      .listing-grid { grid-template-columns: repeat(4, 1fr); }
+    }
+    @media (max-width: 1128px) {
+      .listing-grid { grid-template-columns: repeat(3, 1fr); }
+    }
     @media (max-width: 768px) {
-      .testimonials-grid {
-        grid-template-columns: 1fr;
-        gap: 16px;
-      }
-
-      .trust-grid {
-        gap: 32px;
-      }
-
-      .testimonials {
-        padding: 80px 0;
-      }
+      .header-inner { padding: 0 16px; gap: 10px; }
+      .logo-text { display: none; }
+      .search-bar { max-width: none; }
+      .header-link { display: none; }
+      .header-divider { display: none; }
+      .btn-download span { display: none; }
+      .btn-download { padding: 10px; border-radius: 50%; }
+      .categories-inner { padding: 0 16px; gap: 24px; }
+      .main { padding: 16px 16px 0; }
+      .listing-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+      .how-steps { flex-direction: column; gap: 32px; }
+      .testimonials-grid { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: repeat(2, 1fr); }
+      .results-bar { flex-direction: column; gap: 8px; align-items: flex-start; }
     }
-
-    @media (max-width: 480px) {
-      .hero {
-        padding: 60px 20px 40px;
-      }
-
-      .app-icon {
-        width: 72px;
-        height: 72px;
-        border-radius: 18px;
-        margin-bottom: 24px;
-      }
+    @media (max-width: 550px) {
+      .listing-grid { grid-template-columns: 1fr; max-width: 420px; }
+      .footer-grid { grid-template-columns: 1fr; }
+      .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
+    }
+    @media (min-width: 1440px) {
+      .listing-grid { grid-template-columns: repeat(5, 1fr); }
     }
   </style>
 </head>
 <body>
 
-  <!-- ═══ HERO ═══ -->
-  <section class="hero">
-    <div class="hero-content">
-      <img src="app-icon.png" alt="SPLYT" class="app-icon reveal">
-      <h1 class="reveal delay-1">Premium Experiences,<br><em>Split</em> Your Way</h1>
-      <p class="hero-subtitle reveal delay-2">Yachts. Exotic cars. Luxury stays. Curated events. Discover premium experiences, split the cost with your crew, and meet people who live the same way you do.</p>
-      <div class="hero-ctas reveal delay-3">
-      <a href="https://apps.apple.com/app/splyt/id6740092740" class="app-store-badge" aria-label="Download SPLYT on the App Store" target="_blank" rel="noopener noreferrer" data-track="hero_download_click">
-        <svg width="20" height="24" viewBox="0 0 24 24" fill="white" aria-hidden="true">
-          <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
-        </svg>
-        <div class="badge-text">
-          <span class="badge-small">Download on the</span>
-          <span class="badge-large">App Store</span>
-        </div>
+  <!-- ═══ HEADER ═══ -->
+  <header class="header" id="header">
+    <div class="header-inner">
+      <a href="/" class="logo">
+        <img src="app-icon.png" alt="SPLYT">
+        <span class="logo-text">SPLYT</span>
       </a>
-      <a href="#how-it-works" class="cta-learn-more">See how it works &darr;</a>
+
+      <div class="search-bar" id="searchBar">
+        <div class="search-input-wrap" id="searchWrap">
+          <input type="text" class="search-input" id="searchInput" placeholder="Search destinations..." readonly>
+          <button class="search-clear" id="searchClear" aria-label="Clear search">&times;</button>
+          <button class="search-btn" id="searchBtn" aria-label="Search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </button>
+        </div>
+        <div class="search-dropdown" id="searchDropdown">
+          <div class="search-option active" data-city="">
+            <div class="search-option-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            </div>
+            All Cities
+          </div>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <a href="https://partners.splytpayments.com" class="header-link" data-track="header_partner_click">Become a Partner</a>
+        <div class="header-divider"></div>
+        <a href="https://apps.apple.com/app/splyt/id6740092740" class="btn-download" target="_blank" rel="noopener noreferrer" data-track="header_download_click">
+          <svg viewBox="0 0 24 24" fill="white"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+          <span>Get the App</span>
+        </a>
       </div>
     </div>
-    <div class="scroll-hint" aria-hidden="true">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="6 9 12 15 18 9"/>
-      </svg>
+  </header>
+
+  <!-- ═══ CATEGORY PILLS ═══ -->
+  <nav class="categories">
+    <div class="categories-inner" id="categoryBar">
+      <button class="category-pill active" data-category="all">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        All
+      </button>
+      <button class="category-pill" data-category="yacht">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20l.8-2.4A7.96 7.96 0 0 1 2 14c0-4.42 4.48-8 10-8s10 3.58 10 8-4.48 8-10 8c-1.32 0-2.58-.2-3.73-.56L2 20z" stroke="none"/><path d="M12 2v6"/><path d="M12 8L4.5 18.5"/><path d="M12 8l7.5 10.5"/><path d="M2 20c2-2 4-3 10-3s8 1 10 3"/></svg>
+        Yachts
+      </button>
+      <button class="category-pill" data-category="car">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14M5 17a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1l2-3h8l2 3h1a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2M5 17v2m14-2v2"/><circle cx="7.5" cy="14" r="1.5"/><circle cx="16.5" cy="14" r="1.5"/></svg>
+        Exotic Cars
+      </button>
+      <button class="category-pill" data-category="stay">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Stays
+      </button>
+      <button class="category-pill" data-category="experience">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        Experiences
+      </button>
     </div>
-  </section>
+  </nav>
 
-  <!-- ═══ FEATURES ═══ -->
-  <section class="features">
-    <div class="container">
-      <p class="section-label reveal">Why SPLYT</p>
-      <h2 class="section-title reveal delay-1">Built for People Who<br>Know How to Live</h2>
-      <div class="features-grid">
-
-        <div class="feature-card reveal delay-1">
-          <div class="feature-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="var(--light-blue)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-            </svg>
-          </div>
-          <h3>Discover Everything</h3>
-          <p>Yacht charters, exotic car rentals, luxury stays, local experiences — browse a curated catalog of premium things to do in your city.</p>
-        </div>
-
-        <div class="feature-card reveal delay-2">
-          <div class="feature-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="var(--light-blue)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="8" cy="12" r="5"/><circle cx="16" cy="12" r="5"/><line x1="12" y1="8" x2="12" y2="16"/>
-            </svg>
-          </div>
-          <h3>Split the Cost</h3>
-          <p>Why pay full price alone? Split any experience with your crew and get premium access for a fraction of the cost.</p>
-        </div>
-
-        <div class="feature-card reveal delay-3">
-          <div class="feature-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="var(--light-blue)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-              <circle cx="9" cy="7" r="4"/>
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-            </svg>
-          </div>
-          <h3>Networking Events</h3>
-          <p>Yacht mixers, rooftop meetups, exclusive experiences with like-minded people. The networking events scene that didn't exist — until now.</p>
-        </div>
-
-        <div class="feature-card reveal delay-4">
-          <div class="feature-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="var(--light-blue)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 2L3 7v6c0 5.25 3.83 10.15 9 11.25 5.17-1.1 9-6 9-11.25V7l-9-5z"/>
-              <polyline points="9 12 11 14 15 10"/>
-            </svg>
-          </div>
-          <h3>Curated Community</h3>
-          <p>Every member is vetted. Connect with driven people who share your appetite for adventure — and keep the relationships going.</p>
-        </div>
-
-      </div>
+  <!-- ═══ MAIN LISTINGS ═══ -->
+  <main class="main">
+    <div class="results-bar" id="resultsBar">
+      <div class="results-count" id="resultsCount"></div>
+      <select class="sort-select" id="sortSelect" aria-label="Sort listings">
+        <option value="featured">Sort: Featured</option>
+        <option value="price_asc">Price: Low to High</option>
+        <option value="price_desc">Price: High to Low</option>
+        <option value="rating">Highest Rated</option>
+      </select>
     </div>
-  </section>
+
+    <div class="listing-grid" id="listingGrid"></div>
+
+    <div class="show-more-wrap" id="showMoreWrap" style="display:none">
+      <button class="btn-show-more" id="btnShowMore">Show more</button>
+    </div>
+  </main>
 
   <!-- ═══ HOW IT WORKS ═══ -->
-  <section class="how-it-works" id="how-it-works">
-    <div class="container">
-      <p class="section-label reveal">How It Works</p>
-      <h2 class="section-title reveal delay-1">Live Better in 3 Steps</h2>
-      <div class="steps">
-        <div class="step reveal delay-1">
-          <div class="step-number">1</div>
-          <h3>Download & Join</h3>
-          <p>Get the app, create your profile, and join the network in under two minutes.</p>
+  <hr class="section-divider">
+  <div class="marketing">
+    <section class="how-section">
+      <p class="how-label">How It Works</p>
+      <h2 class="how-title">Live Better in 3 Steps</h2>
+      <div class="how-steps">
+        <div class="how-step">
+          <div class="step-num">1</div>
+          <h3>Browse Experiences</h3>
+          <p>Explore yachts, exotic cars, luxury stays, and curated experiences across your city.</p>
         </div>
-        <div class="step reveal delay-2">
-          <div class="step-number">2</div>
-          <h3>Discover & Explore</h3>
-          <p>Browse yachts, exotic cars, luxury stays, experiences, and networking events curated for your city.</p>
+        <div class="how-step">
+          <div class="step-num">2</div>
+          <h3>Split the Cost</h3>
+          <p>A $2,000 yacht divided by 8 = $250. A $1,200 Lambo day divided by 4 = $300. You get it.</p>
         </div>
-        <div class="step reveal delay-3">
-          <div class="step-number">3</div>
-          <h3>Split & Experience</h3>
-          <p>Lock in your spot and split the cost. A $2,000 yacht &divide; 8 = $250. A $1,200 Lambo day &divide; 4 = $300. You get it.</p>
+        <div class="how-step">
+          <div class="step-num">3</div>
+          <h3>Experience Together</h3>
+          <p>Lock in your spot, meet your crew, and enjoy premium experiences for a fraction of the cost.</p>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- ═══ COMMUNITY ═══ -->
-  <section class="community">
-    <div class="container">
-      <p class="community-quote reveal">"The best things in life are better shared."</p>
-      <p class="community-body reveal delay-1">SPLYT is where driven people discover premium experiences, split the cost, and build real connections. From yacht days to networking mixers — this is how you meet people who move like you do.</p>
-      <p class="community-accent reveal delay-2">Your next experience is waiting.</p>
-    </div>
-  </section>
-
-  <!-- ═══ TESTIMONIALS ═══ -->
-  <section class="testimonials">
-    <div class="container">
-      <p class="section-label reveal">What People Are Saying</p>
-      <h2 class="section-title reveal delay-1">Real Riders, Real Stories</h2>
+    <!-- ═══ TESTIMONIALS ═══ -->
+    <hr class="section-divider" style="max-width:100%">
+    <section class="testimonials-section">
+      <h2 class="testimonials-title">What People Are Saying</h2>
       <div class="testimonials-grid">
-
-        <div class="testimonial-card reveal delay-1">
+        <div class="testimonial-card">
           <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
           <blockquote>"Took a sunset cruise in Miami with 7 strangers — left with 7 friends and two business contacts. SPLYT is a networking cheat code."</blockquote>
           <p class="testimonial-author">Marcus T.</p>
           <p class="testimonial-location">Miami, FL</p>
         </div>
-
-        <div class="testimonial-card reveal delay-2">
+        <div class="testimonial-card">
           <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
           <blockquote>"Split a Lamborghini day with 3 other car guys I met on the app. $300 each for something I thought I'd never experience."</blockquote>
           <p class="testimonial-author">Sarah K.</p>
           <p class="testimonial-location">Fort Lauderdale, FL</p>
         </div>
-
-        <div class="testimonial-card reveal delay-3">
+        <div class="testimonial-card">
           <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
-          <blockquote>"The yacht networking mixer was the best event I've been to in Miami. Real connections, not just another party. This is the move."</blockquote>
+          <blockquote>"The yacht networking mixer was the best event I've been to in Miami. Real connections, not just another party."</blockquote>
           <p class="testimonial-author">Jake R.</p>
           <p class="testimonial-location">Miami Beach, FL</p>
         </div>
-
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- ═══ TRUST SIGNALS ═══ -->
-  <section class="trust">
-    <div class="container">
-      <div class="trust-grid">
-
-        <div class="trust-item reveal delay-1">
-          <div class="trust-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="var(--light-blue)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>
-            </svg>
-          </div>
-          <h4>Secure Payments</h4>
-          <p>Powered by Stripe. Your money is safe.</p>
+    <!-- ═══ CTA ═══ -->
+    <hr class="section-divider" style="max-width:100%">
+    <section class="cta-section">
+      <h2>Your Next Experience is Waiting</h2>
+      <p>Download SPLYT to split any experience with your crew.</p>
+      <a href="https://apps.apple.com/app/splyt/id6740092740" class="app-store-badge" target="_blank" rel="noopener noreferrer" data-track="cta_download_click">
+        <svg width="20" height="24" viewBox="0 0 24 24" fill="white" aria-hidden="true"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+        <div class="badge-text">
+          <span class="badge-small">Download on the</span>
+          <span class="badge-large">App Store</span>
         </div>
-
-        <div class="trust-item reveal delay-2">
-          <div class="trust-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="var(--light-blue)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 2L3 7v6c0 5.25 3.83 10.15 9 11.25 5.17-1.1 9-6 9-11.25V7l-9-5z"/>
-              <polyline points="9 12 11 14 15 10"/>
-            </svg>
-          </div>
-          <h4>Verified Providers</h4>
-          <p>Every host and operator is vetted.</p>
-        </div>
-
-        <div class="trust-item reveal delay-3">
-          <div class="trust-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="var(--light-blue)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-              <circle cx="9" cy="7" r="4"/>
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-            </svg>
-          </div>
-          <h4>Curated Community</h4>
-          <p>Meet vetted, driven people at every event.</p>
-        </div>
-
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══ CTA + BOAT ANIMATION ═══ -->
-  <section class="final-cta">
-    <div class="container">
-      <h2 class="cta-title reveal">Your Next Experience is Waiting</h2>
-      <p class="cta-sub reveal delay-1">Download SPLYT and discover what's out there.</p>
-      <div class="cta-badge-wrap reveal delay-2">
-        <a href="https://apps.apple.com/app/splyt/id6740092740" class="app-store-badge" aria-label="Download SPLYT on the App Store" target="_blank" rel="noopener noreferrer" data-track="cta_download_click">
-          <svg width="20" height="24" viewBox="0 0 24 24" fill="white" aria-hidden="true">
-            <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
-          </svg>
-          <div class="badge-text">
-            <span class="badge-small">Download on the</span>
-            <span class="badge-large">App Store</span>
-          </div>
-        </a>
-      </div>
-    </div>
-    <canvas id="waveCanvas" aria-hidden="true"></canvas>
-  </section>
+      </a>
+    </section>
+  </div>
 
   <!-- ═══ FOOTER ═══ -->
-  <footer>
-    <div class="footer-links">
-      <a href="/privacy">Privacy Policy</a>
-      <span>&middot;</span>
-      <a href="/terms">Terms of Service</a>
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <h4>SPLYT</h4>
+          <a href="/">Home</a>
+          <a href="/download">Download</a>
+          <a href="/help">Help & FAQ</a>
+        </div>
+        <div class="footer-col">
+          <h4>Categories</h4>
+          <a href="#" onclick="filterCategory('yacht');return false;">Yachts</a>
+          <a href="#" onclick="filterCategory('car');return false;">Exotic Cars</a>
+          <a href="#" onclick="filterCategory('stay');return false;">Stays</a>
+          <a href="#" onclick="filterCategory('experience');return false;">Experiences</a>
+        </div>
+        <div class="footer-col">
+          <h4>Cities</h4>
+          <a href="#" onclick="filterCity('Miami');return false;">Miami</a>
+          <a href="#" onclick="filterCity('Fort Lauderdale');return false;">Fort Lauderdale</a>
+          <a href="#" onclick="filterCity('Los Angeles');return false;">Los Angeles</a>
+          <a href="#" onclick="filterCity('San Diego');return false;">San Diego</a>
+        </div>
+        <div class="footer-col">
+          <h4>Legal</h4>
+          <a href="/privacy">Privacy Policy</a>
+          <a href="/terms">Terms of Service</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p class="footer-copyright">&copy; 2026 SPLYT. All rights reserved.</p>
+      </div>
     </div>
-    <p class="copyright">&copy; 2025 SPLYT. All rights reserved.</p>
   </footer>
 
   <!-- Schema.org Structured Data -->
@@ -922,16 +891,8 @@
         "description": "Split the cost of yachts, exotic cars, luxury stays, and curated experiences with your crew.",
         "url": "https://splytpayments.com",
         "logo": "https://splytpayments.com/app-icon.png",
-        "address": {
-          "@type": "PostalAddress",
-          "addressLocality": "Miami",
-          "addressRegion": "FL",
-          "addressCountry": "US"
-        },
-        "areaServed": {
-          "@type": "City",
-          "name": "Miami"
-        },
+        "address": { "@type": "PostalAddress", "addressLocality": "Miami", "addressRegion": "FL", "addressCountry": "US" },
+        "areaServed": { "@type": "City", "name": "Miami" },
         "priceRange": "$$"
       },
       {
@@ -939,17 +900,8 @@
         "name": "SPLYT",
         "operatingSystem": "iOS",
         "applicationCategory": "TravelApplication",
-        "offers": {
-          "@type": "Offer",
-          "price": "0",
-          "priceCurrency": "USD"
-        },
-        "downloadUrl": "https://apps.apple.com/app/splyt/id6740092740",
-        "aggregateRating": {
-          "@type": "AggregateRating",
-          "ratingValue": "5",
-          "ratingCount": "3"
-        }
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "downloadUrl": "https://apps.apple.com/app/splyt/id6740092740"
       }
     ]
   }
@@ -965,161 +917,267 @@
   </script>
 
   <script>
-    /* ── Scroll Reveal ── */
-    const revealObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
-        }
-      });
-    }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+    /* ══════════════════════════════════════
+       MARKETPLACE JS
+    ══════════════════════════════════════ */
 
-    document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+    // State
+    let currentCategory = 'all';
+    let currentCity = '';
+    let currentSort = 'featured';
+    let currentPage = 1;
+    let totalListings = 0;
+    let allCities = [];
+    let isLoading = false;
 
-    /* ── Wave Canvas Animation ── */
-    const canvas = document.getElementById('waveCanvas');
-    const ctx = canvas.getContext('2d');
-    let dpr = window.devicePixelRatio || 1;
-    let animId = null;
-    let startTime = null;
-    let isCanvasVisible = false;
+    // DOM refs
+    const grid = document.getElementById('listingGrid');
+    const resultsCount = document.getElementById('resultsCount');
+    const showMoreWrap = document.getElementById('showMoreWrap');
+    const btnShowMore = document.getElementById('btnShowMore');
+    const searchInput = document.getElementById('searchInput');
+    const searchDropdown = document.getElementById('searchDropdown');
+    const searchClear = document.getElementById('searchClear');
+    const sortSelect = document.getElementById('sortSelect');
 
-    function resizeCanvas() {
-      dpr = window.devicePixelRatio || 1;
-      const rect = canvas.getBoundingClientRect();
-      canvas.width = rect.width * dpr;
-      canvas.height = rect.height * dpr;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    }
+    // Type labels
+    const typeLabels = { yacht: 'Yacht', car: 'Exotic Car', stay: 'Stay', experience: 'Experience' };
 
-    function drawBoat(ctx, x, y, size, tilt) {
-      ctx.save();
-      ctx.translate(x, y);
-      ctx.rotate(tilt);
+    // ── Fetch Listings ──
+    async function fetchListings(append) {
+      if (isLoading) return;
+      isLoading = true;
 
-      const s = size / 100;
-
-      // Hull
-      ctx.beginPath();
-      ctx.moveTo(-28 * s, 0);
-      ctx.bezierCurveTo(-26 * s, 14 * s, 26 * s, 14 * s, 28 * s, 0);
-      ctx.closePath();
-      ctx.fillStyle = '#4FC3F7';
-      ctx.fill();
-
-      // Hull accent
-      ctx.beginPath();
-      ctx.moveTo(-22 * s, 4 * s);
-      ctx.bezierCurveTo(-20 * s, 10 * s, 20 * s, 10 * s, 22 * s, 4 * s);
-      ctx.strokeStyle = 'rgba(129, 212, 250, 0.4)';
-      ctx.lineWidth = 1.2 * s;
-      ctx.stroke();
-
-      // Mast
-      ctx.beginPath();
-      ctx.moveTo(0, -44 * s);
-      ctx.lineTo(0, 0);
-      ctx.strokeStyle = '#E8F0FE';
-      ctx.lineWidth = 2.2 * s;
-      ctx.lineCap = 'round';
-      ctx.stroke();
-
-      // Main sail
-      ctx.beginPath();
-      ctx.moveTo(2 * s, -42 * s);
-      ctx.quadraticCurveTo(26 * s, -22 * s, 22 * s, -2 * s);
-      ctx.lineTo(2 * s, -2 * s);
-      ctx.closePath();
-      ctx.fillStyle = 'rgba(129, 212, 250, 0.8)';
-      ctx.fill();
-
-      // Jib
-      ctx.beginPath();
-      ctx.moveTo(-2 * s, -38 * s);
-      ctx.quadraticCurveTo(-20 * s, -18 * s, -16 * s, -2 * s);
-      ctx.lineTo(-2 * s, -2 * s);
-      ctx.closePath();
-      ctx.fillStyle = 'rgba(179, 229, 252, 0.6)';
-      ctx.fill();
-
-      ctx.restore();
-    }
-
-    function drawWave(ctx, w, h, mid, amplitude, phaseOffset, colorTop, colorBot) {
-      ctx.beginPath();
-      ctx.moveTo(0, mid);
-      for (let x = 0; x <= w; x += 2) {
-        const y = mid + Math.sin((x / w * 2 * Math.PI) + phaseOffset) * amplitude;
-        ctx.lineTo(x, y);
+      if (!append) {
+        currentPage = 1;
+        grid.innerHTML = renderSkeletons(12);
       }
-      ctx.lineTo(w, h);
-      ctx.lineTo(0, h);
-      ctx.closePath();
 
-      const grad = ctx.createLinearGradient(0, mid - amplitude, 0, h);
-      grad.addColorStop(0, colorTop);
-      grad.addColorStop(1, colorBot);
-      ctx.fillStyle = grad;
-      ctx.fill();
-    }
-
-    function animate(timestamp) {
-      if (!isCanvasVisible) return;
-      if (!startTime) startTime = timestamp;
-
-      const elapsed = (timestamp - startTime) % 2400;
-      const t = elapsed / 2400;
-
-      const w = canvas.width / dpr;
-      const h = canvas.height / dpr;
-
-      ctx.clearRect(0, 0, w, h);
-
-      const waveAmplitude = h * 0.13;
-      const waveMid = h * 0.38;
-      const phase = t * 2 * Math.PI;
-
-      // Wave layer 1
-      drawWave(ctx, w, h, waveMid, waveAmplitude, phase,
-        'rgba(79, 195, 247, 0.25)', 'rgba(79, 195, 247, 0.05)');
-
-      // Wave layer 2
-      drawWave(ctx, w, h, waveMid, waveAmplitude * 0.6, phase + Math.PI * 0.7,
-        'rgba(79, 195, 247, 0.15)', 'rgba(79, 195, 247, 0.02)');
-
-      // Boat position on wave
-      const boatSize = Math.min(w * 0.12, 90);
-      const boatX = w / 2;
-      const waveYAtCenter = waveMid + Math.sin(Math.PI + phase) * waveAmplitude;
-      const boatY = waveYAtCenter - boatSize * 0.08;
-      const tilt = Math.sin(phase) * 0.12;
-
-      drawBoat(ctx, boatX, boatY, boatSize, tilt);
-
-      animId = requestAnimationFrame(animate);
-    }
-
-    // Only animate when canvas is visible
-    const canvasObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting && !isCanvasVisible) {
-          isCanvasVisible = true;
-          startTime = null;
-          animId = requestAnimationFrame(animate);
-        } else if (!entry.isIntersecting) {
-          isCanvasVisible = false;
-          if (animId) cancelAnimationFrame(animId);
-        }
+      const params = new URLSearchParams({
+        category: currentCategory,
+        sort: currentSort,
+        page: String(currentPage),
+        limit: '24',
       });
-    }, { threshold: 0.05 });
+      if (currentCity) params.set('city', currentCity);
 
-    resizeCanvas();
-    canvasObserver.observe(canvas);
-    window.addEventListener('resize', resizeCanvas);
+      try {
+        const res = await fetch('/api/listings?' + params);
+        const data = await res.json();
 
-    /* ── Analytics Event Tracking ── */
-    document.querySelectorAll('[data-track]').forEach(function(el) {
-      el.addEventListener('click', function() {
+        totalListings = data.total;
+        if (data.cities && data.cities.length) {
+          allCities = data.cities;
+          buildCityDropdown();
+        }
+
+        if (!append) grid.innerHTML = '';
+
+        if (data.listings.length === 0 && !append) {
+          grid.innerHTML = renderEmpty();
+        } else {
+          const html = data.listings.map(renderCard).join('');
+          grid.insertAdjacentHTML('beforeend', html);
+        }
+
+        updateResultsCount();
+        showMoreWrap.style.display = (currentPage * 24 < totalListings) ? 'block' : 'none';
+      } catch (err) {
+        console.error('Failed to load listings:', err);
+        if (!append) grid.innerHTML = renderEmpty('Something went wrong. Please try again.');
+      }
+
+      isLoading = false;
+    }
+
+    // ── Render Card ──
+    function renderCard(l) {
+      const ratingHtml = l.rating ? `<span class="card-rating"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> ${l.rating.toFixed(1)}${l.reviewCount ? ` (${l.reviewCount})` : ''}</span>` : '';
+
+      const imgHtml = l.photoUrls.length > 0
+        ? `<img src="${escapeHtml(l.photoUrls[0])}" alt="${escapeHtml(l.title)}" loading="lazy" onerror="this.parentNode.innerHTML='<div class=card-image-placeholder><svg viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.5&quot;><rect x=&quot;3&quot; y=&quot;3&quot; width=&quot;18&quot; height=&quot;18&quot; rx=&quot;2&quot;/><circle cx=&quot;8.5&quot; cy=&quot;8.5&quot; r=&quot;1.5&quot;/><path d=&quot;M21 15l-5-5L5 21&quot;/></svg></div>'">`
+        : '<div class="card-image-placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div>';
+
+      let priceHtml = '';
+      if (l.splitPrice && l.price && l.splitCount > 1) {
+        priceHtml = `<strong>$${l.splitPrice}/person</strong> <span class="card-split">${l.splitCount}-way split</span> <span class="card-total">$${l.price.toLocaleString()}${l.priceUnit}</span>`;
+      } else if (l.price) {
+        priceHtml = `<strong>$${l.price.toLocaleString()}${l.priceUnit}</strong>`;
+      } else {
+        priceHtml = '<span class="card-contact">Contact for pricing</span>';
+      }
+
+      const featuresHtml = l.features.length > 0
+        ? `<p class="card-features">${l.features.map(escapeHtml).join(' &middot; ')}</p>` : '';
+
+      return `<div class="listing-card" data-type="${l.type}">
+        <div class="card-image">
+          ${imgHtml}
+          <span class="card-badge">${typeLabels[l.type] || l.type}</span>
+        </div>
+        <div class="card-info">
+          <div class="card-row">
+            <h3 class="card-title">${escapeHtml(l.title)}</h3>
+            ${ratingHtml}
+          </div>
+          <p class="card-location">${escapeHtml(l.city)}${l.region ? ', ' + escapeHtml(l.region) : ''}</p>
+          ${featuresHtml}
+          <p class="card-price">${priceHtml}</p>
+        </div>
+      </div>`;
+    }
+
+    // ── Skeletons ──
+    function renderSkeletons(count) {
+      let html = '';
+      for (let i = 0; i < count; i++) {
+        html += `<div class="listing-card skeleton">
+          <div class="card-image"></div>
+          <div class="card-info">
+            <div class="skeleton-line" style="width:85%"></div>
+            <div class="skeleton-line" style="width:60%"></div>
+            <div class="skeleton-line" style="width:45%"></div>
+          </div>
+        </div>`;
+      }
+      return html;
+    }
+
+    // ── Empty State ──
+    function renderEmpty(msg) {
+      return `<div class="empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <h3>No experiences found</h3>
+        <p>${msg || 'Try a different category or city filter.'}</p>
+      </div>`;
+    }
+
+    // ── Results Count ──
+    function updateResultsCount() {
+      const catName = currentCategory === 'all' ? 'All Experiences' : (typeLabels[currentCategory] || currentCategory) + 's';
+      const cityText = currentCity ? ` in ${currentCity}` : '';
+      resultsCount.innerHTML = `${catName}${cityText}`;
+    }
+
+    // ── City Dropdown ──
+    function buildCityDropdown() {
+      const dd = searchDropdown;
+      dd.innerHTML = `<div class="search-option ${!currentCity ? 'active' : ''}" data-city="">
+        <div class="search-option-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+        All Cities
+      </div>`;
+
+      allCities.forEach(city => {
+        dd.insertAdjacentHTML('beforeend', `<div class="search-option ${currentCity === city ? 'active' : ''}" data-city="${escapeHtml(city)}">
+          <div class="search-option-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+          ${escapeHtml(city)}
+        </div>`);
+      });
+
+      dd.querySelectorAll('.search-option').forEach(opt => {
+        opt.addEventListener('click', () => {
+          const city = opt.dataset.city;
+          currentCity = city;
+          searchInput.value = city || '';
+          searchClear.classList.toggle('visible', !!city);
+          searchDropdown.classList.remove('open');
+          searchInput.readOnly = true;
+          fetchListings(false);
+        });
+      });
+    }
+
+    // ── Event Handlers ──
+
+    // Category pills
+    document.getElementById('categoryBar').addEventListener('click', (e) => {
+      const pill = e.target.closest('.category-pill');
+      if (!pill) return;
+      document.querySelectorAll('.category-pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      currentCategory = pill.dataset.category;
+      fetchListings(false);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    // Sort
+    sortSelect.addEventListener('change', () => {
+      currentSort = sortSelect.value;
+      fetchListings(false);
+    });
+
+    // Show more
+    btnShowMore.addEventListener('click', () => {
+      currentPage++;
+      fetchListings(true);
+    });
+
+    // Search bar toggle
+    document.getElementById('searchBtn').addEventListener('click', (e) => {
+      e.stopPropagation();
+      searchDropdown.classList.toggle('open');
+      if (searchDropdown.classList.contains('open')) searchInput.readOnly = false;
+    });
+    searchInput.addEventListener('click', () => {
+      searchDropdown.classList.add('open');
+      searchInput.readOnly = false;
+    });
+    searchInput.addEventListener('input', () => {
+      const q = searchInput.value.toLowerCase();
+      searchDropdown.querySelectorAll('.search-option').forEach(opt => {
+        const city = opt.dataset.city || '';
+        opt.style.display = (!q || city.toLowerCase().includes(q) || !city) ? '' : 'none';
+      });
+      searchDropdown.classList.add('open');
+    });
+    searchClear.addEventListener('click', (e) => {
+      e.stopPropagation();
+      currentCity = '';
+      searchInput.value = '';
+      searchClear.classList.remove('visible');
+      searchInput.readOnly = true;
+      fetchListings(false);
+    });
+    document.addEventListener('click', (e) => {
+      if (!document.getElementById('searchBar').contains(e.target)) {
+        searchDropdown.classList.remove('open');
+        searchInput.readOnly = true;
+      }
+    });
+
+    // Header scroll shadow
+    window.addEventListener('scroll', () => {
+      document.getElementById('header').classList.toggle('scrolled', window.scrollY > 4);
+    }, { passive: true });
+
+    // Footer navigation helpers
+    function filterCategory(cat) {
+      currentCategory = cat;
+      document.querySelectorAll('.category-pill').forEach(p => {
+        p.classList.toggle('active', p.dataset.category === cat);
+      });
+      fetchListings(false);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    function filterCity(city) {
+      currentCity = city;
+      searchInput.value = city;
+      searchClear.classList.add('visible');
+      fetchListings(false);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Escape HTML
+    function escapeHtml(str) {
+      if (!str) return '';
+      const d = document.createElement('div');
+      d.textContent = str;
+      return d.innerHTML;
+    }
+
+    // ── Analytics ──
+    document.querySelectorAll('[data-track]').forEach(el => {
+      el.addEventListener('click', () => {
         if (window.posthog) {
           posthog.capture(el.getAttribute('data-track'), {
             page: window.location.pathname,
@@ -1128,6 +1186,10 @@
         }
       });
     });
+
+    // ── Init ──
+    fetchListings(false);
   </script>
+
 </body>
 </html>
