@@ -1,22 +1,186 @@
-export type UserRole = "user" | "captain" | "admin" | "super_admin";
+export type UserRole = "user" | "captain" | "boat_owner" | "operator" | "fleet_owner" | "host" | "brand" | "admin" | "super_admin";
 
 export interface UserProfile {
   id: string;
   email: string;
+  username: string | null;
   display_name: string | null;
   avatar_url: string | null;
+  bio: string | null;
+  interests: string[];
+  budget_min: number | null;
+  budget_max: number | null;
+  wallet_balance: number;
   role: UserRole;
   secondary_roles: string[];
-  bio: string | null;
-  city: string | null;
+  home_city: string | null;
+  instagram_url: string | null;
+  tiktok_url: string | null;
+  x_url: string | null;
   phone: string | null;
+  date_of_birth: string | null;
+  onboarding_complete: boolean;
+  is_premium: boolean;
+  premium_until: string | null;
+  referral_code: string | null;
+  badges: string[];
+  stripe_customer_id: string | null;
+  stripe_connect_account_id: string | null;
+  stripe_connect_onboarded: boolean;
+  host_tier: string | null;
+  host_response_rate: number | null;
+  payout_method: string | null;
+  listing_quality_score: number | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Experience {
+  id: string;
+  host_id: string;
+  title: string;
+  description: string | null;
+  type: string;
+  status: string;
+  total_cost: number;
+  max_participants: number;
+  current_participants: number;
+  date_time: string;
+  duration_hours: number;
+  location: string;
+  photo_urls: string[];
+  boat_id: string | null;
+  boat_name: string | null;
+  boat_type: string | null;
+  source_provider: string | null;
+  amenities: string[];
+  vibe: string | null;
+  category: string | null;
+  booking_mode: string;
+  cancellation_policy: string;
+  security_deposit: number | null;
+  currency: string;
+  tipping_enabled: boolean;
+  is_private: boolean;
+  created_at: string;
+  updated_at: string;
+  // Joined fields
+  host?: Pick<UserProfile, "id" | "display_name" | "avatar_url" | "host_tier">;
+}
+
+export interface Pledge {
+  id: string;
+  experience_id: string;
+  user_id: string;
+  amount: number;
+  status: "reserved" | "active" | "fulfilled" | "withdrawn";
+  created_at: string;
+  updated_at: string;
+  // Joined
+  experience?: Experience;
+  user?: Pick<UserProfile, "id" | "display_name" | "avatar_url">;
+}
+
+export interface ChatThread {
+  id: string;
+  experience_id: string | null;
+  experience_title: string;
+  is_direct_message: boolean;
+  member_ids: string[];
+  dm_partner_id: string | null;
+  dm_partner_avatar_url: string | null;
+  last_message_id: string | null;
+  amount_pledged: number | null;
+  created_at: string;
+  updated_at: string;
+  // Joined
+  last_message?: ChatMessage;
+  experience?: Pick<Experience, "id" | "photo_urls" | "date_time" | "location" | "type" | "total_cost">;
+}
+
+export interface ChatMessage {
+  id: string;
+  thread_id: string;
+  sender_id: string;
+  sender_name: string | null;
+  sender_avatar_url: string | null;
+  content: string;
+  image_url: string | null;
+  is_pinned: boolean;
+  read_by: string[];
   created_at: string;
 }
 
+export interface WishlistItem {
+  id: string;
+  user_id: string;
+  experience_id: string;
+  experience_title: string | null;
+  experience_image_url: string | null;
+  experience_price: number | null;
+  host_name: string | null;
+  collection_name: string | null;
+  created_at: string;
+  // Joined
+  experience?: Experience;
+}
+
+export interface PaymentTransaction {
+  id: string;
+  user_id: string;
+  recipient_id: string | null;
+  experience_id: string | null;
+  amount: number;
+  type: string;
+  status: string;
+  description: string | null;
+  created_at: string;
+}
+
+export interface JoinRequest {
+  id: string;
+  experience_id: string;
+  user_id: string;
+  host_id: string;
+  amount: number;
+  status: "pending" | "accepted" | "deferred";
+  thread_id: string | null;
+  created_at: string;
+  updated_at: string;
+  // Joined
+  user?: Pick<UserProfile, "id" | "display_name" | "avatar_url" | "bio" | "instagram_url" | "is_premium" | "home_city">;
+  experience?: Experience;
+}
+
+export interface Invoice {
+  id: string;
+  experience_id: string;
+  thread_id: string;
+  total_amount: number;
+  per_person: number;
+  member_count: number;
+  status: "pending" | "approved" | "cancelled" | "disbursed";
+  created_at: string;
+  updated_at: string;
+  experience?: Experience;
+}
+
+export interface SecurityDeposit {
+  id: string;
+  experience_id: string;
+  user_id: string;
+  amount: number;
+  status: "held" | "released" | "claimed" | "partial_claim";
+  stripe_payment_intent_id: string | null;
+  held_at: string;
+  released_at: string | null;
+}
+
 export function hasBusinessRole(profile: UserProfile): boolean {
+  const businessRoles = ["captain", "boat_owner", "operator", "fleet_owner", "host", "brand"];
   return (
-    profile.role === "captain" ||
-    profile.secondary_roles?.includes("captain") ||
+    businessRoles.includes(profile.role) ||
+    profile.secondary_roles?.some((r) => businessRoles.includes(r)) ||
     profile.role === "admin" ||
     profile.role === "super_admin"
   );
@@ -24,6 +188,30 @@ export function hasBusinessRole(profile: UserProfile): boolean {
 
 export function isAdmin(profile: UserProfile): boolean {
   return profile.role === "admin" || profile.role === "super_admin";
+}
+
+export function formatCurrency(amount: number, currency = "USD"): string {
+  return new Intl.NumberFormat("en-US", { style: "currency", currency, minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
+}
+
+export function formatDate(dateStr: string): string {
+  return new Date(dateStr).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+}
+
+export function formatDateTime(dateStr: string): string {
+  return new Date(dateStr).toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+}
+
+export function timeAgo(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "now";
+  if (mins < 60) return `${mins}m`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h`;
+  const days = Math.floor(hrs / 24);
+  if (days < 7) return `${days}d`;
+  return formatDate(dateStr);
 }
 
 /** Navigation items for personal view */
