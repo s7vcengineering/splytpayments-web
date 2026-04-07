@@ -341,7 +341,7 @@ def parse_experience(result, city_slug):
         data["title"] = result.get("title", result.get("name", f"Experience {exp_id}"))
 
     # Rating
-    rating_stats = listing.get("listingRatingStats", {}).get("overallRatingStats", {})
+    rating_stats = (listing.get("listingRatingStats") or {}).get("overallRatingStats", {})
     if rating_stats:
         avg = rating_stats.get("ratingAverage")
         if avg is not None:
@@ -351,7 +351,8 @@ def parse_experience(result, city_slug):
             data["review_count"] = int(count)
 
     # Duration
-    offerings = listing.get("offerings", {}).get("publishedOfferings", {}).get("edges", [])
+    offerings = (listing.get("offerings") or {}).get("publishedOfferings") or {}
+    offerings = offerings.get("edges", [])
     if offerings:
         node = offerings[0].get("node", {})
         duration = node.get("durationMinutes")
@@ -359,8 +360,8 @@ def parse_experience(result, city_slug):
             data["duration_minutes"] = int(duration)
 
     # Price
-    display_price = result.get("displayPrice", {})
-    primary_line = display_price.get("primaryLine", {})
+    display_price = result.get("displayPrice") or {}
+    primary_line = display_price.get("primaryLine") or {}
     components = primary_line.get("orderedComponents", [])
 
     for comp in components:

@@ -668,7 +668,7 @@ def main():
     if args.type in ("all", "mansions"):
         types_to_scrape.append(("mansions", listings["mansions"], "mansions", parse_mansion_listing))
     if args.type in ("all", "yachts"):
-        types_to_scrape.append(("yachts", listings["yachts"], "mvp_yachts", parse_yacht_listing))
+        types_to_scrape.append(("yachts", listings["yachts"], "partner_yachts", parse_yacht_listing))
 
     for type_name, urls, table, parser_fn in types_to_scrape:
         if args.limit > 0:
