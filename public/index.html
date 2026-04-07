@@ -241,7 +241,7 @@
     .btn-download:hover { background: #000; transform: translateY(-1px); }
     .btn-download svg { width: 16px; height: 16px; }
 
-    /* ── Category Pills ── */
+    /* ── Category Bar ── */
     .categories {
       position: sticky;
       top: var(--header-height);
@@ -249,10 +249,13 @@
       background: var(--bg);
       border-bottom: 1px solid var(--border-light);
     }
-    .categories-inner {
+    .categories-wrap {
       max-width: var(--max-width);
       margin: 0 auto;
       padding: 0 24px;
+      position: relative;
+    }
+    .categories-inner {
       display: flex;
       align-items: stretch;
       gap: 32px;
@@ -278,40 +281,62 @@
       color: var(--text-secondary);
       white-space: nowrap;
       border-bottom: 2px solid transparent;
-      transition: color 0.2s, border-color 0.2s;
+      transition: color 0.2s, border-color 0.2s, opacity 0.2s;
       flex-shrink: 0;
+      opacity: 0.7;
     }
-    .category-pill:hover { color: var(--text); border-bottom-color: var(--border); }
-    .category-pill.active { color: var(--text); border-bottom-color: var(--text); }
+    .category-pill:hover { color: var(--text); border-bottom-color: var(--border); opacity: 1; }
+    .category-pill.active { color: var(--text); border-bottom-color: var(--text); opacity: 1; }
     .category-pill svg { width: 24px; height: 24px; stroke-width: 1.5; }
+    .categories-fade-r {
+      position: absolute;
+      right: 24px;
+      top: 0;
+      bottom: 0;
+      width: 60px;
+      background: linear-gradient(to right, transparent, white);
+      pointer-events: none;
+      display: none;
+    }
 
-    /* ── Main Content ── */
-    .main {
+    /* ── Filter bar ── */
+    .filter-bar {
       max-width: var(--max-width);
       margin: 0 auto;
-      padding: 24px 24px 0;
-    }
-
-    /* Results info */
-    .results-bar {
+      padding: 16px 24px;
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      margin-bottom: 20px;
+      gap: 10px;
+      flex-wrap: wrap;
     }
-    .results-count {
-      font-size: 15px;
-      font-weight: 600;
+    .filter-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      background: var(--bg);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 500;
       color: var(--text);
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
     }
+    .filter-pill:hover { border-color: var(--text); }
+    .filter-pill.active { background: var(--text); color: #fff; border-color: var(--text); }
+    .filter-pill svg { width: 14px; height: 14px; }
+    .filter-spacer { flex: 1; }
     .sort-select {
       font-family: inherit;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 500;
       color: var(--text);
       border: 1px solid var(--border);
       border-radius: 24px;
-      padding: 8px 16px;
+      padding: 8px 32px 8px 16px;
       background: var(--bg);
       cursor: pointer;
       appearance: none;
@@ -319,67 +344,107 @@
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23222' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
       background-repeat: no-repeat;
       background-position: right 12px center;
-      padding-right: 32px;
+      transition: border-color 0.15s;
+    }
+    .sort-select:hover { border-color: var(--text); }
+
+    /* ── Main Content ── */
+    .main {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 0 24px;
     }
 
     /* ── Listing Grid ── */
     .listing-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 24px;
+      gap: 24px 20px;
       margin-bottom: 48px;
     }
 
-    /* Listing Card */
+    /* ── Listing Card ── */
     .listing-card {
       display: block;
       text-decoration: none;
       color: inherit;
-      border-radius: 12px;
-      overflow: hidden;
-      transition: transform 0.2s, box-shadow 0.2s;
+      cursor: pointer;
     }
-    .listing-card:hover { transform: translateY(-2px); box-shadow: var(--card-shadow-hover); }
     .card-image {
       position: relative;
-      aspect-ratio: 4/3;
+      aspect-ratio: 20/19;
       overflow: hidden;
-      border-radius: 12px;
+      border-radius: 16px;
       background: var(--bg-secondary);
     }
     .card-image img {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      transition: transform 0.3s;
+      transition: opacity 0.3s;
     }
-    .listing-card:hover .card-image img { transform: scale(1.03); }
     .card-badge {
       position: absolute;
-      top: 10px;
-      left: 10px;
-      background: rgba(255,255,255,0.92);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      padding: 4px 10px;
-      border-radius: 20px;
+      top: 12px;
+      left: 12px;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      padding: 5px 12px;
+      border-radius: 6px;
       font-size: 11px;
       font-weight: 700;
       color: var(--text);
       text-transform: uppercase;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.03em;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
     }
+    .card-fav {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      filter: drop-shadow(0 1px 3px rgba(0,0,0,0.3));
+      transition: transform 0.2s;
+      z-index: 2;
+    }
+    .card-fav:hover { transform: scale(1.1); }
+    .card-fav svg { width: 24px; height: 24px; }
+    .card-dots {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 5px;
+      z-index: 2;
+    }
+    .card-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.6);
+      transition: background 0.2s;
+    }
+    .card-dot.active { background: #fff; }
     .card-image-placeholder {
       width: 100%;
       height: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+      background: linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%);
     }
-    .card-image-placeholder svg { width: 48px; height: 48px; color: var(--accent); opacity: 0.5; }
+    .card-image-placeholder svg { width: 48px; height: 48px; color: var(--text-muted); opacity: 0.4; }
 
-    .card-info { padding: 10px 2px; }
+    .card-info { padding: 12px 2px 4px; }
     .card-row {
       display: flex;
       align-items: flex-start;
@@ -399,13 +464,13 @@
     .card-rating {
       display: flex;
       align-items: center;
-      gap: 3px;
+      gap: 4px;
       font-size: 14px;
       font-weight: 500;
       color: var(--text);
       flex-shrink: 0;
     }
-    .card-rating svg { width: 13px; height: 13px; }
+    .card-rating svg { width: 12px; height: 12px; }
     .card-location {
       font-size: 14px;
       color: var(--text-secondary);
@@ -413,7 +478,7 @@
     }
     .card-features {
       font-size: 13px;
-      color: var(--text-secondary);
+      color: var(--text-muted);
       margin-top: 2px;
       display: -webkit-box;
       -webkit-line-clamp: 1;
@@ -422,36 +487,46 @@
     }
     .card-price {
       margin-top: 6px;
-      font-size: 14px;
+      font-size: 15px;
       line-height: 1.4;
     }
     .card-price strong { font-weight: 700; color: var(--text); }
-    .card-split { color: var(--text-secondary); font-weight: 400; }
-    .card-total { color: var(--text-muted); font-size: 13px; text-decoration: line-through; margin-left: 4px; }
+    .card-price .price-unit { font-weight: 400; color: var(--text-secondary); }
+    .card-split {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 13px;
+      margin-left: 6px;
+    }
+    .card-split svg { width: 12px; height: 12px; }
+    .card-original { color: var(--text-muted); font-size: 13px; text-decoration: line-through; margin-left: 6px; }
     .card-contact { color: var(--text-secondary); font-weight: 500; }
 
-    /* Show More */
+    /* ── Show More ── */
     .show-more-wrap {
       text-align: center;
-      padding: 16px 0 48px;
+      padding: 16px 0 56px;
     }
     .btn-show-more {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      background: var(--bg);
-      border: 1px solid var(--text);
+      background: var(--text);
+      border: none;
       border-radius: 8px;
-      padding: 12px 32px;
+      padding: 14px 40px;
       font-family: inherit;
       font-size: 15px;
       font-weight: 600;
-      color: var(--text);
+      color: #fff;
       cursor: pointer;
-      transition: background 0.2s;
+      transition: background 0.2s, transform 0.15s;
     }
-    .btn-show-more:hover { background: var(--bg-secondary); }
-    .btn-show-more:disabled { opacity: 0.4; cursor: default; }
+    .btn-show-more:hover { background: #000; transform: translateY(-1px); }
+    .btn-show-more:disabled { opacity: 0.4; cursor: default; transform: none; }
 
     /* ── Skeleton Loading ── */
     @keyframes shimmer {
@@ -459,15 +534,15 @@
       100% { background-position: 400px 0; }
     }
     .skeleton .card-image {
-      background: linear-gradient(90deg, #f0f0f0 25%, #e4e4e4 50%, #f0f0f0 75%);
+      background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
       background-size: 800px 100%;
       animation: shimmer 1.5s infinite;
     }
     .skeleton .card-info { padding-top: 12px; }
     .skeleton-line {
       height: 14px;
-      border-radius: 4px;
-      background: linear-gradient(90deg, #f0f0f0 25%, #e4e4e4 50%, #f0f0f0 75%);
+      border-radius: 6px;
+      background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
       background-size: 800px 100%;
       animation: shimmer 1.5s infinite;
       margin-bottom: 8px;
@@ -670,18 +745,21 @@
       .header-divider { display: none; }
       .btn-download span { display: none; }
       .btn-download { padding: 10px; border-radius: 50%; }
-      .categories-inner { padding: 0 16px; gap: 24px; }
-      .main { padding: 16px 16px 0; }
-      .listing-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+      .categories-wrap { padding: 0 16px; }
+      .categories-inner { gap: 24px; }
+      .filter-bar { padding: 12px 16px; gap: 8px; overflow-x: auto; flex-wrap: nowrap; }
+      .filter-pill { font-size: 12px; padding: 7px 12px; }
+      .main { padding: 0 16px; }
+      .listing-grid { grid-template-columns: repeat(2, 1fr); gap: 16px 12px; }
       .how-steps { flex-direction: column; gap: 32px; }
       .testimonials-grid { grid-template-columns: 1fr; }
       .footer-grid { grid-template-columns: repeat(2, 1fr); }
-      .results-bar { flex-direction: column; gap: 8px; align-items: flex-start; }
     }
     @media (max-width: 550px) {
-      .listing-grid { grid-template-columns: 1fr; max-width: 420px; }
+      .listing-grid { grid-template-columns: 1fr; max-width: 440px; margin: 0 auto 48px; }
       .footer-grid { grid-template-columns: 1fr; }
       .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
+      .filter-spacer { display: none; }
     }
     @media (min-width: 1440px) {
       .listing-grid { grid-template-columns: repeat(5, 1fr); }
@@ -727,44 +805,60 @@
     </div>
   </header>
 
-  <!-- ═══ CATEGORY PILLS ═══ -->
+  <!-- ═══ CATEGORY BAR ═══ -->
   <nav class="categories">
-    <div class="categories-inner" id="categoryBar">
-      <button class="category-pill active" data-category="all">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-        All
-      </button>
-      <button class="category-pill" data-category="yacht">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20l.8-2.4A7.96 7.96 0 0 1 2 14c0-4.42 4.48-8 10-8s10 3.58 10 8-4.48 8-10 8c-1.32 0-2.58-.2-3.73-.56L2 20z" stroke="none"/><path d="M12 2v6"/><path d="M12 8L4.5 18.5"/><path d="M12 8l7.5 10.5"/><path d="M2 20c2-2 4-3 10-3s8 1 10 3"/></svg>
-        Yachts
-      </button>
-      <button class="category-pill" data-category="car">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14M5 17a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1l2-3h8l2 3h1a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2M5 17v2m14-2v2"/><circle cx="7.5" cy="14" r="1.5"/><circle cx="16.5" cy="14" r="1.5"/></svg>
-        Exotic Cars
-      </button>
-      <button class="category-pill" data-category="stay">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-        Stays
-      </button>
-      <button class="category-pill" data-category="experience">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-        Experiences
-      </button>
+    <div class="categories-wrap">
+      <div class="categories-inner" id="categoryBar">
+        <button class="category-pill active" data-category="all">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          All
+        </button>
+        <button class="category-pill" data-category="yacht">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v6"/><path d="M12 8L4.5 18.5"/><path d="M12 8l7.5 10.5"/><path d="M2 20c2-2 4-3 10-3s8 1 10 3"/></svg>
+          Yachts
+        </button>
+        <button class="category-pill" data-category="car">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14M5 17a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1l2-3h8l2 3h1a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2M5 17v2m14-2v2"/><circle cx="7.5" cy="14" r="1.5"/><circle cx="16.5" cy="14" r="1.5"/></svg>
+          Exotic Cars
+        </button>
+        <button class="category-pill" data-category="stay">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          Stays
+        </button>
+        <button class="category-pill" data-category="experience">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          Experiences
+        </button>
+      </div>
+      <div class="categories-fade-r" id="catFade"></div>
     </div>
   </nav>
 
+  <!-- ═══ FILTER BAR ═══ -->
+  <div class="filter-bar" id="filterBar">
+    <button class="filter-pill" id="filterAvailable">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      Available Now
+    </button>
+    <button class="filter-pill" id="filterSplittable">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Splittable
+    </button>
+    <button class="filter-pill" id="filterTopRated">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      Top Rated
+    </button>
+    <div class="filter-spacer"></div>
+    <select class="sort-select" id="sortSelect" aria-label="Sort listings">
+      <option value="featured">Sort: Featured</option>
+      <option value="price_asc">Price: Low to High</option>
+      <option value="price_desc">Price: High to Low</option>
+      <option value="rating">Highest Rated</option>
+    </select>
+  </div>
+
   <!-- ═══ MAIN LISTINGS ═══ -->
   <main class="main">
-    <div class="results-bar" id="resultsBar">
-      <div class="results-count" id="resultsCount"></div>
-      <select class="sort-select" id="sortSelect" aria-label="Sort listings">
-        <option value="featured">Sort: Featured</option>
-        <option value="price_asc">Price: Low to High</option>
-        <option value="price_desc">Price: High to Low</option>
-        <option value="rating">Highest Rated</option>
-      </select>
-    </div>
-
     <div class="listing-grid" id="listingGrid"></div>
 
     <div class="show-more-wrap" id="showMoreWrap" style="display:none">
@@ -932,7 +1026,7 @@
 
     // DOM refs
     const grid = document.getElementById('listingGrid');
-    const resultsCount = document.getElementById('resultsCount');
+    const resultsCount = document.getElementById('resultsCount'); // may be null
     const showMoreWrap = document.getElementById('showMoreWrap');
     const btnShowMore = document.getElementById('btnShowMore');
     const searchInput = document.getElementById('searchInput');
@@ -971,12 +1065,22 @@
           buildCityDropdown();
         }
 
-        if (!append) grid.innerHTML = '';
+        if (!append) {
+          grid.innerHTML = '';
+          allLoadedListings = [];
+        }
+
+        allLoadedListings = allLoadedListings.concat(data.listings);
 
         if (data.listings.length === 0 && !append) {
           grid.innerHTML = renderEmpty();
         } else {
-          const html = data.listings.map(renderCard).join('');
+          // Apply client-side filters
+          let toRender = data.listings;
+          if (filterSplittable) toRender = toRender.filter(l => l.splitPrice && l.splitCount > 1);
+          if (filterTopRated) toRender = toRender.filter(l => l.rating && l.rating >= 4.5);
+          if (filterAvailable) toRender = toRender.filter(l => l.price);
+          const html = toRender.map(renderCard).join('');
           grid.insertAdjacentHTML('beforeend', html);
         }
 
@@ -992,17 +1096,25 @@
 
     // ── Render Card ──
     function renderCard(l) {
-      const ratingHtml = l.rating ? `<span class="card-rating"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> ${l.rating.toFixed(1)}${l.reviewCount ? ` (${l.reviewCount})` : ''}</span>` : '';
+      const ratingHtml = l.rating
+        ? `<span class="card-rating"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>${l.rating.toFixed(1)}${l.reviewCount ? ` <span style="color:var(--text-secondary)">(${l.reviewCount})</span>` : ''}</span>`
+        : '';
 
       const imgHtml = l.photoUrls.length > 0
-        ? `<img src="${escapeHtml(l.photoUrls[0])}" alt="${escapeHtml(l.title)}" loading="lazy" onerror="this.parentNode.innerHTML='<div class=card-image-placeholder><svg viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.5&quot;><rect x=&quot;3&quot; y=&quot;3&quot; width=&quot;18&quot; height=&quot;18&quot; rx=&quot;2&quot;/><circle cx=&quot;8.5&quot; cy=&quot;8.5&quot; r=&quot;1.5&quot;/><path d=&quot;M21 15l-5-5L5 21&quot;/></svg></div>'">`
+        ? `<img src="${escapeHtml(l.photoUrls[0])}" alt="${escapeHtml(l.title)}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="card-image-placeholder" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div>`
         : '<div class="card-image-placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div>';
+
+      // Image dots (show up to 5 dots if multiple photos)
+      const photoCount = Math.min(l.photoUrls.length, 5);
+      const dotsHtml = photoCount > 1
+        ? `<div class="card-dots">${Array.from({length: photoCount}, (_, i) => `<div class="card-dot${i === 0 ? ' active' : ''}"></div>`).join('')}</div>`
+        : '';
 
       let priceHtml = '';
       if (l.splitPrice && l.price && l.splitCount > 1) {
-        priceHtml = `<strong>$${l.splitPrice}/person</strong> <span class="card-split">${l.splitCount}-way split</span> <span class="card-total">$${l.price.toLocaleString()}${l.priceUnit}</span>`;
+        priceHtml = `<strong>$${l.price.toLocaleString()}</strong><span class="price-unit">${l.priceUnit}</span> <span class="card-split"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>$${l.splitPrice}/ea</span>`;
       } else if (l.price) {
-        priceHtml = `<strong>$${l.price.toLocaleString()}${l.priceUnit}</strong>`;
+        priceHtml = `<strong>$${l.price.toLocaleString()}</strong><span class="price-unit">${l.priceUnit}</span>`;
       } else {
         priceHtml = '<span class="card-contact">Contact for pricing</span>';
       }
@@ -1014,6 +1126,10 @@
         <div class="card-image">
           ${imgHtml}
           <span class="card-badge">${typeLabels[l.type] || l.type}</span>
+          <button class="card-fav" onclick="event.stopPropagation()" aria-label="Save">
+            <svg viewBox="0 0 24 24" fill="rgba(0,0,0,0.5)" stroke="white" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          </button>
+          ${dotsHtml}
         </div>
         <div class="card-info">
           <div class="card-row">
@@ -1032,11 +1148,11 @@
       let html = '';
       for (let i = 0; i < count; i++) {
         html += `<div class="listing-card skeleton">
-          <div class="card-image"></div>
+          <div class="card-image" style="aspect-ratio:20/19"></div>
           <div class="card-info">
-            <div class="skeleton-line" style="width:85%"></div>
-            <div class="skeleton-line" style="width:60%"></div>
-            <div class="skeleton-line" style="width:45%"></div>
+            <div class="skeleton-line" style="width:80%"></div>
+            <div class="skeleton-line" style="width:55%"></div>
+            <div class="skeleton-line" style="width:40%"></div>
           </div>
         </div>`;
       }
@@ -1054,6 +1170,7 @@
 
     // ── Results Count ──
     function updateResultsCount() {
+      if (!resultsCount) return;
       const catName = currentCategory === 'all' ? 'All Experiences' : (typeLabels[currentCategory] || currentCategory) + 's';
       const cityText = currentCity ? ` in ${currentCity}` : '';
       resultsCount.innerHTML = `${catName}${cityText}`;
@@ -1087,6 +1204,11 @@
       });
     }
 
+    // ── Filters State ──
+    let filterAvailable = false;
+    let filterSplittable = false;
+    let filterTopRated = false;
+
     // ── Event Handlers ──
 
     // Category pills
@@ -1099,6 +1221,46 @@
       fetchListings(false);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
+
+    // Category bar fade indicator
+    const catBar = document.getElementById('categoryBar');
+    const catFade = document.getElementById('catFade');
+    function checkCatScroll() {
+      if (catBar.scrollWidth > catBar.clientWidth && catBar.scrollLeft + catBar.clientWidth < catBar.scrollWidth - 10) {
+        catFade.style.display = 'block';
+      } else {
+        catFade.style.display = 'none';
+      }
+    }
+    catBar.addEventListener('scroll', checkCatScroll, { passive: true });
+    window.addEventListener('resize', checkCatScroll);
+    checkCatScroll();
+
+    // Filter pills
+    document.getElementById('filterAvailable').addEventListener('click', function() {
+      filterAvailable = !filterAvailable;
+      this.classList.toggle('active', filterAvailable);
+      applyClientFilters();
+    });
+    document.getElementById('filterSplittable').addEventListener('click', function() {
+      filterSplittable = !filterSplittable;
+      this.classList.toggle('active', filterSplittable);
+      applyClientFilters();
+    });
+    document.getElementById('filterTopRated').addEventListener('click', function() {
+      filterTopRated = !filterTopRated;
+      this.classList.toggle('active', filterTopRated);
+      applyClientFilters();
+    });
+
+    let allLoadedListings = [];
+    function applyClientFilters() {
+      let filtered = [...allLoadedListings];
+      if (filterSplittable) filtered = filtered.filter(l => l.splitPrice && l.splitCount > 1);
+      if (filterTopRated) filtered = filtered.filter(l => l.rating && l.rating >= 4.5);
+      if (filterAvailable) filtered = filtered.filter(l => l.price);
+      grid.innerHTML = filtered.length > 0 ? filtered.map(renderCard).join('') : renderEmpty();
+    }
 
     // Sort
     sortSelect.addEventListener('change', () => {
