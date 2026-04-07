@@ -44,6 +44,14 @@
       ]
     }
   ],
+  "redirects": [
+    {
+      "source": "/((?!api|_next).*)",
+      "has": [{ "type": "host", "value": "console.splytpayments.com" }],
+      "destination": "https://splytpayments.com/",
+      "statusCode": 302
+    }
+  ],
   "rewrites": [
     {
       "source": "/((?!api|app-icon|_next).*)",
