@@ -45,6 +45,11 @@
     }
   ],
   "rewrites": [
+    {
+      "source": "/((?!api|app-icon|_next).*)",
+      "has": [{ "type": "host", "value": "partners.splytpayments.com" }],
+      "destination": "/partners.html"
+    },
     { "source": "/invite/:code", "destination": "/invite.html" },
     { "source": "/experience/:id", "destination": "/experience.html" },
     { "source": "/download", "destination": "/download.html" },
