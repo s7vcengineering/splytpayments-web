@@ -29,6 +29,7 @@ export default function ExperienceDetailPage({
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [joining, setJoining] = useState(false);
+  const [saved, setSaved] = useState(false);
   const [message, setMessage] = useState<{
     type: "success" | "error";
     text: string;
@@ -83,6 +84,15 @@ export default function ExperienceDetailPage({
       if (mine) setMyPledge(mine);
     }
 
+    // Check if saved/wishlisted
+    const { data: wishlistData } = await supabase
+      .from("wishlist_items")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("experience_id", experienceId)
+      .maybeSingle();
+    setSaved(!!wishlistData);
+
     setLoading(false);
   }, [experienceId]);
 
@@ -119,6 +129,45 @@ export default function ExperienceDetailPage({
       setMessage({ type: "error", text: "Something went wrong" });
     } finally {
       setJoining(false);
+    }
+  }
+
+  async function handleToggleSave() {
+    if (!experienceId || !userId) return;
+    const supabase = createBrowserSupabase();
+
+    if (saved) {
+      await supabase
+        .from("wishlist_items")
+        .delete()
+        .eq("user_id", userId)
+        .eq("experience_id", experienceId);
+      setSaved(false);
+    } else {
+      await supabase.from("wishlist_items").insert({
+        user_id: userId,
+        experience_id: experienceId,
+        experience_title: experience?.title || null,
+        experience_image_url: experience?.photo_urls?.[0] || null,
+        experience_price: experience?.total_cost || null,
+      });
+      setSaved(true);
+    }
+  }
+
+  async function handleShare() {
+    const url = `${window.location.origin}/app/experience/${experienceId}`;
+    const text = experience ? `Check out "${experience.title}" on SPLYT — ${formatCurrency(Math.ceil(experience.total_cost / experience.max_participants))}/person` : "Check out this experience on SPLYT";
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: experience?.title || "SPLYT Experience", text, url });
+      } catch {
+        // user cancelled
+      }
+    } else {
+      await navigator.clipboard.writeText(url);
+      setMessage({ type: "success", text: "Link copied to clipboard!" });
+      setTimeout(() => setMessage(null), 3000);
     }
   }
 
@@ -161,25 +210,37 @@ export default function ExperienceDetailPage({
 
   return (
     <div className="p-6 lg:p-8 max-w-4xl">
-      <button
-        onClick={() => router.back()}
-        className="text-sm text-gray-500 hover:text-gray-700 mb-4 flex items-center gap-1"
-      >
-        <svg
-          className="w-4 h-4"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={2}
+      <div className="flex items-center justify-between mb-4">
+        <button
+          onClick={() => router.back()}
+          className="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1"
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M15 19l-7-7 7-7"
-          />
-        </svg>
-        Back
-      </button>
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+          </svg>
+          Back
+        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleShare}
+            className="p-2 rounded-full hover:bg-gray-100 transition-colors text-gray-500 hover:text-gray-700"
+            title="Share"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+            </svg>
+          </button>
+          <button
+            onClick={handleToggleSave}
+            className={`p-2 rounded-full hover:bg-gray-100 transition-colors ${saved ? "text-red-500" : "text-gray-500 hover:text-gray-700"}`}
+            title={saved ? "Remove from saved" : "Save"}
+          >
+            <svg className="w-5 h-5" fill={saved ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
+            </svg>
+          </button>
+        </div>
+      </div>
 
       {/* Photos */}
       {experience.photo_urls?.length > 0 && (
@@ -468,10 +529,18 @@ export default function ExperienceDetailPage({
                 {joining ? "Joining..." : `Join for ${formatCurrency(perPerson)}`}
               </button>
             ) : userId === experience.host_id ? (
-              <div className="bg-ocean-50 border border-ocean-200 rounded-xl p-4 text-center">
-                <p className="text-sm font-semibold text-ocean-800">
-                  You&apos;re hosting this
-                </p>
+              <div className="space-y-3">
+                <div className="bg-ocean-50 border border-ocean-200 rounded-xl p-4 text-center">
+                  <p className="text-sm font-semibold text-ocean-800">
+                    You&apos;re hosting this
+                  </p>
+                </div>
+                <Link
+                  href={`/app/business/listings/${experienceId}/edit`}
+                  className="block w-full text-center py-3 bg-gray-900 text-white font-semibold rounded-xl hover:bg-gray-800 transition-colors text-sm"
+                >
+                  Edit Experience
+                </Link>
               </div>
             ) : (
               <div className="bg-gray-100 rounded-xl p-4 text-center">

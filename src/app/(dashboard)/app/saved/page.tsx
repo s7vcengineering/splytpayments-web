@@ -68,7 +68,7 @@ export default function SavedPage() {
                 <div className="aspect-[4/3] bg-gray-100 relative">
                   {imgUrl && <img src={imgUrl} alt="" className="w-full h-full object-cover" />}
                   <button
-                    onClick={() => handleRemove(item.id)}
+                    onClick={(e) => { e.stopPropagation(); handleRemove(item.id); }}
                     className="absolute top-3 right-3 w-8 h-8 bg-white/90 backdrop-blur rounded-full flex items-center justify-center text-red-500 hover:bg-white shadow-sm transition-all opacity-0 group-hover:opacity-100"
                   >
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">

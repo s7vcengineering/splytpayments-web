@@ -68,7 +68,7 @@ export default function ListingsPage() {
           {filtered.map((exp) => {
             const statusColors: Record<string, string> = { open: "bg-green-50 text-green-600", filling: "bg-ocean-50 text-ocean-600", full: "bg-purple-50 text-purple-600", completed: "bg-gray-100 text-gray-500", cancelled: "bg-red-50 text-red-500" };
             return (
-              <div key={exp.id} className="bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+              <Link key={exp.id} href={`/app/business/listings/${exp.id}/edit`} className="block bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
                 <div className="flex flex-col sm:flex-row">
                   {exp.photo_urls?.[0] && (
                     <div className="sm:w-48 aspect-video sm:aspect-square bg-gray-100 shrink-0">
@@ -88,17 +88,18 @@ export default function ListingsPage() {
                     <div className="flex flex-wrap gap-x-5 gap-y-1 mt-3 text-sm text-gray-600">
                       <span>{formatCurrency(exp.total_cost)} total</span>
                       <span>{exp.current_participants}/{exp.max_participants} joined</span>
-                      <span>{exp.duration_hours}h</span>
+                      {exp.duration_hours && <span>{exp.duration_hours}h</span>}
                       <span className="capitalize">{exp.type.replace(/_/g, " ")}</span>
                     </div>
                     {exp.date_time && <p className="text-xs text-gray-400 mt-2">{formatDateTime(exp.date_time)}</p>}
                     <div className="flex gap-2 mt-3">
                       <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full capitalize">{exp.booking_mode}</span>
                       {exp.vibe && <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full capitalize">{exp.vibe.replace(/_/g, " ")}</span>}
+                      <span className="text-xs text-ocean-600 ml-auto">Edit &rarr;</span>
                     </div>
                   </div>
                 </div>
-              </div>
+              </Link>
             );
           })}
         </div>
