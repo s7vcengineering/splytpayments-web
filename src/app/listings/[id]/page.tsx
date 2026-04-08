@@ -2,6 +2,7 @@ import { createServiceClient } from "@/lib/supabase";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { formatCurrency } from "@/lib/types";
+import AvailabilityCalendar from "./availability-calendar";
 
 function getTable(
   source: string,
@@ -386,6 +387,14 @@ export default async function ListingDetailPage({
                 </div>
               </div>
             )}
+
+            {/* Availability */}
+            <div className="pb-6 mb-6 border-b border-gray-200">
+              <h2 className="text-lg font-semibold text-gray-900 mb-3">
+                Availability
+              </h2>
+              <AvailabilityCalendar listingId={id} />
+            </div>
 
             {/* More photos */}
             {listing.photos.length > 5 && (
