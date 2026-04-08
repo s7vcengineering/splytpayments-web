@@ -29,6 +29,7 @@ export default function ExperienceDetailPage({
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [joining, setJoining] = useState(false);
+  const [leaving, setLeaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [message, setMessage] = useState<{
     type: "success" | "error";
@@ -129,6 +130,34 @@ export default function ExperienceDetailPage({
       setMessage({ type: "error", text: "Something went wrong" });
     } finally {
       setJoining(false);
+    }
+  }
+
+  async function handleLeave() {
+    if (!experienceId || !confirm("Are you sure you want to leave this split? Refund depends on the cancellation policy.")) return;
+    setLeaving(true);
+    setMessage(null);
+    try {
+      const res = await fetch(`/api/experiences/${experienceId}/leave`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setMessage({ type: "error", text: data.error });
+      } else {
+        const refundText = data.refundAmount === data.pledgeAmount
+          ? `Full refund of ${formatCurrency(data.refundAmount)} returned to wallet.`
+          : data.refundAmount > 0
+            ? `${formatCurrency(data.refundAmount)} of ${formatCurrency(data.pledgeAmount)} refunded (${data.policy} policy).`
+            : `No refund — ${data.policy} cancellation policy applies.`;
+        setMessage({ type: "success", text: `You left the split. ${refundText}` });
+        loadData();
+      }
+    } catch {
+      setMessage({ type: "error", text: "Something went wrong" });
+    } finally {
+      setLeaving(false);
     }
   }
 
@@ -512,13 +541,22 @@ export default function ExperienceDetailPage({
             )}
 
             {myPledge ? (
-              <div className="bg-green-50 border border-green-200 rounded-xl p-4 text-center">
-                <p className="text-sm font-semibold text-green-800">
-                  You&apos;re in!
-                </p>
-                <p className="text-xs text-green-600 mt-1">
-                  Pledged {formatCurrency(myPledge.amount)}
-                </p>
+              <div className="space-y-3">
+                <div className="bg-green-50 border border-green-200 rounded-xl p-4 text-center">
+                  <p className="text-sm font-semibold text-green-800">
+                    You&apos;re in!
+                  </p>
+                  <p className="text-xs text-green-600 mt-1">
+                    Pledged {formatCurrency(myPledge.amount)}
+                  </p>
+                </div>
+                <button
+                  onClick={handleLeave}
+                  disabled={leaving}
+                  className="w-full py-2.5 text-sm font-medium text-red-600 bg-red-50 border border-red-200 rounded-xl hover:bg-red-100 transition-colors disabled:opacity-50"
+                >
+                  {leaving ? "Leaving..." : "Leave Split"}
+                </button>
               </div>
             ) : canJoin ? (
               <button
@@ -550,12 +588,20 @@ export default function ExperienceDetailPage({
               </div>
             )}
 
-            <Link
-              href="/app/messages"
-              className="block w-full text-center py-3 mt-3 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition-colors text-sm"
-            >
-              Message Group
-            </Link>
+            <div className="flex gap-2 mt-3">
+              <Link
+                href="/app/messages"
+                className="flex-1 text-center py-3 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition-colors text-sm"
+              >
+                Message Group
+              </Link>
+              <Link
+                href={`/app/experience/${experienceId}/reviews`}
+                className="flex-1 text-center py-3 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition-colors text-sm"
+              >
+                Reviews
+              </Link>
+            </div>
 
             <div className="mt-4 text-xs text-gray-400 space-y-1">
               <p>
