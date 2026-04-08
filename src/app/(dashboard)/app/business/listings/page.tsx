@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { createBrowserSupabase } from "@/lib/supabase";
 import type { Experience } from "@/lib/types";
 import { formatCurrency, formatDateTime } from "@/lib/types";
@@ -33,9 +35,9 @@ export default function ListingsPage() {
           <h1 className="text-2xl font-bold text-gray-900 mb-1">My Listings</h1>
           <p className="text-gray-500">{experiences.length} total experience{experiences.length !== 1 ? "s" : ""}</p>
         </div>
-        <button className="px-4 py-2 bg-ocean-500 text-white text-sm font-semibold rounded-xl hover:bg-ocean-600 transition-colors">
+        <Link href="/app/business/listings/new" className="px-4 py-2 bg-ocean-500 text-white text-sm font-semibold rounded-xl hover:bg-ocean-600 transition-colors">
           + New Experience
-        </button>
+        </Link>
       </div>
 
       {/* Filters */}

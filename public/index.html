@@ -1147,7 +1147,7 @@
       const featuresHtml = l.features.length > 0
         ? `<p class="card-features">${l.features.map(escapeHtml).join(' &middot; ')}</p>` : '';
 
-      return `<div class="listing-card" data-type="${l.type}">
+      return `<a href="/listings/${l.id}?source=${encodeURIComponent(l.source)}&type=${encodeURIComponent(l.type)}" class="listing-card" data-type="${l.type}" style="text-decoration:none;color:inherit;display:block">
         <div class="card-image">
           ${imgHtml}
           <span class="card-badge">${typeLabels[l.type] || l.type}</span>
@@ -1165,7 +1165,7 @@
           ${featuresHtml}
           <p class="card-price">${priceHtml}</p>
         </div>
-      </div>`;
+      </a>`;
     }
 
     // ── Skeletons ──

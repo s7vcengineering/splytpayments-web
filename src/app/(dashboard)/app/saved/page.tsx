@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { createBrowserSupabase } from "@/lib/supabase";
 import type { WishlistItem } from "@/lib/types";
 import { formatCurrency } from "@/lib/types";
@@ -63,7 +64,7 @@ export default function SavedPage() {
             const exp = item.experience;
             const imgUrl = exp?.photo_urls?.[0] || item.experience_image_url;
             return (
-              <div key={item.id} className="bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-md transition-shadow group relative">
+              <div key={item.id} className="bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-md transition-shadow group relative cursor-pointer" onClick={() => { if (item.experience_id) window.location.href = `/app/splits`; }}>
                 <div className="aspect-[4/3] bg-gray-100 relative">
                   {imgUrl && <img src={imgUrl} alt="" className="w-full h-full object-cover" />}
                   <button

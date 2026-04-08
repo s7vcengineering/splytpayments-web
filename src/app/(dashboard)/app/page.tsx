@@ -79,7 +79,7 @@ export default function AppHome() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {activeSplits.map((pledge) => (
-              <div key={pledge.id} className="bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+              <Link key={pledge.id} href={`/app/splits`} className="block bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
                 {pledge.experience?.photo_urls?.[0] && (
                   <div className="aspect-[16/9] bg-gray-100">
                     <img src={pledge.experience.photo_urls[0]} alt="" className="w-full h-full object-cover" />
@@ -102,7 +102,7 @@ export default function AppHome() {
                     <p className="text-xs text-gray-400 mt-2">{formatDateTime(pledge.experience.date_time)}</p>
                   )}
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         )}
