@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const TYPES = [
   { value: "yacht_charter", label: "Yacht Charter" },
@@ -20,8 +20,9 @@ const VIBES = [
   { value: "family", label: "Family" },
 ];
 
-export default function NewExperiencePage() {
+function NewExperienceForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -43,6 +44,28 @@ export default function NewExperiencePage() {
     security_deposit: "",
     is_private: false,
   });
+
+  // Prefill from URL params (when coming from "Start a Split" on listing page)
+  useEffect(() => {
+    const title = searchParams.get("title");
+    const location = searchParams.get("location");
+    const type = searchParams.get("type");
+    const totalCost = searchParams.get("total_cost");
+    const capacity = searchParams.get("capacity");
+    const photos = searchParams.get("photos");
+
+    if (title || location || type) {
+      setForm((prev) => ({
+        ...prev,
+        ...(title ? { title } : {}),
+        ...(location ? { location } : {}),
+        ...(type ? { type } : {}),
+        ...(totalCost ? { total_cost: totalCost } : {}),
+        ...(capacity ? { max_participants: capacity } : {}),
+        ...(photos ? { photo_urls: photos } : {}),
+      }));
+    }
+  }, [searchParams]);
 
   function update(field: string, value: string | boolean) {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -412,5 +435,13 @@ export default function NewExperiencePage() {
         </div>
       </form>
     </div>
+  );
+}
+
+export default function NewExperiencePage() {
+  return (
+    <Suspense fallback={<div className="p-6 lg:p-8">Loading...</div>}>
+      <NewExperienceForm />
+    </Suspense>
   );
 }

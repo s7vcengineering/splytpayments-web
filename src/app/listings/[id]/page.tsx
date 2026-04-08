@@ -444,7 +444,7 @@ export default async function ListingDetailPage({
               )}
 
               <Link
-                href={`/signup`}
+                href={`/app/business/listings/new?title=${encodeURIComponent(listing.title)}&location=${encodeURIComponent(listing.location)}&type=${encodeURIComponent(listing.type === "yacht" ? "yacht_charter" : listing.type === "car" ? "exotic_car" : listing.type === "stay" ? "luxury_stay" : "experience")}&total_cost=${listing.price || ""}&capacity=${listing.capacity}&photos=${encodeURIComponent(listing.photos.slice(0, 5).join("\n"))}`}
                 className="block w-full text-center py-3 bg-ocean-500 text-white font-semibold rounded-xl hover:bg-ocean-600 transition-colors mb-3"
               >
                 Start a Split

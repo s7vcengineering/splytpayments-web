@@ -478,6 +478,24 @@ function WalletContent() {
                     : "Connect your Stripe account to receive payouts from bookings."}
                 </p>
               </div>
+              {!profile.stripe_connect_onboarded && (
+                <button
+                  onClick={async () => {
+                    setProcessing(true);
+                    try {
+                      const res = await fetch("/api/stripe/connect", { method: "POST" });
+                      const data = await res.json();
+                      if (data.url) window.location.href = data.url;
+                      else setMessage({ type: "error", text: data.error || "Failed to start setup" });
+                    } catch { setMessage({ type: "error", text: "Something went wrong" }); }
+                    finally { setProcessing(false); }
+                  }}
+                  disabled={processing}
+                  className="ml-auto px-4 py-2 bg-amber-600 text-white text-xs font-semibold rounded-lg hover:bg-amber-700 transition-colors disabled:opacity-50 shrink-0"
+                >
+                  {processing ? "Loading..." : "Set Up"}
+                </button>
+              )}
             </div>
           </div>
         )}

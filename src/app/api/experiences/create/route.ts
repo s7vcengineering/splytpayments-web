@@ -24,35 +24,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // Check user has a business role
   const admin = createServiceClient();
-  const { data: profile } = await admin
-    .from("profiles")
-    .select("role, secondary_roles")
-    .eq("id", user.id)
-    .single();
-
-  const businessRoles = [
-    "captain",
-    "host",
-    "boat_owner",
-    "operator",
-    "fleet_owner",
-    "brand",
-    "admin",
-    "super_admin",
-  ];
-  const hasRole =
-    businessRoles.includes(profile?.role) ||
-    profile?.secondary_roles?.some((r: string) => businessRoles.includes(r));
-
-  if (!hasRole) {
-    return NextResponse.json(
-      { error: "Only partners can create experiences" },
-      { status: 403 },
-    );
-  }
-
   const body = await request.json();
 
   // Validate required fields

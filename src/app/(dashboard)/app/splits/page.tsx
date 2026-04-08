@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { createBrowserSupabase } from "@/lib/supabase";
 import type { Pledge, Experience } from "@/lib/types";
 import { formatCurrency, formatDateTime } from "@/lib/types";
@@ -94,7 +95,7 @@ export default function SplitsPage() {
             }[pledge.status];
 
             return (
-              <div key={pledge.id} className="bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+              <Link key={pledge.id} href={`/app/experience/${pledge.experience_id}`} className="block bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
                 <div className="flex flex-col sm:flex-row">
                   {exp?.photo_urls?.[0] && (
                     <div className="sm:w-48 aspect-video sm:aspect-square bg-gray-100 shrink-0">
@@ -164,7 +165,7 @@ export default function SplitsPage() {
                     )}
                   </div>
                 </div>
-              </div>
+              </Link>
             );
           })}
         </div>
