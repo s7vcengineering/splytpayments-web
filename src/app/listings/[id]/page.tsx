@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { formatCurrency } from "@/lib/types";
 import AvailabilityCalendar from "./availability-calendar";
+import SiteHeader from "@/components/site-header";
 
 function getTable(
   source: string,
@@ -212,45 +213,7 @@ export default async function ListingDetailPage({
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Nav */}
-      <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <Link
-            href="/"
-            className="flex items-center gap-2 text-ocean-500 font-bold text-xl"
-          >
-            <svg className="w-7 h-7" viewBox="0 0 40 40" fill="currentColor">
-              <circle cx="20" cy="20" r="20" />
-              <text
-                x="20"
-                y="26"
-                textAnchor="middle"
-                fill="white"
-                fontSize="18"
-                fontWeight="bold"
-                fontFamily="system-ui"
-              >
-                S
-              </text>
-            </svg>
-            SPLYT
-          </Link>
-          <div className="flex items-center gap-3">
-            <Link
-              href="/login"
-              className="text-sm font-medium text-gray-700 hover:text-gray-900"
-            >
-              Sign in
-            </Link>
-            <Link
-              href="https://apps.apple.com/app/splyt/id6740092740"
-              className="px-4 py-2 bg-ocean-500 text-white text-sm font-semibold rounded-xl hover:bg-ocean-600 transition-colors"
-            >
-              Get the App
-            </Link>
-          </div>
-        </div>
-      </header>
+      <SiteHeader />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
         {/* Photo gallery */}
